@@ -1,0 +1,63 @@
+name: Etiquetado automático de incidencias
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  auto-label:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Asignar etiquetas según las opciones del formulario
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.issue.body || '';
+            const labelsToAdd = new Set();
+
+            // Etiqueta obligatoria para el tablero de triaje
+            labelsToAdd.add('triaje');
+
+            // 1. Tipo de solicitud
+            if (/Problema o fallo|Bug report/i.test(body)) {
+              labelsToAdd.add('problema');
+            } else if (/Sugerencia o mejora|Suggestion or enhancement/i.test(body)) {
+              labelsToAdd.add('mejora');
+            } else if (/Petición o duda|Question or request/i.test(body)) {
+              labelsToAdd.add('pregunta');
+            }
+
+            // 2. Área o componente
+            if (/Overlay en el juego|In-game overlay/i.test(body)) {
+              labelsToAdd.add('área: overlay');
+            }
+            if (/Ventana principal|Desktop application window/i.test(body)) {
+              labelsToAdd.add('área: ventana');
+            }
+            if (/Estadísticas web|Web stats page/i.test(body)) {
+              labelsToAdd.add('área: estadísticas');
+            }
+            if (/Lectura de partidas|Replay parsing/i.test(body)) {
+              labelsToAdd.add('área: replays');
+            }
+            if (/Caza de tesoros|Weekly prizes/i.test(body)) {
+              labelsToAdd.add('área: tesoros');
+            }
+            if (/Configuración, arranque u OBS|Settings, autostart, or OBS/i.test(body)) {
+              labelsToAdd.add('área: configuración');
+            }
+            if (/Otro|Other/i.test(body)) {
+              labelsToAdd.add('área: otro');
+            }
+
+            if (labelsToAdd.size > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.issue.number,
+                labels: Array.from(labelsToAdd)
+              });
+              console.log('Etiquetas aplicadas con éxito:', Array.from(labelsToAdd));
+            }
