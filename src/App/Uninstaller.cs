@@ -20,10 +20,11 @@ public static class Uninstaller
     }
 
     /// <summary>
-    /// Deletes the exe (and its update leftovers and .NET extraction folder, if any) once this process has ended:
-    /// a hidden cmd waits a moment and deletes them. The folder that held the exe is left as it was.
+    /// Deletes the exe (and its update leftovers and, with <paramref name="shared"/>, its .NET extraction folder, which
+    /// any other copy named alike shares) once this process has ended: a hidden cmd waits a moment and deletes them. The
+    /// folder that held the exe is left as it was.
     /// </summary>
-    public static void DeleteSelfAfterExit()
+    public static void DeleteSelfAfterExit(bool shared = true)
     {
         if (AppInfo.ExePath is not { } exe)
         {
@@ -31,7 +32,7 @@ public static class Uninstaller
         }
         var commands = new List<string> { "ping -n 4 127.0.0.1 >nul", $"del /f /q \"{exe}\"", $"del /f /q \"{exe}.*.old\" \"{exe}.old\" \"{exe}.download\"" };
         var extracted = Path.Combine(Path.GetTempPath(), ".net", Path.GetFileNameWithoutExtension(exe));
-        if (Directory.Exists(extracted))
+        if (shared && Directory.Exists(extracted))
         {
             commands.Add($"rd /s /q \"{extracted}\"");
         }

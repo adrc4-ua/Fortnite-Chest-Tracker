@@ -207,8 +207,13 @@ internal static class Program
         if (monitor.UninstallRequested && OperatingSystem.IsWindows())
         {
             instance.Release();
-            Uninstaller.RemoveTraces();
-            Uninstaller.DeleteSelfAfterExit();
+            // a test copy (--data) only deletes its own exe: Windows' startup and what is shared belong to the real one
+            var realCopy = options.DataFolder == null;
+            if (realCopy)
+            {
+                Uninstaller.RemoveTraces();
+            }
+            Uninstaller.DeleteSelfAfterExit(shared: realCopy);
             return 0;
         }
         if ((monitor.RestartAfterUpdate || monitor.RestartRequested) && AppInfo.ExePath is { } exe)
