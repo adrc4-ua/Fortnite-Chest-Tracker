@@ -12,9 +12,10 @@ internal sealed class TreasureScreenCapture
 {
     /// <summary>
     /// The screen often stays only 2 to 7 s (the player leaves at once), sometimes much longer: captures every half
-    /// second over the first 6 s, then every 1.5 s up to 12 s.
+    /// second over the first 6 s, then every 1.5 s up to 12 s. The first one waits out the cards' entry animation
+    /// (each card flashes gold as it lands, and reads wrong until it settles).
     /// </summary>
-    private static readonly int[] CaptureDelaysMs = { 400, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 1500, 1500, 1500, 1500 };
+    private static readonly int[] CaptureDelaysMs = { 800, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 1500, 1500, 1500, 1500 };
 
     private readonly ConcurrentQueue<TreasureScreen> _read = new();
     private readonly Action _wake;
@@ -48,18 +49,23 @@ internal sealed class TreasureScreenCapture
     });
 
     /// <summary>
-    /// One reading out of several: as many cards as the fullest capture saw (they appear left to right, so a capture
-    /// with fewer has the first ones), and for each card the name read most often. A card caught mid-animation reads
-    /// as unknown and is outvoted by the captures where it had settled; a card read as a gizmo only once among many
-    /// unknown readings (a featured treasure) stays unknown.
+    /// One reading out of several: as many cards as most captures saw (a phantom card in one capture, or a card a
+    /// capture caught mid-animation, does not change the count; on a tie the later captures win, where the cards had
+    /// settled), and for each card the name read most often among the captures with that count. A card read as a
+    /// gizmo only once among many unknown readings (a featured treasure) stays unknown.
     /// </summary>
     internal static List<string> Combine(IReadOnlyList<List<string>> readings)
     {
-        var count = readings.Count == 0 ? 0 : readings.Max(r => r.Count);
+        var counted = readings.Where(r => r.Count > 0).ToList();
+        var count = counted.Count == 0 ? 0 : counted.GroupBy(r => r.Count)
+            .OrderByDescending(g => g.Count())
+            .ThenByDescending(g => counted.FindLastIndex(r => r.Count == g.Key))
+            .First().Key;
+        var rows = counted.Where(r => r.Count == count).ToList();
         var cards = new List<string>(count);
         for (var slot = 0; slot < count; slot++)
         {
-            var seen = readings.Where(r => r.Count > slot).Select(r => r[slot]).ToList();
+            var seen = rows.Select(r => r[slot]).ToList();
             var unknown = seen.Count(name => name == TreasureScreenReader.Unknown);
             var named = seen.Where(name => name != TreasureScreenReader.Unknown)
                 .GroupBy(name => name)

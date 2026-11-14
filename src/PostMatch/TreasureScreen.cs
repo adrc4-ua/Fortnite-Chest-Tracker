@@ -21,13 +21,14 @@ public sealed class TreasureScreen
 public static class TreasureScreenMerge
 {
     /// <summary>
-    /// The replay ends when the player leaves the match, so the screen shows up shortly before its end (measured on
-    /// real matches: 11 to 63 s before). A wide margin after the end used to give a match whose own screen was not
-    /// read the screen of the next match (12 minutes later): the next match's screen is always further away than this.
+    /// The screen shows up while this match's replay still runs (eliminated, then spectating for however long) or
+    /// shortly after its end (measured on real matches: up to 63 s). A wide margin after the end used to give a match
+    /// whose own screen was not read the screen of the next match (12 minutes later): the next match's screen is
+    /// always further away than this.
     /// </summary>
-    private static readonly TimeSpan Before = TimeSpan.FromMinutes(3), After = TimeSpan.FromMinutes(2);
+    private static readonly TimeSpan After = TimeSpan.FromMinutes(2);
 
-    /// <summary>The screen of this match, if one was read: the closest one shown just after the match ended.</summary>
+    /// <summary>The screen of this match, if one was read: the closest one to the match's end.</summary>
     public static TreasureScreen? ScreenOf(MatchRecord m, IEnumerable<TreasureScreen> screens)
     {
         if (m.MatchStartUtc is not DateTime start)
@@ -37,9 +38,10 @@ public static class TreasureScreenMerge
         var begin = DateTime.SpecifyKind(start, DateTimeKind.Utc);
         var end = begin.AddSeconds(m.DurationSeconds ?? 0);
         // Never a screen shown before this match started: a very short replay right after a match (joined and left)
-        // took the previous match's screen, and its treasures were counted twice.
+        // took the previous match's screen, and its treasures were counted twice. Matches never overlap, so any
+        // screen within this one belongs to it.
         return screens
-            .Where(s => s.ShownUtc >= end - Before && s.ShownUtc <= end + After && s.ShownUtc > begin.AddSeconds(30))
+            .Where(s => s.ShownUtc <= end + After && s.ShownUtc > begin.AddSeconds(30))
             .OrderBy(s => Math.Abs((s.ShownUtc - end).TotalSeconds))
             .FirstOrDefault();
     }
@@ -71,15 +73,20 @@ public static class TreasureScreenMerge
 
     /// <summary>
     /// The screen shows one card per kind of treasure, in the order each kind was first won (those won after a final
-    /// elimination too); the replay sees every treasure until then, but not which gizmo each one was. So:
+    /// elimination too); the replay sees most treasures, but not which gizmo each one was, and can miss some (won
+    /// after dying, or dropped from the recording when a frame goes over budget — even an early one). So:
     /// <list type="number">
-    /// <item>The first gizmo of the match is always the first gizmo card: it is always named.</item>
-    /// <item>With as many cards as treasures, every kind appeared once: each gizmo gets its card's name, in order.</item>
-    /// <item>Cards beyond the treasures the replay saw are treasures it missed (won after dying, or out of its
-    /// reach): they are always added, so they count, with their name when it was read.</item>
+    /// <item>With a single gizmo card and two or more treasures over it, every treasure of the match is that kind
+    /// (equal treasures share one card): all of them are named. With only one treasure over it the captures may just
+    /// have missed the second card (the player left while it was still landing), so only the first is named.</item>
+    /// <item>With as many cards as treasures and none missed, every kind appeared once: each gizmo gets its card's
+    /// name, in order; when only the count matches partly, the first gizmo card still names the first gizmo.</item>
+    /// <item>Cards beyond the treasures the replay saw are treasures it missed: they are always added, so they
+    /// count, with their name when it was read.</item>
     /// </list>
-    /// Fewer cards than treasures (equal ones grouped) leaves the other gizmos unnamed: which kind each one was cannot
-    /// be told. Nothing the replay saw is ever removed.
+    /// With cards missed and several kinds, no card can be tied to a replay find (the missed one may be the earlier
+    /// one), so those stay unnamed. Two gizmo cards with the same name cannot happen (the game groups them): such a
+    /// reading is a misread, and names nothing. Nothing the replay saw is ever removed.
     /// </summary>
     private static void ApplyScreen(MatchRecord m, TreasureScreen screen)
     {
@@ -93,12 +100,31 @@ public static class TreasureScreenMerge
         {
             return;
         }
+        var contradictory = cards.Where(c => c != unknown).GroupBy(c => c).Any(g => g.Count() > 1);
 
-        // 1 · Names of the gizmos the replay saw. With one card per treasure (as many cards as treasures, the unknown
-        // ones being exactly its featured treasures), each gizmo gets its card in order.
+        // 1 · Names of the gizmos the replay saw.
         var head = cards.Take(seen).ToList();
         var headGizmos = head.Where(c => c != unknown).ToList();
-        if (head.Count == seen && head.Count(c => c == unknown) == replayFeatured && headGizmos.Count == replayGizmos.Count)
+        if (contradictory)
+        {
+            // a misread: no name can be trusted (the missed ones below still count)
+        }
+        // A single gizmo card with two or more treasures over it: every treasure of the match is that kind.
+        else if (cards.Count == 1 && cards[0] != unknown && replayFeatured == 0 && replayGizmos.Count - cards.Count >= 2)
+        {
+            foreach (var gizmo in replayGizmos)
+            {
+                gizmo.ScreenName = cards[0];
+            }
+        }
+        // The replay missed some and there are several kinds: the missed one may be the earlier one, so no card can
+        // be tied to a replay find.
+        else if (missed > 0)
+        {
+        }
+        // One card per treasure (as many cards as treasures, the unknown ones being exactly its featured treasures):
+        // each gizmo gets its card in order.
+        else if (head.Count == seen && head.Count(c => c == unknown) == replayFeatured && headGizmos.Count == replayGizmos.Count)
         {
             for (var i = 0; i < replayGizmos.Count; i++)
             {
@@ -116,7 +142,7 @@ public static class TreasureScreenMerge
         var localStart = m.MatchStartUtc is DateTime st ? DateTime.SpecifyKind(st, DateTimeKind.Utc).ToLocalTime() : DateTime.Now;
         for (var i = seen; i < cards.Count; i++)
         {
-            var name = cards[i] != unknown ? cards[i] : null;
+            var name = !contradictory && cards[i] != unknown ? cards[i] : null;
             m.TreasureFinds.Add(new TreasureFind
             {
                 Item = name ?? TreasureNames.UnknownGizmo,
