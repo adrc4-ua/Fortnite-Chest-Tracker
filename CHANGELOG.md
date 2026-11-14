@@ -2,6 +2,10 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
+## [Sin publicar]
+
+- **Solo cuentan las partidas en las que saltas del autobús**: las que dejas antes de saltar suman a las partidas jugadas y a nada más (cofres, media, récords, tesoros, compañeros, gráficos, overlay, estimación). Las repeticiones que sigan en tu PC se vuelven a leer solas para saberlo; las partidas más antiguas cuentan como antes.
+
 ## [5.7.0] - 2026-11-14
 
 - **Recalcular (Cofres antes de FCT)** abre la ventana «Estimación» directamente en el cálculo, sin el botón de empezar de cero. Si tienes repeticiones guardadas que FCT no está contando, antes pregunta si contarlas, como en la primera apertura.
