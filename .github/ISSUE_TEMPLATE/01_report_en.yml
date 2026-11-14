@@ -1,6 +1,5 @@
 name: "Problem, suggestion, or request"
 description: "Report a bug, propose an enhancement, or ask a question about FCT"
-labels: ["triaje"]
 body:
   - type: dropdown
     id: request_type
@@ -8,9 +7,9 @@ body:
       label: Request type
       description: Select the main reason for this report.
       options:
-        - "Bug report"
-        - "Suggestion or enhancement"
-        - "Question or request"
+        - "🐛 Bug report"
+        - "💡 Suggestion or enhancement"
+        - "❓ Question or request"
     validations:
       required: true
 

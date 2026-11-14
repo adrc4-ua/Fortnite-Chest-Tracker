@@ -1,6 +1,5 @@
 name: "Problema, sugerencia o petición"
 description: "Informa de un problema, propón una mejora o solicita una función para FCT"
-labels: ["triaje"]
 body:
   - type: dropdown
     id: tipo
@@ -8,9 +7,9 @@ body:
       label: Tipo de solicitud
       description: Selecciona el motivo de este reporte.
       options:
-        - "Problema o fallo (Bug)"
-        - "Sugerencia o mejora (Enhancement)"
-        - "Petición o duda (Question)"
+        - "🐛 Problema o fallo"
+        - "💡 Sugerencia o mejora"
+        - "❓ Petición o duda"
     validations:
       required: true
 
