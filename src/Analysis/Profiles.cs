@@ -123,7 +123,8 @@ public static class Profiles
             CreatedUtc = data.CreatedUtc,
             ProcessedFiles = data.ProcessedFiles,
             Matches = data.Matches.Where(m => (shown == null || Key(m) == shown) && Counted(m, config)).Select(m => Adjust(m, config)!).ToList(),
-            UnjumpedMatches = data.Matches.Count(m => (shown == null || Key(m) == shown) && Played(m, config) && m.JumpedFromBus == false),
+            UnjumpedStarts = data.Matches.Where(m => (shown == null || Key(m) == shown) && Played(m, config) && m.JumpedFromBus == false)
+                .Select(m => m.MatchStartUtc ?? m.AnalyzedAtUtc).ToList(),
         };
     }
 

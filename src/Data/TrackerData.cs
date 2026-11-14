@@ -17,10 +17,14 @@ public sealed class TrackerData
 
     /// <summary>
     /// In a view (<see cref="FCT.Analysis.Profiles.View"/>): matches of the profile left without jumping from the bus.
-    /// They are out of <see cref="Matches"/> and only add to the matches played.
+    /// They are out of <see cref="Matches"/> and only add to the matches played: here, when each one started (UTC).
     /// </summary>
     [System.Text.Json.Serialization.JsonIgnore]
-    public int UnjumpedMatches { get; set; }
+    public List<DateTime> UnjumpedStarts { get; set; } = new();
+
+    /// <summary>How many matches of the view were left without jumping from the bus.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public int UnjumpedMatches => UnjumpedStarts.Count;
 
     /// <summary>End-of-match treasure screens read so far; kept so they can be matched again after a re-analysis.</summary>
     public List<TreasureScreen> TreasureScreens { get; set; } = new();

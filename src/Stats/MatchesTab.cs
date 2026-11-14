@@ -12,12 +12,27 @@ internal static class MatchesTab
     {
         var matches = page.Matches;
         var rows = matches.Take(Shown).ToList();
-        var played = matches.Count + page.Unjumped; // the ones left in the bus count as played, though not listed
+        var played = page.Played; // the ones left in the bus count as played, though not listed
         var subtitle = matches.Count > rows.Count
             ? L.F("las {0} más recientes de {1}", "latest {0} of {1}", rows.Count, Num(played))
             : L.Count(played, "partida", "partidas", "match", "matches");
-        return Head("partidas", L.T("Partidas", "Matches"), subtitle)
+        return Head("partidas", L.T("Partidas", "Matches"), subtitle) + Figures(page)
                + $"<section class=\"fit\">{Full(rows, page.Teammates != null, page.ExtraKinds)}</section>";
+    }
+
+    /// <summary>How much is played: in total, today, this week (from Monday) and per day played.</summary>
+    private static string Figures(PageData page)
+    {
+        var today = DateTime.Now.Date;
+        var monday = today.AddDays(-(((int)today.DayOfWeek + 6) % 7));
+        static string Mini(string value, string text, string valueClass = "") =>
+            $"<div class=\"mini\"><b{(valueClass.Length > 0 ? $" class=\"{valueClass}\"" : "")}>{value}</b><span>{text}</span></div>";
+        return "<div class=\"mini-figs\">"
+               + Mini(Num(page.Played), L.T("partidas en total", "matches in total"), "is-gold")
+               + Mini(Num(page.PlayedDays.GetValueOrDefault(today)), L.T("partidas hoy", "matches today"))
+               + Mini(Num(page.PlayedDays.Where(day => day.Key >= monday).Sum(day => day.Value)), L.T("partidas esta semana", "matches this week"))
+               + Mini(page.PerDay.ToString("0.0", L.Culture), L.T("partidas por día jugado", "matches per day played"))
+               + "</div>";
     }
 
     private static string NoMatches(int columns) =>

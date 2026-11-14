@@ -166,6 +166,8 @@ internal sealed class PageData
         InitialChests = initialChests;
         Unjumped = data.UnjumpedMatches;
         Matches = data.Matches.OrderByDescending(LocalStart).ToList();
+        PlayedDays = Matches.Select(LocalStart).Concat(data.UnjumpedStarts.Select(start => start.ToLocalTime()))
+            .GroupBy(start => start.Date).ToDictionary(day => day.Key, day => day.Count());
         Treasures = Matches.SelectMany(m => m.TreasureFinds.Select(f => (m, f))).ToList();
         ExtraKinds = config.ExtraKinds();
         Player = Matches.Select(m => m.PlayerName).FirstOrDefault(n => !string.IsNullOrEmpty(n)) ?? "";
@@ -174,6 +176,15 @@ internal sealed class PageData
 
     /// <summary>Matches left without jumping from the bus: only in the matches played.</summary>
     public int Unjumped { get; }
+
+    /// <summary>Matches played on each local day (those left in the bus included).</summary>
+    public Dictionary<DateTime, int> PlayedDays { get; }
+
+    /// <summary>Every match played: the analyzed ones and those left in the bus.</summary>
+    public int Played => Matches.Count + Unjumped;
+
+    /// <summary>Matches played per day with at least one match.</summary>
+    public double PerDay => PlayedDays.Count > 0 ? (double)Played / PlayedDays.Count : 0;
 
     public Config Config { get; }
     public int InitialChests { get; }
