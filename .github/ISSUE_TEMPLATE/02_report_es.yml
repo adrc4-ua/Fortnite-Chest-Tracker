@@ -2,12 +2,6 @@ name: "Problema, sugerencia o petición"
 description: "Informa de un problema, propón una mejora o solicita una función para FCT"
 labels: ["triaje"]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        ### Gracias por ayudar a mejorar Fortnite Chest Tracker (FCT)
-        Por favor, completa este formulario para que podamos gestionar y clasificar tu solicitud en el tablero de triaje.
-
   - type: dropdown
     id: tipo
     attributes:

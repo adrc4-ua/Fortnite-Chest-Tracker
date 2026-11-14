@@ -2,12 +2,6 @@ name: "Problem, suggestion, or request"
 description: "Report a bug, propose an enhancement, or ask a question about FCT"
 labels: ["triaje"]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        ### Thank you for helping improve Fortnite Chest Tracker (FCT)!
-        Please fill out this form so we can organize and address your request on the triage board.
-
   - type: dropdown
     id: request_type
     attributes:
