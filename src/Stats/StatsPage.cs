@@ -28,7 +28,8 @@ public static class StatsPage
             var pageSettings = config.ForStatsPage();
             using (L.Scope(config.Language))
             {
-                SaveText(store.StatsPath, Build(pageSettings, Profiles.View(data, pageSettings), Profiles.InitialChests(data, pageSettings)));
+                var view = Profiles.View(data, pageSettings);
+                SaveText(store.StatsPath, Build(pageSettings, view, Profiles.InitialChests(data, pageSettings), Profiles.AllMatches(data, pageSettings, view)));
                 ObsServer.StatsLang = L.Code;
                 ObsServer.StatsSettings = SettingsMark(pageSettings);
             }
@@ -66,9 +67,10 @@ public static class StatsPage
     }
 
     /// <summary>The page for these (already filtered and adjusted) matches.</summary>
-    public static string Build(Config config, TrackerData data, int initialChests = 0)
+    /// <param name="allMatches">Every match of the account, those before FCT included (the analyzed ones if lower).</param>
+    public static string Build(Config config, TrackerData data, int initialChests = 0, int allMatches = 0)
     {
-        var page = new PageData(config, data, initialChests);
+        var page = new PageData(config, data, initialChests, allMatches);
         var refresh = Progress != null ? 2 : 15;
         var logo = AppLogo.DataUri;
         var html = new StringBuilder(300_000);
@@ -160,11 +162,12 @@ public static class StatsPage
 /// <summary>What several tabs share, computed once per page.</summary>
 internal sealed class PageData
 {
-    public PageData(Config config, TrackerData data, int initialChests)
+    public PageData(Config config, TrackerData data, int initialChests, int allMatches = 0)
     {
         Config = config;
         InitialChests = initialChests;
         Unjumped = data.UnjumpedMatches;
+        AllMatches = Math.Max(allMatches, data.Matches.Count + data.UnjumpedMatches);
         Matches = data.Matches.OrderByDescending(LocalStart).ToList();
         PlayedDays = Matches.Select(LocalStart).Concat(data.UnjumpedStarts.Select(start => start.ToLocalTime()))
             .GroupBy(start => start.Date).ToDictionary(day => day.Key, day => day.Count());
@@ -180,7 +183,10 @@ internal sealed class PageData
     /// <summary>Matches played on each local day (those left in the bus included).</summary>
     public Dictionary<DateTime, int> PlayedDays { get; }
 
-    /// <summary>Every match played: the analyzed ones and those left in the bus.</summary>
+    /// <summary>Every match of the account: those before FCT (from its stats), then one more for each match played.</summary>
+    public int AllMatches { get; }
+
+    /// <summary>Every match played since FCT: the analyzed ones and those left in the bus.</summary>
     public int Played => Matches.Count + Unjumped;
 
     /// <summary>Matches played per day with at least one match.</summary>

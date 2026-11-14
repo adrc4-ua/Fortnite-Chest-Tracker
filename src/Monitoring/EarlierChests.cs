@@ -31,14 +31,7 @@ internal sealed class EarlierChests
     /// replay of. Counted as soon as the estimate is chosen (first start or Recalculate), without waiting for the
     /// average; 0 without an estimate ("start from zero", or only a typed number of chests).
     /// </summary>
-    public int Matches(IReadOnlyList<MatchRecord> matches)
-    {
-        // asked before the first match: still filed under "" until its average can be worked out
-        var estimate = _settings.Read(c => c.Estimates.GetValueOrDefault(ShownKey ?? "") ?? c.Estimates.GetValueOrDefault(""));
-        return estimate is { TotalMatches: > 0 }
-            ? HistoryEstimator.Compute(matches, estimate.TotalMatches, estimate.SnapshotUtc, estimate.SampleSize, estimate.ManualAverage).Missing
-            : 0;
-    }
+    public int Matches(IReadOnlyList<MatchRecord> matches) => _settings.Read(c => Profiles.EarlierMatches(c, ShownKey, matches));
 
     /// <summary>What the estimate would give with this season total, with the matches counted right now.</summary>
     public HistoryEstimator.Result Preview(int totalMatches, int sample, double? manualAverage) =>

@@ -28,7 +28,7 @@ internal static class MatchesTab
         static string Mini(string value, string text, string valueClass = "") =>
             $"<div class=\"mini\"><b{(valueClass.Length > 0 ? $" class=\"{valueClass}\"" : "")}>{value}</b><span>{text}</span></div>";
         return "<div class=\"mini-figs\">"
-               + Mini(Num(page.Played), L.T("partidas en total", "matches in total"), "is-gold")
+               + Mini(Num(page.AllMatches), L.T("partidas en total", "matches in total"), "is-gold")
                + Mini(Num(page.PlayedDays.GetValueOrDefault(today)), L.T("partidas hoy", "matches today"))
                + Mini(Num(page.PlayedDays.Where(day => day.Key >= monday).Sum(day => day.Value)), L.T("partidas esta semana", "matches this week"))
                + Mini(page.PerDay.ToString("0.0", L.Culture), L.T("partidas por día jugado", "matches per day played"))

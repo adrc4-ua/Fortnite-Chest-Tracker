@@ -136,6 +136,23 @@ public static class Profiles
 
     public static int InitialChests(TrackerData data, Config config) => InitialChests(config, Current(data, config)?.Key);
 
+    /// <summary>
+    /// Matches before FCT of an account: those of its season total (from the stats or typed when the estimate was
+    /// chosen) that FCT has no replay of; 0 without an estimate. <paramref name="matches"/>: its counted matches.
+    /// </summary>
+    public static int EarlierMatches(Config config, string? key, IReadOnlyList<MatchRecord> matches)
+    {
+        // asked before the first match: still filed under "" until its average can be worked out
+        var estimate = config.Estimates.GetValueOrDefault(key ?? "") ?? config.Estimates.GetValueOrDefault("");
+        return estimate is { TotalMatches: > 0 }
+            ? HistoryEstimator.Compute(matches, estimate.TotalMatches, estimate.SnapshotUtc, estimate.SampleSize, estimate.ManualAverage).Missing
+            : 0;
+    }
+
+    /// <summary>Every match of the account on screen: those before FCT, the counted ones and those left in the bus.</summary>
+    public static int AllMatches(TrackerData data, Config config, TrackerData view) =>
+        EarlierMatches(config, Current(data, config)?.Key, view.Matches) + view.Matches.Count + view.UnjumpedMatches;
+
     /// <summary>"Name  (12 partidas, 240 cofres)" for the profile selector.</summary>
     public static string Describe(Profile profile) =>
         $"{profile.Name}  ({L.Count(profile.Matches, "partida", "partidas", "match", "matches")}, {L.Count(profile.Chests, "cofre", "cofres", "chest", "chests")})";
