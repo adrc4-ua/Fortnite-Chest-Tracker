@@ -6,26 +6,26 @@ body:
     id: tipo
     attributes:
       label: Tipo de solicitud
-      description: Selecciona el motivo principal de tu reporte.
+      description: Selecciona el motivo de este reporte.
       options:
-        - "🐛 Problema o fallo (Bug report)"
-        - "💡 Sugerencia o mejora (Enhancement)"
-        - "❓ Petición o duda (Question / Request)"
+        - "Problema o fallo (Bug)"
+        - "Sugerencia o mejora (Enhancement)"
+        - "Petición o duda (Question)"
     validations:
       required: true
 
   - type: dropdown
     id: area
     attributes:
-      label: Área o componente relacionado
+      label: Área o componente
       description: ¿Con qué parte de FCT se relaciona?
       options:
         - "Overlay en el juego"
-        - "Ventana principal de la aplicación"
+        - "Ventana principal"
         - "Estadísticas web (página local)"
-        - "Lectura de partidas, replays y conteo de cofres"
+        - "Lectura de partidas y cofres"
         - "Caza de tesoros y premios semanales"
-        - "Configuración, arranque automático u OBS"
+        - "Configuración, arranque u OBS"
         - "Otro"
     validations:
       required: true
@@ -34,13 +34,8 @@ body:
     id: descripcion
     attributes:
       label: Descripción detallada
-      description: |
-        Explica lo ocurrido con el mayor detalle posible (si es un fallo, cómo reproducirlo y qué esperabas que pasara) o describe la mejora que propones.
-        
-        > **Aviso de versión:** Se asume que estás utilizando la **última versión disponible de FCT** y la versión actual de **Fortnite**. Si estás en una versión anterior de la aplicación o del juego, indícala explícitamente en este campo.
-      placeholder: |
-        Describe aquí lo que ha ocurrido o la mejora que propones...
-        (Si estás usando una versión anterior de FCT o de Fortnite, especifícala aquí)
+      description: Explica lo ocurrido o la mejora que propones. *(Se asume la última versión de FCT y de Fortnite; si usas una anterior, indícala aquí)*.
+      placeholder: Describe aquí los detalles de lo sucedido o tu propuesta...
     validations:
       required: true
 
@@ -48,17 +43,7 @@ body:
     id: logs
     attributes:
       label: Registro de errores (errors.log)
-      description: |
-        Si has experimentado un fallo inesperado, un cierre o una repetición que no se ha podido leer, adjunta el registro de errores.
-        
-        📁 **¿Dónde se encuentra?**
-        1. En tu teclado pulsa `Win + R`.
-        2. Escribe `%APPDATA%\FCT` y pulsa Enter.
-        3. Allí encontrarás el archivo **`errors.log`**.
-        
-        Puedes copiar y pegar su contenido aquí debajo o arrastrar y soltar el archivo directamente en este formulario.
-        *(Nota de privacidad: FCT enmascara automáticamente tu usuario de Windows en los logs para proteger tus datos).*
-      placeholder: |
-        Pega aquí el contenido de %APPDATA%\FCT\errors.log si aplica...
+      description: Si hubo un error o cierre, adjunta o pega el contenido de `%APPDATA%\FCT\errors.log` (pulsa `Win + R` y escribe `%APPDATA%\FCT`). Tu usuario de Windows se oculta automáticamente.
+      placeholder: Pega aquí el contenido de errors.log (o arrastra y suelta el archivo)...
     validations:
       required: false

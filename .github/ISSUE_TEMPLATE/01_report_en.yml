@@ -8,9 +8,9 @@ body:
       label: Request type
       description: Select the main reason for this report.
       options:
-        - "🐛 Bug report"
-        - "💡 Suggestion / Enhancement"
-        - "❓ Question / Request"
+        - "Bug report"
+        - "Suggestion or enhancement"
+        - "Question or request"
     validations:
       required: true
 
@@ -24,8 +24,8 @@ body:
         - "Desktop application window"
         - "Web stats page (local)"
         - "Replay parsing & chest counting"
-        - "Weekly event prizes & treasure hunt"
-        - "Settings, autostart, or OBS integration"
+        - "Weekly prizes & treasure hunt"
+        - "Settings, autostart, or OBS"
         - "Other"
     validations:
       required: true
@@ -34,13 +34,8 @@ body:
     id: description
     attributes:
       label: Detailed description
-      description: |
-        Explain what happened in detail (if it's a bug: what happened, steps to reproduce, and expected behavior) or describe the enhancement you are proposing.
-        
-        > **Version notice:** It is assumed you are running the **latest version of FCT** and the latest version of **Fortnite**. If you are using an earlier version of either, please specify it in this field.
-      placeholder: |
-        Describe what happened or your suggestion here...
-        (If you are using an older version of FCT or Fortnite, specify it here)
+      description: Explain what happened or the enhancement you propose. *(Assumed latest version of FCT and Fortnite; if running an older version, please specify it here)*.
+      placeholder: Describe what happened or your suggestion here...
     validations:
       required: true
 
@@ -48,17 +43,7 @@ body:
     id: logs
     attributes:
       label: Error log (errors.log)
-      description: |
-        If you experienced an unexpected crash, freeze, or unreadable replay, please attach the error log.
-        
-        📁 **Where to find it?**
-        1. Press `Win + R`.
-        2. Type `%APPDATA%\FCT` and press Enter.
-        3. You will find the **`errors.log`** file.
-        
-        You can drag and drop `errors.log` into this form, or paste its contents here.
-        *(Privacy notice: FCT automatically masks your Windows username in logs to protect your privacy).*
-      placeholder: |
-        Paste contents of %APPDATA%\FCT\errors.log here if applicable...
+      description: If you experienced an error or crash, attach or paste `%APPDATA%\FCT\errors.log` (press `Win + R` and enter `%APPDATA%\FCT`). Your Windows username is automatically masked.
+      placeholder: Paste contents of errors.log here (or drag and drop the file)...
     validations:
       required: false
