@@ -49,7 +49,7 @@ internal static class SettingsTab
                + "<div class=\"about-links\">"
                + Link(AppInfo.RepoUrl, "GitHub")
                + Link(AppInfo.RepoUrl + "/releases", L.T("Novedades", "What's new"))
-               + Link(AppInfo.IssuesUrl, L.T("Problema o sugerencia", "Problem or suggestion"))
+               + Link(L.T($"{AppInfo.RepoUrl}/issues/new?template=02_report_es.yml", $"{AppInfo.RepoUrl}/issues/new?template=01_report_en.yml"), L.T("Problema o sugerencia", "Problem or suggestion"))
                + Link(AppInfo.RepoUrl + "/blob/main/NOTICE.md", $"GPL-3.0 · {L.T("sin garantía", "no warranty")}")
                + "</div></div>";
     }

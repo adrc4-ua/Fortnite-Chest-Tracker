@@ -143,7 +143,7 @@ Sí, entre partida y partida y sin perder tus datos. Lo cambias en *Configuraci�
 <details>
 <summary><b>Algo no funciona o tienes una sugerencia</b></summary>
 
-Envía un [problema o sugerencia](../../issues/new?template=report.yml) contando qué pasa y, si puedes, adjunta el archivo `errors.log` de `%APPDATA%\FCT`.
+Envía un [problema o sugerencia](../../issues/new?template=02_report_es.yml) contando qué pasa y, si puedes, adjunta el archivo `errors.log` de `%APPDATA%\FCT`.
 </details>
 
 ## Licencia y créditos

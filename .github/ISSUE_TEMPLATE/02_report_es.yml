@@ -1,6 +1,5 @@
 name: "Problema, sugerencia o petición"
 description: "Informa de un problema, propón una mejora o solicita una función para FCT"
-title: "[Reporte]: "
 labels: ["triaje"]
 body:
   - type: markdown
@@ -27,7 +26,7 @@ body:
       label: Área o componente relacionado
       description: ¿Con qué parte de FCT se relaciona?
       options:
-        - "Overlay en el juego (Game overlay)"
+        - "Overlay en el juego"
         - "Ventana principal de la aplicación"
         - "Estadísticas web (página local)"
         - "Lectura de partidas, replays y conteo de cofres"
@@ -69,13 +68,3 @@ body:
         Pega aquí el contenido de %APPDATA%\FCT\errors.log si aplica...
     validations:
       required: false
-
-  - type: checkboxes
-    id: verificaciones
-    attributes:
-      label: Verificaciones
-      options:
-        - label: He comprobado que no existe ya una incidencia abierta sobre lo mismo.
-          required: false
-        - label: Entiendo que FCT funciona en Windows 10/11 leyendo repeticiones locales de Fortnite.
-          required: false

@@ -143,7 +143,7 @@ Yes, between matches and without losing your data. Change it in *Settings → Up
 <details>
 <summary><b>Something does not work or you have a suggestion</b></summary>
 
-Submit a [problem or suggestion](../../issues/new?template=report.yml) saying what happens and, if you can, attach the `errors.log` file from `%APPDATA%\FCT`.
+Submit a [problem or suggestion](../../issues/new?template=01_report_en.yml) saying what happens and, if you can, attach the `errors.log` file from `%APPDATA%\FCT`.
 </details>
 
 ## License and credits

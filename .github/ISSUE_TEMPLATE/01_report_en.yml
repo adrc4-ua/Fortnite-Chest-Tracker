@@ -1,0 +1,70 @@
+name: "Problem, suggestion, or request"
+description: "Report a bug, propose an enhancement, or ask a question about FCT"
+labels: ["triaje"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Thank you for helping improve Fortnite Chest Tracker (FCT)!
+        Please fill out this form so we can organize and address your request on the triage board.
+
+  - type: dropdown
+    id: request_type
+    attributes:
+      label: Request type
+      description: Select the main reason for this report.
+      options:
+        - "🐛 Bug report"
+        - "💡 Suggestion / Enhancement"
+        - "❓ Question / Request"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: affected_area
+    attributes:
+      label: Affected area or component
+      description: What part of FCT is this related to?
+      options:
+        - "In-game overlay"
+        - "Desktop application window"
+        - "Web stats page (local)"
+        - "Replay parsing & chest counting"
+        - "Weekly event prizes & treasure hunt"
+        - "Settings, autostart, or OBS integration"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Detailed description
+      description: |
+        Explain what happened in detail (if it's a bug: what happened, steps to reproduce, and expected behavior) or describe the enhancement you are proposing.
+        
+        > **Version notice:** It is assumed you are running the **latest version of FCT** and the latest version of **Fortnite**. If you are using an earlier version of either, please specify it in this field.
+      placeholder: |
+        Describe what happened or your suggestion here...
+        (If you are using an older version of FCT or Fortnite, specify it here)
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error log (errors.log)
+      description: |
+        If you experienced an unexpected crash, freeze, or unreadable replay, please attach the error log.
+        
+        📁 **Where to find it?**
+        1. Press `Win + R`.
+        2. Type `%APPDATA%\FCT` and press Enter.
+        3. You will find the **`errors.log`** file.
+        
+        You can drag and drop `errors.log` into this form, or paste its contents here.
+        *(Privacy notice: FCT automatically masks your Windows username in logs to protect your privacy).*
+      placeholder: |
+        Paste contents of %APPDATA%\FCT\errors.log here if applicable...
+    validations:
+      required: false

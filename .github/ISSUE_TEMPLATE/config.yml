@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: "Questions or help regarding FCT?"
+    url: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/blob/main/README.md
+    about: Check the official documentation and FAQ before submitting a report.
   - name: "¿Dudas o consultas sobre FCT?"
     url: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/blob/main/README.es.md
     about: Consulta la documentación oficial y guía de uso antes de abrir un reporte.
