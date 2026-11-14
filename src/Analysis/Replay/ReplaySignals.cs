@@ -30,6 +30,9 @@ internal sealed class ReplaySignals
     /// <summary>Pawn actor → its player state actor.</summary>
     public Dictionary<uint, uint> PawnState { get; } = new();
 
+    /// <summary>Pawns seen skydiving from the battle bus: their players left the bus (first time, replay seconds).</summary>
+    public Dictionary<uint, float> BusJumps { get; } = new();
+
     /// <summary>Player state actor → player id (the one in the replay's player list).</summary>
     public Dictionary<uint, int> StatePlayer { get; } = new();
 

@@ -22,6 +22,12 @@ public sealed class MatchRecord
     public string? Playlist { get; set; }
     public string? GameVersion { get; set; }
     public bool IsBattleRoyale { get; set; } = true;
+
+    /// <summary>
+    /// The player left the battle bus. A match without the jump only counts as a match played, in no other figure. Null
+    /// for matches read before this was known (they count as before).
+    /// </summary>
+    public bool? JumpedFromBus { get; set; }
     public int? Placement { get; set; }
     public int? TotalPlayers { get; set; }
     public int? Eliminations { get; set; }

@@ -10,7 +10,7 @@ internal static class OverviewTab
     {
         var matches = page.Matches;
         var counted = matches.Sum(m => m.ChestsOpened);
-        var analyzed = L.Count(matches.Count, "partida analizada", "partidas analizadas", "match analyzed", "matches analyzed");
+        var analyzed = L.Count(matches.Count + page.Unjumped, "partida analizada", "partidas analizadas", "match analyzed", "matches analyzed");
         var html = new StringBuilder(Head("resumen", L.T("Resumen", "Overview"), page.Player.Length > 0 ? $"{Esc(page.Player)} · {analyzed}" : analyzed));
         html.Append(Figures(page, counted, logo));
         html.Append(Curve(matches));
@@ -57,7 +57,8 @@ internal static class OverviewTab
         var winShare = matches.Count > 0 ? 100.0 * wins / matches.Count : 0;
         return "<div class=\"figures\">" + hero
                + Figure("wins", L.T("Victorias", "Wins"), Num(wins), wins > 0 ? L.F("{0} % de tus partidas", "{0} % of your matches", winShare.ToString("0", L.Culture)) : "—")
-               + Figure("matches", L.T("Partidas", "Matches"), Num(matches.Count), L.T("analizadas", "analyzed"))
+               + Figure("matches", L.T("Partidas", "Matches"), Num(matches.Count + page.Unjumped),
+                   page.Unjumped > 0 ? L.F("{0} sin saltar del autobús", "{0} without jumping", page.Unjumped) : L.T("analizadas", "analyzed"))
                + Figure("avg", L.T("Media", "Average"), (matches.Count > 0 ? (double)counted / matches.Count : 0).ToString("0.0", L.Culture), L.T("cofres por partida", "chests per match"))
                + Figure("best", L.T("Récord", "Best match"), Num(best), L.T("cofres en una partida", "chests in one match"))
                + Figure("day", L.T("Mejor día", "Best day"), bestDay.Chests > 0 ? ShortDay(bestDay.Day) : "—", bestDay.Chests > 0 ? L.Count(bestDay.Chests, "cofre", "cofres", "chest", "chests") : "—")

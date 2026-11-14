@@ -15,6 +15,12 @@ internal static class MatchesTab
         var subtitle = matches.Count > rows.Count
             ? L.F("las {0} más recientes de {1}", "latest {0} of {1}", rows.Count, Num(matches.Count))
             : L.Count(matches.Count, "partida", "partidas", "match", "matches");
+        if (page.Unjumped > 0)
+        {
+            // played but left in the bus: counted as matches played only, not listed
+            subtitle += " · " + L.F("y {0} sin saltar del autobús, que no cuentan", "and {0} without jumping from the bus, not counted",
+                L.Count(page.Unjumped, "partida", "partidas", "match", "matches"));
+        }
         return Head("partidas", L.T("Partidas", "Matches"), subtitle)
                + $"<section class=\"fit\">{Full(rows, page.Teammates != null, page.ExtraKinds)}</section>";
     }

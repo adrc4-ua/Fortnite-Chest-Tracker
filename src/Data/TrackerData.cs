@@ -15,6 +15,13 @@ public sealed class TrackerData
     /// </summary>
     public Dictionary<string, string> ProcessedFiles { get; set; } = new();
 
+    /// <summary>
+    /// In a view (<see cref="FCT.Analysis.Profiles.View"/>): matches of the profile left without jumping from the bus.
+    /// They are out of <see cref="Matches"/> and only add to the matches played.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public int UnjumpedMatches { get; set; }
+
     /// <summary>End-of-match treasure screens read so far; kept so they can be matched again after a re-analysis.</summary>
     public List<TreasureScreen> TreasureScreens { get; set; } = new();
 }

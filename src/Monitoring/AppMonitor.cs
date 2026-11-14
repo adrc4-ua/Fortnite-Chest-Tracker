@@ -705,7 +705,7 @@ public sealed class AppMonitor
             : _progress is { } progress ? L.F("Leyendo tus replays… {0} / {1}. Las cifras suben a medida que se leen.", "Reading your replays… {0} / {1}. The numbers grow as they are read.", progress.Done, progress.Total)
             : _notice ?? _displayWarning;
         Changed?.Invoke(new MonitorState(overlay, Profiles.List(_data, config), shown?.Key, _updates.Available, notice, false,
-            SinceSeasonWithEarlier(ScreenFigures.Stats(view.Matches, shownLive) with { EarlierMatches = _earlier.Matches(view.Matches) }))
+            SinceSeasonWithEarlier(PlayedToo(ScreenFigures.Stats(view.Matches, shownLive), view) with { EarlierMatches = _earlier.Matches(view.Matches) }))
         {
             Team = config.ShowTeammates ? ScreenFigures.Team(view.Matches, shownLive, config.ExtraKinds()) : null,
         });
@@ -715,6 +715,9 @@ public sealed class AppMonitor
     /// With chests from before FCT in the total (the estimate covers the season's matches, from the stats), the total runs
     /// from the start of the season, not from the first saved match: no service says when the player's first match was.
     /// </summary>
+    /// <summary>Matches left without jumping from the bus count as matches played, in nothing else.</summary>
+    private static ChestStats PlayedToo(ChestStats stats, TrackerData view) => stats with { HistoryMatches = stats.HistoryMatches + view.UnjumpedMatches };
+
     private ChestStats SinceSeasonWithEarlier(ChestStats stats) =>
         _earlier.Chests > 0 && !(stats.HistorySince < Prizes.SeasonStart) ? stats with { HistorySince = Prizes.SeasonStart } : stats;
 

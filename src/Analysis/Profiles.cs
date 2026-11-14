@@ -62,9 +62,12 @@ public static class Profiles
     public static bool IsEventMatch(MatchRecord? match, Config? config = null) =>
         IsSupportedVersion(match) && EventModes.Counts(match!.Playlist, config?.CountRanked ?? false);
 
-    /// <summary>Counts for the figures: a match of the hunt, not before the "count from" date of the settings.</summary>
-    public static bool Counted(MatchRecord match, Config config) =>
+    /// <summary>A match played: of the hunt, not before the "count from" date of the settings (with or without the jump).</summary>
+    public static bool Played(MatchRecord match, Config config) =>
         IsEventMatch(match, config) && (config.CountFrom == null || Day(match) >= config.CountFrom.Value.Date);
+
+    /// <summary>Counts for the figures: a match played in which the player left the battle bus.</summary>
+    public static bool Counted(MatchRecord match, Config config) => Played(match, config) && match.JumpedFromBus != false;
 
     /// <summary>The match as the settings count it (extra kinds, teammates' chests); see <see cref="MatchRecord.WithExtras"/>.</summary>
     public static MatchRecord? Adjust(MatchRecord? match, Config config) =>
@@ -120,6 +123,7 @@ public static class Profiles
             CreatedUtc = data.CreatedUtc,
             ProcessedFiles = data.ProcessedFiles,
             Matches = data.Matches.Where(m => (shown == null || Key(m) == shown) && Counted(m, config)).Select(m => Adjust(m, config)!).ToList(),
+            UnjumpedMatches = data.Matches.Count(m => (shown == null || Key(m) == shown) && Played(m, config) && m.JumpedFromBus == false),
         };
     }
 

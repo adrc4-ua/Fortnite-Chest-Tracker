@@ -9,10 +9,10 @@ public sealed class ReplayAnalyzer
 {
     /// <summary>
     /// Raise it whenever the analysis changes, so saved matches whose replay still exists are read again.
-    /// 16: final elimination recorded. 15: every treasure grant read, squad treasures with their finder.
+    /// 17: whether the player left the battle bus. 16: final elimination recorded. 15: every treasure grant read, squad treasures with their finder.
     /// 14: chests behind instance names, refilled chests.
     /// </summary>
-    public const int CurrentVersion = 16;
+    public const int CurrentVersion = 17;
 
     /// <summary>Set to an empty list before <see cref="Analyze"/> to receive the cross-check of the match (--diagnose).</summary>
     public List<string>? Diagnosis { get; set; }
@@ -48,6 +48,7 @@ public sealed class ReplayAnalyzer
             Playlist = playlist,
             GameVersion = replay.Header?.Branch,
             IsBattleRoyale = !string.IsNullOrEmpty(playlist) || match.Chests.Count > 0,
+            JumpedFromBus = match.JumpedFromBus || match.Chests.Count > 0, // a chest opened: off the bus, whatever was seen
 
             PlayerName = match.Target?.PlayerName,
             EpicId = match.Target?.EpicId,

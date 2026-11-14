@@ -349,9 +349,16 @@ internal sealed class SignalReader : FortniteReplayReader.ReplayReader
                 }
                 break;
             case PlayerPawn playerPawn:
-                if (Channels[channelIndex]?.ActorId is { } pawnId && playerPawn.PlayerState is { } state && state != 0)
+                if (Channels[channelIndex]?.ActorId is { } pawnId)
                 {
-                    _signals.PawnState[pawnId] = state;
+                    if (playerPawn.PlayerState is { } state && state != 0)
+                    {
+                        _signals.PawnState[pawnId] = state;
+                    }
+                    if (playerPawn.bIsSkydivingFromBus == true)
+                    {
+                        _signals.BusJumps.TryAdd(pawnId, Now); // left the bus
+                    }
                 }
                 break;
             case FortPlayerState playerState:

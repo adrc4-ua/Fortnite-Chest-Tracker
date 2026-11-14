@@ -94,7 +94,8 @@ internal sealed class ScanConsole
     public void Totals()
     {
         var profile = Profiles.Current(_data, _config);
-        var matches = Profiles.View(_data, _config).Matches;
+        var view = Profiles.View(_data, _config);
+        var matches = view.Matches;
         var counted = matches.Sum(m => m.ChestsOpened);
         var text = new StringBuilder();
         if (profile != null)
@@ -102,7 +103,7 @@ internal sealed class ScanConsole
             text.Append(profile.Name).Append("   |   ");
         }
         text.Append(L.F("Partidas: {0}   |   Cofres: {1}   |   Tesoros: {2}", "Matches: {0}   |   Chests: {1}   |   Treasures: {2}",
-            L.N(matches.Count), L.N(counted + Profiles.InitialChests(_data, _config)), L.N(matches.Sum(m => m.TreasureFinds.Count))));
+            L.N(matches.Count + view.UnjumpedMatches), L.N(counted + Profiles.InitialChests(_data, _config)), L.N(matches.Sum(m => m.TreasureFinds.Count))));
         if (matches.Count > 0)
         {
             text.Append(L.F("   |   Media: {0} / partida", "   |   Average: {0} / match", ((double)counted / matches.Count).ToString("F1", L.Culture)));

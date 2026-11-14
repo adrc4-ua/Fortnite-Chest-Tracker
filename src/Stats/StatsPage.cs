@@ -111,7 +111,7 @@ public static class StatsPage
             ("resumen", L.T("Resumen", "Overview"), null),
             ("cofres", L.T("Cofres", "Chests"), null),
             ("tesoros", L.T("Tesoros", "Treasures"), page.Treasures.Count > 0 ? Num(page.Treasures.Count) : null),
-            ("partidas", L.T("Partidas", "Matches"), Num(page.Matches.Count)),
+            ("partidas", L.T("Partidas", "Matches"), Num(page.Matches.Count + page.Unjumped)),
         };
         if (page.Teammates is { } mates)
         {
@@ -164,12 +164,16 @@ internal sealed class PageData
     {
         Config = config;
         InitialChests = initialChests;
+        Unjumped = data.UnjumpedMatches;
         Matches = data.Matches.OrderByDescending(LocalStart).ToList();
         Treasures = Matches.SelectMany(m => m.TreasureFinds.Select(f => (m, f))).ToList();
         ExtraKinds = config.ExtraKinds();
         Player = Matches.Select(m => m.PlayerName).FirstOrDefault(n => !string.IsNullOrEmpty(n)) ?? "";
         Teammates = config.ShowTeammates ? TeammatesTab.Build(Matches, ExtraKinds) : null;
     }
+
+    /// <summary>Matches left without jumping from the bus: only in the matches played.</summary>
+    public int Unjumped { get; }
 
     public Config Config { get; }
     public int InitialChests { get; }

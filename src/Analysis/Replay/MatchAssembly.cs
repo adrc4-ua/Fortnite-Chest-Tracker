@@ -23,6 +23,9 @@ internal sealed class MatchAssembly
     public bool MatchedByName { get; private set; }
     public bool NotTracked { get; private set; }
     public HashSet<uint> TargetStates { get; private set; } = new();
+
+    /// <summary>The tracked player left the battle bus (one of their pawns skydived from it).</summary>
+    public bool JumpedFromBus => Signals.PawnsOf(TargetStates).Any(Signals.BusJumps.ContainsKey);
     public HashSet<uint> TargetPawns { get; private set; } = new();
     public bool RecorderIsTarget { get; private set; }
 

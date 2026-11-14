@@ -12,7 +12,7 @@ internal static class MatchesCsv
         var csv = new StringBuilder();
         csv.AppendLine(L.T("fecha;modo;jugador;puesto;jugadores;cofres;cajas_municion;tesoros;archivo",
             "date;mode;player;placement;players;chests;ammo_boxes;treasures;file"));
-        foreach (var match in data.Matches.Where(m => Profiles.IsEventMatch(m, config)).OrderBy(LocalStart))
+        foreach (var match in data.Matches.Where(m => Profiles.IsEventMatch(m, config) && m.JumpedFromBus != false).OrderBy(LocalStart))
         {
             csv.AppendLine(string.Join(";",
                 LocalStart(match).ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture),
