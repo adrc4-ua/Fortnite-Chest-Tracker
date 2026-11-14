@@ -133,13 +133,29 @@ public sealed partial class SettingsForm
     }
 
     /// <summary>
-    /// The first start's calculation again: saved matches count the same as then (in the average, and taken off the
-    /// season). With none saved yet, its first choice is "start from zero" rather than "only the saved ones".
+    /// The first start's calculation again ("Estimate"): saved matches count the same as then (in the average, and taken
+    /// off the season). Saved replays left out (at the first start, or by a reset) are offered first, as then.
     /// </summary>
     private void Recalculate()
     {
-        var noneSaved = _monitor.PreviewEstimate(1, HistoryEstimator.DefaultSample, null).Replays == 0;
-        if (EstimateDialog.Ask(this, _monitor.ShownProfileName, _monitor.ShownAccountId, _monitor.Estimate, _monitor.PreviewEstimate, noneSaved) is not { } choice)
+        var counting = false;
+        if (_monitor.SkippedReplays is var skipped and > 0)
+        {
+            var answer = InfoDialog.Ask(this, L.F("Tienes {0} sin contar", "You have {0} not counted", L.Count(skipped, "partida guardada", "partidas guardadas", "saved match", "saved matches")),
+                L.T("¿Las contamos ya? Se suman a tu historial y a la media de la estimación.", "Shall we count them now? They go into your history and the estimate's average."),
+                Array.Empty<InfoPoint>(), L.T("Contarlas", "Count them"), L.T("Solo las nuevas", "Only new ones"), Icons.Folder);
+            if (answer == null)
+            {
+                return;
+            }
+            if (answer == true)
+            {
+                _monitor.CountSkippedReplays(); // read right away; the estimate uses them once they are counted
+                counting = true;
+            }
+        }
+        var noneSaved = !counting && _monitor.PreviewEstimate(1, HistoryEstimator.DefaultSample, null).Replays == 0;
+        if (EstimateDialog.Ask(this, _monitor.ShownProfileName, _monitor.ShownAccountId, _monitor.Estimate, _monitor.PreviewEstimate, noneSaved, recalculating: true) is not { } choice)
         {
             return;
         }

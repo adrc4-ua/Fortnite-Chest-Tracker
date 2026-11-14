@@ -27,6 +27,7 @@ public sealed class AppMonitor
     private GameLogWatcher? _gameLog;
     private volatile bool _stop, _publishRequested, _statsRequested, _scanned;
     private volatile string? _shownKey, _shownName, _notice, _resetBackup, _restoreBackup;
+    private volatile bool _countSkipped;
     private volatile ScanProgress? _progress;
     private DateTime _noticeUntil, _nextScan = DateTime.UtcNow, _nextGameCheck, _nextDisplayCheck;
     private DateTime? _fortniteClosedSince;
@@ -398,6 +399,7 @@ public sealed class AppMonitor
             changed |= FileTreasureScreens();
             changed |= ResetIfAsked();
             changed |= RestoreIfAsked();
+            changed |= CountSkippedIfAsked();
             try
             {
                 changed |= ScanIfDue();
@@ -511,6 +513,28 @@ public sealed class AppMonitor
             SetNotice(L.F("No se pudo restablecer: {0}", "Could not reset: {0}", ex.Message));
             return false;
         }
+    }
+
+    /// <summary>Saved replays FCT is not counting (left out at the first start, or by a reset).</summary>
+    public int SkippedReplays => _tracker.SkippedOnDisk();
+
+    /// <summary>Counts them after all: they are read at the next scan, right away (done by the monitor thread).</summary>
+    public void CountSkippedReplays()
+    {
+        _countSkipped = true;
+        _wake.Set();
+    }
+
+    private bool CountSkippedIfAsked()
+    {
+        if (!_countSkipped)
+        {
+            return false;
+        }
+        _countSkipped = false;
+        _tracker.CountSkipped();
+        ScanSoon();
+        return true;
     }
 
     /// <summary>Brings a backup back into the history (done by the monitor thread, which owns it).</summary>

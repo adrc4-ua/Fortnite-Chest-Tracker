@@ -61,6 +61,36 @@ public sealed class Tracker
     }
 
     /// <summary>
+    /// Saved replays left out on purpose ("only new ones" at the first start, or a reset), still in the folder. Read from
+    /// another thread too: a copy of the verdicts is taken, again if the scan changes them meanwhile.
+    /// </summary>
+    public int SkippedOnDisk()
+    {
+        for (var attempt = 0; ; attempt++)
+        {
+            try
+            {
+                var skipped = Data.ProcessedFiles.Where(e => e.Value == Skipped).Select(e => e.Key).ToHashSet();
+                return skipped.Count == 0 ? 0 : _folder.All().Where(ReplayFolder.NotRecording).Count(f => skipped.Contains(FileKey(f)));
+            }
+            catch (InvalidOperationException) when (attempt < 3)
+            {
+                Thread.Sleep(20);
+            }
+        }
+    }
+
+    /// <summary>Counts the replays left out after all: the next scan reads them (call on the scanning thread).</summary>
+    public void CountSkipped()
+    {
+        foreach (var file in Data.ProcessedFiles.Where(e => e.Value == Skipped).Select(e => e.Key).ToList())
+        {
+            Data.ProcessedFiles.Remove(file);
+        }
+        _store.SaveData(Data);
+    }
+
+    /// <summary>
     /// Empties the history (data.json is copied to <paramref name="backupPath"/> first). Replays already in the folder
     /// are marked as skipped, so counting starts with the next match; one being played still counts.
     /// </summary>

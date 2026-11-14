@@ -64,12 +64,15 @@ public sealed class EstimateDialog : ThemedForm
 
     /// <param name="fromScratch">No hay partidas guardadas que contar (no había, o se eligió «Solo las nuevas»): la primera
     /// opción es «Empezar de cero» y los textos no hablan de partidas guardadas.</param>
-    private EstimateDialog(string? playerName, string? accountId, HistoryEstimate? current, Func<int, int, double?, HistoryEstimator.Result>? previewOf, bool owned, bool fromScratch = false)
+    /// <param name="recalculating">From Settings → Recalculate: the window is "Estimate" and goes straight to the
+    /// calculation (no choice between counting earlier matches or not: Cancel keeps everything as it was).</param>
+    private EstimateDialog(string? playerName, string? accountId, HistoryEstimate? current, Func<int, int, double?, HistoryEstimator.Result>? previewOf, bool owned,
+        bool fromScratch = false, bool recalculating = false)
     {
         _previewOf = previewOf;
         _accountId = accountId;
         _originalName = playerName;
-        Text = L.F("Cofres antes de {0}", "Chests before {0}", AppInfo.ShortName);
+        Text = recalculating ? L.T("Estimación", "Estimate") : L.F("Cofres antes de {0}", "Chests before {0}", AppInfo.ShortName);
         AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96, 96);
         Font = Theme.Text();
@@ -98,7 +101,14 @@ public sealed class EstimateDialog : ThemedForm
         _withEstimate = Pill(this, L.T("Calcular partidas previas", "Work out earlier matches"), new Point(Pad + half + 8, y), new Size(half, 38), 9f, Icons.Calc);
         _onlyReplays.Click += (_, _) => SelectMode(false);
         _withEstimate.Click += (_, _) => SelectMode(true);
-        y += 38 + 14;
+        if (recalculating)
+        {
+            _onlyReplays.Visible = _withEstimate.Visible = false; // straight to the calculation
+        }
+        else
+        {
+            y += 38 + 14;
+        }
 
         _panel = new Card { Location = new Point(Pad, y), Size = new Size(W - 2 * Pad, 100), Radius = 16, BackColor = Theme.Card };
         Controls.Add(_panel);
@@ -233,15 +243,17 @@ public sealed class EstimateDialog : ThemedForm
         _sample = current?.SampleSize is int s && HistoryEstimator.SampleChoices.Contains(s) ? s : HistoryEstimator.DefaultSample;
         SelectSample(_sample);
         SelectAverage(current?.ManualAverage != null);
-        SelectMode(current != null);
+        SelectMode(recalculating || current != null);
     }
 
     /// <summary>Muestra el diálogo. Devuelve lo elegido, o null si se cancela o se cierra la ventana.</summary>
     /// <param name="previewOf">Resultado con (partidas de la temporada, partidas para la media, media escrita); null en el primer uso.</param>
     /// <param name="fromScratch">Sin partidas guardadas que contar: «Empezar de cero» en vez de «Solo las guardadas».</param>
-    public static Choice? Ask(IWin32Window? owner, string? playerName, string? accountId, HistoryEstimate? current, Func<int, int, double?, HistoryEstimator.Result>? previewOf, bool fromScratch = false)
+    /// <param name="recalculating">Settings → Recalculate: titled "Estimate", straight to the calculation.</param>
+    public static Choice? Ask(IWin32Window? owner, string? playerName, string? accountId, HistoryEstimate? current, Func<int, int, double?, HistoryEstimator.Result>? previewOf,
+        bool fromScratch = false, bool recalculating = false)
     {
-        using var dialog = new EstimateDialog(playerName, accountId, current, previewOf, owner != null, fromScratch);
+        using var dialog = new EstimateDialog(playerName, accountId, current, previewOf, owner != null, fromScratch, recalculating);
         return dialog.ShowDialog(owner) == DialogResult.OK ? dialog.Result : null;
     }
 

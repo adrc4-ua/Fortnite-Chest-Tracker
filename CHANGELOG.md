@@ -4,6 +4,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- **Recalcular (Cofres antes de FCT)** abre la ventana «Estimación» directamente en el cálculo, sin el botón de empezar de cero. Si tienes repeticiones guardadas que FCT no está contando, antes pregunta si contarlas, como en la primera apertura.
 - **Restaurar la copia de seguridad** desde Configuración → Copia de seguridad: muestra la última copia (la que se hace al restablecer las estadísticas) y la devuelve a tu historial con sus partidas, tesoros y cofres de antes de FCT. Se suma: las partidas que ya tienes, también las jugadas después, se quedan. Con varias copias, eliges cuál. La tarjeta del overlay para OBS ocupa menos.
 - **Las copias con otra carpeta de datos (`--data`, pruebas) quedan aisladas del FCT normal**: desinstalarlas solo borra esa copia; al actualizarse se reinician con su carpeta; no avisan al proceso en espera del FCT normal, y abren su página y su overlay de OBS en otro puerto (desde el 7473) para no quitarle el suyo.
 - **Menú del icono de la bandeja renovado**: un icono dorado por opción (el logo para «Abrir FCT»), agrupado con separadores dorados finos y un marco neutro, también en el desplegable de idioma.
