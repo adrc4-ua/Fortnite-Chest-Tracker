@@ -11,7 +11,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 - **«Desde el…» del total**: si el total incluye cofres de antes de FCT, cuenta desde el inicio de la temporada (1 de noviembre de 2026); si no, desde tu primera partida guardada.
 - **Tras actualizarse, FCT vuelve a abrir su ventana** si la tenías a la vista o si Fortnite no está en pantalla (minimizado o tapado). Solo se queda en la bandeja si estabas jugando con la ventana guardada.
 - **La ventana ya no sale cortada** al abrirla desde la bandeja tras arrancar sola: la tarjeta del equipo cabe entera.
-- El aviso «FCT ya estaba abierto» al abrirlo por segunda vez dura ahora 5 segundos.
+- **Los avisos de la ventana duran 5 segundos** (antes 20): «FCT ya estaba abierto», cofres de antes sumados, copia restaurada, cambio de perfil… Los que cuentan algo en curso (leyendo replays, descargando la actualización) siguen mientras dura.
 ## [5.6.0] - 2026-11-14
 
 - **Detalles de la última partida en la ventana**: tu Top (o Victoria), eliminaciones, tesoros obtenidos y cuánto duró, a su tamaño normal (antes el texto se encogía para caber). En Estadísticas, «Últimas partidas» muestra también la duración.

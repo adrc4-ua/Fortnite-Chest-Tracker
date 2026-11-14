@@ -11,7 +11,8 @@ namespace FCT.Monitoring;
 [SupportedOSPlatform("windows")]
 public sealed class AppMonitor
 {
-    private const int NoticeSeconds = 20;
+    /// <summary>How long a message in the window's strip stays (those that tell a state, like reading replays, stay while it lasts).</summary>
+    private const int NoticeSeconds = 5;
 
     private readonly Store _store;
     private readonly TrackerData _data;
@@ -188,13 +189,10 @@ public sealed class AppMonitor
     }
 
     /// <summary>A message where the window's buttons are; it goes away by itself after a while.</summary>
-    public void SetNotice(string? text) => SetNotice(text, NoticeSeconds);
-
-    /// <summary>A message where the window's buttons are, for <paramref name="seconds"/>.</summary>
-    public void SetNotice(string? text, int seconds)
+    public void SetNotice(string? text)
     {
         _notice = text;
-        _noticeUntil = DateTime.UtcNow.AddSeconds(seconds);
+        _noticeUntil = DateTime.UtcNow.AddSeconds(NoticeSeconds);
         RequestPublish();
     }
 
