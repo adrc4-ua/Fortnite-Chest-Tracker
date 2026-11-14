@@ -2,7 +2,7 @@ name: Build FCT.exe
 # Pushes (branches and v* tags) only build the exe, as an artifact: tags never create releases.
 # Releases are made by hand on GitHub. FCT.exe is attached to a release:
 #  - by itself when the release is published, if its tag already has this workflow;
-#  - by hand for any tag: Actions → "Build FCT.exe" → Run workflow → write the tag (e.g. v5.6.0). The workflow of the
+#  - by hand for any tag: Actions → "Build FCT.exe" → Run workflow → write the tag (e.g. v5.7.0). The workflow of the
 #    branch you run it from (main) is used, so this also works for tags made before this file existed.
 on:
   push:
@@ -13,7 +13,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release tag to build and attach FCT.exe to (e.g. v5.6.0). Empty: only build.'
+        description: 'Release tag to build and attach FCT.exe to (e.g. v5.7.0). Empty: only build.'
         required: false
         default: ''
 permissions:

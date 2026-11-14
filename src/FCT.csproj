@@ -18,7 +18,7 @@
     <Authors>adrc4-ua</Authors>
     <Copyright>Copyright (C) 2026 Adrián Ruiz. GPL-3.0-only with additional terms (NOTICE.md). Fortnite is a trademark of Epic Games, Inc.</Copyright>
     <RootNamespace>FCT</RootNamespace>
-    <Version>5.6.0</Version>
+    <Version>5.7.0</Version>
     <InvariantGlobalization>false</InvariantGlobalization>
     <!-- Single-file publish: the parser discovers its types by reflection, so no trimming. -->
     <PublishTrimmed>false</PublishTrimmed>

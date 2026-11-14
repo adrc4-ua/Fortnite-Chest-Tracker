@@ -2,7 +2,7 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
-## [Sin publicar]
+## [5.7.0] - 2026-11-14
 
 - **Recalcular (Cofres antes de FCT)** abre la ventana «Estimación» directamente en el cálculo, sin el botón de empezar de cero. Si tienes repeticiones guardadas que FCT no está contando, antes pregunta si contarlas, como en la primera apertura.
 - **Restaurar la copia de seguridad** desde Configuración → Copia de seguridad: muestra la última copia (la que se hace al restablecer las estadísticas) y la devuelve a tu historial con sus partidas, tesoros y cofres de antes de FCT. Se suma: las partidas que ya tienes, también las jugadas después, se quedan. Con varias copias, eliges cuál. La tarjeta del overlay para OBS ocupa menos.
@@ -12,6 +12,11 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 - **Tras actualizarse, FCT vuelve a abrir su ventana** si la tenías a la vista o si Fortnite no está en pantalla (minimizado o tapado). Solo se queda en la bandeja si estabas jugando con la ventana guardada.
 - **La ventana ya no sale cortada** al abrirla desde la bandeja tras arrancar sola: la tarjeta del equipo cabe entera.
 - **Los avisos de la ventana duran 5 segundos** (antes 20): «FCT ya estaba abierto», cofres de antes sumados, copia restaurada, cambio de perfil… Los que cuentan algo en curso (leyendo replays, descargando la actualización) siguen mientras dura.
+
+## [5.6.1] - 2026-11-14
+
+- **Plantillas de incidencias bilingües y triaje automatizado**: formularios estructurados e independientes en inglés y en español en GitHub Issues, bloqueo de reportes en blanco y flujo automático de asignación de etiquetas (`triaje`, tipo de solicitud y áreas de la aplicación).
+- **Acceso a soporte in-app**: enlace directo desde la ventana de Configuración que abre la plantilla de incidencias en el idioma activo de la aplicación.
 ## [5.6.0] - 2026-11-14
 
 - **Detalles de la última partida en la ventana**: tu Top (o Victoria), eliminaciones, tesoros obtenidos y cuánto duró, a su tamaño normal (antes el texto se encogía para caber). En Estadísticas, «Últimas partidas» muestra también la duración.
