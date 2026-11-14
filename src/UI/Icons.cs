@@ -21,6 +21,9 @@ internal static class Icons
     public static string Day => PageIcons.Figures["day"];
     public static string Wins => PageIcons.Figures["wins"];
 
+    /// <summary>Exit: a power button.</summary>
+    public const string Power = Svg + """<path d="M12 3.5v8"/><path d="M7.4 6.6a7.5 7.5 0 1 0 9.2 0"/></svg>""";
+
     /// <summary>Overlay: una pantalla con el recuadro del contador en una esquina.</summary>
     public const string Overlay = Svg + """<rect class="f" x="3" y="4.5" width="18" height="12" rx="2.5"/><path d="M8.5 20h7M12 16.5V20"/><rect x="12.5" y="7" width="5.5" height="3.6" rx="1" fill="currentColor" stroke="none"/></svg>""";
 

@@ -20,6 +20,14 @@ public sealed class DarkMenuRenderer : ToolStripProfessionalRenderer
         base.OnRenderItemText(e);
     }
 
+    /// <summary>The separators carry the gold: one thin line, inset from both sides (the frame stays neutral).</summary>
+    protected override void OnRenderSeparator(ToolStripSeparatorRenderEventArgs e)
+    {
+        var y = e.Item.Height / 2;
+        using var line = new Pen(Theme.GoldLine, 1f);
+        e.Graphics.DrawLine(line, 10, y, e.Item.Width - 10, y);
+    }
+
     protected override void OnRenderMenuItemBackground(ToolStripItemRenderEventArgs e)
     {
         if (e.Item.Selected)
@@ -34,13 +42,13 @@ public sealed class DarkMenuRenderer : ToolStripProfessionalRenderer
     private sealed class Palette : ProfessionalColorTable
     {
         public override Color ToolStripDropDownBackground => Theme.Card;
-        public override Color MenuBorder => Theme.GoldLine;
+        public override Color MenuBorder => Theme.Line;
         public override Color MenuItemBorder => Color.Transparent;
         public override Color MenuItemSelected => Theme.GoldSoft;
         public override Color ImageMarginGradientBegin => Theme.Card;
         public override Color ImageMarginGradientMiddle => Theme.Card;
         public override Color ImageMarginGradientEnd => Theme.Card;
-        public override Color SeparatorDark => Theme.Line;
+        public override Color SeparatorDark => Theme.GoldLine;
         public override Color SeparatorLight => Theme.Card;
     }
 }
