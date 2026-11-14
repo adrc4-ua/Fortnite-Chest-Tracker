@@ -33,6 +33,9 @@ public static class Prizes
     };
     public static readonly DateTime End = new(2026, 12, 5, 0, 0, 0, DateTimeKind.Utc);
 
+    /// <summary>The day the season of the hunt began (Treasure Hunters, update v43.00, 1 November 2026).</summary>
+    public static readonly DateTime SeasonStart = new(2026, 11, 1);
+
     /// <summary>When a week (1–5) starts, in local time.</summary>
     public static DateTime StartOf(int week) => WeekStarts[week - 1].ToLocalTime();
 
