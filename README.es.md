@@ -141,9 +141,9 @@ Sí, entre partida y partida y sin perder tus datos. Lo cambias en *Configuraci�
 </details>
 
 <details>
-<summary><b>Algo no funciona</b></summary>
+<summary><b>Algo no funciona o tienes una sugerencia</b></summary>
 
-Abre un [issue](../../issues) contando qué pasa y, si puedes, adjunta el archivo `errors.log` de `%APPDATA%\FCT`.
+Envía un [problema o sugerencia](../../issues/new?template=report.yml) contando qué pasa y, si puedes, adjunta el archivo `errors.log` de `%APPDATA%\FCT`.
 </details>
 
 ## Licencia y créditos

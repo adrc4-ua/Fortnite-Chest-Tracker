@@ -17,7 +17,7 @@ public static class AppInfo
 
     public const string Repo = "adrc4-ua/Fortnite-Chest-Tracker";
     public static string RepoUrl => $"https://github.com/{Repo}";
-    public static string IssuesUrl => $"{RepoUrl}/issues";
+    public static string IssuesUrl => $"{RepoUrl}/issues/new?template=report.yml";
 
     public static Version Version { get; } = typeof(AppInfo).Assembly.GetName().Version ?? new Version(1, 0, 0);
 

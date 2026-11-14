@@ -1,0 +1,81 @@
+name: "Problema, sugerencia o petición"
+description: "Informa de un problema, propón una mejora o solicita una función para FCT"
+title: "[Reporte]: "
+labels: ["triaje"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Gracias por ayudar a mejorar Fortnite Chest Tracker (FCT)
+        Por favor, completa este formulario para que podamos gestionar y clasificar tu solicitud en el tablero de triaje.
+
+  - type: dropdown
+    id: tipo
+    attributes:
+      label: Tipo de solicitud
+      description: Selecciona el motivo principal de tu reporte.
+      options:
+        - "🐛 Problema o fallo (Bug report)"
+        - "💡 Sugerencia o mejora (Enhancement)"
+        - "❓ Petición o duda (Question / Request)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Área o componente relacionado
+      description: ¿Con qué parte de FCT se relaciona?
+      options:
+        - "Overlay en el juego (Game overlay)"
+        - "Ventana principal de la aplicación"
+        - "Estadísticas web (página local)"
+        - "Lectura de partidas, replays y conteo de cofres"
+        - "Caza de tesoros y premios semanales"
+        - "Configuración, arranque automático u OBS"
+        - "Otro"
+    validations:
+      required: true
+
+  - type: textarea
+    id: descripcion
+    attributes:
+      label: Descripción detallada
+      description: |
+        Explica lo ocurrido con el mayor detalle posible (si es un fallo, cómo reproducirlo y qué esperabas que pasara) o describe la mejora que propones.
+        
+        > **Aviso de versión:** Se asume que estás utilizando la **última versión disponible de FCT** y la versión actual de **Fortnite**. Si estás en una versión anterior de la aplicación o del juego, indícala explícitamente en este campo.
+      placeholder: |
+        Describe aquí lo que ha ocurrido o la mejora que propones...
+        (Si estás usando una versión anterior de FCT o de Fortnite, especifícala aquí)
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Registro de errores (errors.log)
+      description: |
+        Si has experimentado un fallo inesperado, un cierre o una repetición que no se ha podido leer, adjunta el registro de errores.
+        
+        📁 **¿Dónde se encuentra?**
+        1. En tu teclado pulsa `Win + R`.
+        2. Escribe `%APPDATA%\FCT` y pulsa Enter.
+        3. Allí encontrarás el archivo **`errors.log`**.
+        
+        Puedes copiar y pegar su contenido aquí debajo o arrastrar y soltar el archivo directamente en este formulario.
+        *(Nota de privacidad: FCT enmascara automáticamente tu usuario de Windows en los logs para proteger tus datos).*
+      placeholder: |
+        Pega aquí el contenido de %APPDATA%\FCT\errors.log si aplica...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: verificaciones
+    attributes:
+      label: Verificaciones
+      options:
+        - label: He comprobado que no existe ya una incidencia abierta sobre lo mismo.
+          required: false
+        - label: Entiendo que FCT funciona en Windows 10/11 leyendo repeticiones locales de Fortnite.
+          required: false
