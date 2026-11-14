@@ -65,7 +65,8 @@ internal sealed class GameWindows
     private const int Columns = 32, Rows = 18;
 
     /// <summary>
-    /// The game is out of sight: the desktop is in front (Win + D), or the windows above it, whoever has the focus and
+    /// The game is out of sight: the desktop is in front (Win + D, even while a desktop menu or Start holds the focus
+    /// over it), or the windows above it, whoever has the focus and
     /// whichever screen they were opened from, cover most of its window on its screen (all of them together). Measured
     /// on the game's own window, so it holds in windowed fullscreen and in a plain window alike (a minimized game is
     /// already out: Windows reports it).
@@ -92,11 +93,18 @@ internal sealed class GameWindows
         // top-level windows come front to back: those before the game's are above it
         var above = new List<RECT>();
         var reached = false;
+        var desktopAbove = false;
         EnumWindows((other, _) =>
         {
             if (other == game)
             {
                 reached = true;
+                return false;
+            }
+            if (IsWindowVisible(other) && ClassOf(other) is "Progman" or "WorkerW")
+            {
+                // the desktop raised over the game (Win + D): out of sight, whoever has the focus (a desktop menu, Start…)
+                desktopAbove = true;
                 return false;
             }
             if (Hides(other, gameProcess, own, out var box) && box.Right > area.Left && box.Left < area.Right && box.Bottom > area.Top && box.Top < area.Bottom)
@@ -105,6 +113,10 @@ internal sealed class GameWindows
             }
             return true;
         }, IntPtr.Zero);
+        if (desktopAbove)
+        {
+            return true;
+        }
         if (!reached || above.Count == 0)
         {
             return false;
@@ -126,7 +138,11 @@ internal sealed class GameWindows
         return visible * 100 <= Columns * Rows * (100 - CoveredPercent);
     }
 
-    /// <summary>The desktop has the focus (Win + D): it spans every screen, so the game is out of sight wherever it is.</summary>
+    /// <summary>
+    /// The desktop has the focus (Win + D): it spans every screen, so the game is out of sight wherever it is. Only the
+    /// quick path: with the focus elsewhere (a desktop menu, Start…) the raised desktop is caught by its place in the
+    /// z-order instead.
+    /// </summary>
     private static bool DesktopInFront() => ClassOf(GetForegroundWindow()) is "Progman" or "WorkerW";
 
     /// <summary>
@@ -173,7 +189,7 @@ internal sealed class GameWindows
         {
             case "Shell_TrayWnd" or "Shell_SecondaryTrayWnd" or "NotifyIconOverflowWindow" or "TopLevelWindowForOverflowXamlIsland"
                 or "Xaml_WindowedPopupClass" or "#32768" or "Windows.UI.Core.CoreWindow" or "XamlExplorerHostIslandWindow"
-                or "MultitaskingViewFrame" or "TaskSwitcherWnd" or "ForegroundStaging" or "Progman" or "WorkerW":
+                or "MultitaskingViewFrame" or "TaskSwitcherWnd" or "ForegroundStaging":
                 return false;
         }
         return GetWindowRect(window, out box) && box.Width > 0 && box.Height > 0;

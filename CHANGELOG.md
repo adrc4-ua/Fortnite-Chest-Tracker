@@ -5,6 +5,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 ## [Sin publicar]
 
 - **Solo cuentan las partidas en las que saltas del autobús**: las que dejas antes de saltar suman a las partidas jugadas y a nada más (cofres, media, récords, tesoros, compañeros, gráficos, overlay, estimación). Las repeticiones que sigan en tu PC se vuelven a leer solas para saberlo; las partidas más antiguas cuentan como antes.
+- **El overlay no reaparece sobre el escritorio**: con el juego apartado con Win + D, abrir el menú contextual del escritorio, Inicio o un panel de la barra ya no lo hace volver; ahora mira si el escritorio está por delante del juego, no solo quién tiene el foco.
 - **Pestaña Partidas con cifras**: partidas en total (las de la temporada según tus estadísticas al empezar, más cada una que juegas desde entonces, como en la app), hoy, esta semana y por día jugado, encima de la tabla.
 - **Resumen: partidas al día**: la tarjeta «Partidas» pasa a ser la media de partidas por día jugado.
 - **Gráficos sin «hoy»**: el día de hoy se muestra con su nombre o fecha, en dorado, en la app y en la web.
