@@ -26,7 +26,7 @@ public sealed class AppMonitor
     private FileSystemWatcher? _watcher;
     private GameLogWatcher? _gameLog;
     private volatile bool _stop, _publishRequested, _statsRequested, _scanned;
-    private volatile string? _shownKey, _shownName, _notice, _resetBackup;
+    private volatile string? _shownKey, _shownName, _notice, _resetBackup, _restoreBackup;
     private volatile ScanProgress? _progress;
     private DateTime _noticeUntil, _nextScan = DateTime.UtcNow, _nextGameCheck, _nextDisplayCheck;
     private DateTime? _fortniteClosedSince;
@@ -317,7 +317,7 @@ public sealed class AppMonitor
     /// </summary>
     public string ResetStats()
     {
-        var copy = Path.Combine(_store.Folder, $"data-backup-{DateTime.Now:yyyyMMdd-HHmmss}.json");
+        var copy = _store.NewBackupPath();
         _resetBackup = copy;
         _wake.Set();
         return copy;
@@ -397,6 +397,7 @@ public sealed class AppMonitor
             _publishRequested = false;
             changed |= FileTreasureScreens();
             changed |= ResetIfAsked();
+            changed |= RestoreIfAsked();
             try
             {
                 changed |= ScanIfDue();
@@ -493,6 +494,11 @@ public sealed class AppMonitor
             _tracker.Reset(copy);
             _settings.Edit(c =>
             {
+                // the chests from before FCT go with the backup, so restoring it brings them back too
+                if (c.InitialChests.Count > 0)
+                {
+                    JsonFile.Write(Store.EarlierChestsOf(copy), new Dictionary<string, int>(c.InitialChests));
+                }
                 c.InitialChests.Clear();
                 c.Profile = null;
             });
@@ -504,6 +510,48 @@ public sealed class AppMonitor
             ErrorLog.Write("Restablecer estadísticas", ex);
             SetNotice(L.F("No se pudo restablecer: {0}", "Could not reset: {0}", ex.Message));
             return false;
+        }
+    }
+
+    /// <summary>Brings a backup back into the history (done by the monitor thread, which owns it).</summary>
+    public void RestoreBackup(string path)
+    {
+        _restoreBackup = path;
+        _wake.Set();
+    }
+
+    private bool RestoreIfAsked()
+    {
+        if (_restoreBackup is not { } path)
+        {
+            return false;
+        }
+        _restoreBackup = null;
+        try
+        {
+            var backup = JsonFile.Read<TrackerData>(path) ?? throw new InvalidDataException(L.T("la copia no se puede leer", "the backup cannot be read"));
+            var added = _tracker.Restore(backup);
+            if (JsonFile.Read<Dictionary<string, int>>(Store.EarlierChestsOf(path)) is { Count: > 0 } earlier)
+            {
+                _settings.Edit(c =>
+                {
+                    foreach (var (key, chests) in earlier)
+                    {
+                        c.InitialChests.TryAdd(key, chests); // a number typed since wins
+                    }
+                });
+            }
+            _statsRequested = true;
+            SetNotice(added > 0
+                ? L.F("Copia restaurada: {0} recuperadas.", "Backup restored: {0} back.", L.Count(added, "partida", "partidas", "match", "matches"))
+                : L.T("Copia restaurada: ya tenías todas sus partidas.", "Backup restored: you already had all its matches."));
+            return true;
+        }
+        catch (Exception ex)
+        {
+            ErrorLog.Write("Restaurar copia", ex);
+            SetNotice(L.F("No se pudo restaurar la copia: {0}", "Could not restore the backup: {0}", ex.Message));
+            return true;
         }
     }
 

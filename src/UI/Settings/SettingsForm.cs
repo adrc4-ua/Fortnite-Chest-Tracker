@@ -26,6 +26,10 @@ public sealed partial class SettingsForm : ThemedForm
     private const int MaxEarlierChests = 1_000_000;
 
     private readonly AppMonitor _monitor;
+    private readonly Store _store;
+    private Label _backupLine = null!;
+    private PillButton _restore = null!;
+    private string? _backupShown;
     private readonly ToggleSwitch _withFortnite, _openStats, _mates, _addMates, _ranked, _ammo, _food, _cannons;
     private readonly PillButton[] _updateButtons = new PillButton[UpdateChoices.Length];
     private readonly Label _updateHint;
@@ -35,6 +39,7 @@ public sealed partial class SettingsForm : ThemedForm
     public SettingsForm(AppMonitor monitor, Store store)
     {
         _monitor = monitor;
+        _store = store;
         var config = monitor.Config;
         Text = L.T("Configuración", "Settings");
         AutoScaleMode = AutoScaleMode.Dpi;
@@ -73,17 +78,17 @@ public sealed partial class SettingsForm : ThemedForm
         _cannons.CheckedChanged += (_, _) => Saved(() => _monitor.SetCountExtra(c => c.CountLootCannons = _cannons.Checked));
 
         // ---- right column: updates (three pills)
-        var updates = Card(this, RightX, Header + 185, RightWidth, 130, 14);
+        var updates = Card(this, RightX, Header + 185, RightWidth, 116, 14);
         Title(updates, L.T("Actualizaciones", "Updates"));
         var pillWidth = (RightWidth - 26 - 2 * 6) / 3;
         for (var i = 0; i < UpdateChoices.Length; i++)
         {
             var index = i;
-            _updateButtons[i] = Button(UpdateChoices[i].Label, new Point(13 + i * (pillWidth + 6), 39), new Size(pillWidth, 34), 10);
+            _updateButtons[i] = Button(UpdateChoices[i].Label, new Point(13 + i * (pillWidth + 6), 36), new Size(pillWidth, 34), 10);
             _updateButtons[i].Click += (_, _) => ShowUpdateMode(index, save: true);
             updates.Controls.Add(_updateButtons[i]);
         }
-        _updateHint = SettingsParts.Text(updates, "", 7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 87), new Size(RightWidth - 26, 18), ContentAlignment.MiddleCenter);
+        _updateHint = SettingsParts.Text(updates, "", 7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 80), new Size(RightWidth - 26, 18), ContentAlignment.MiddleCenter);
         ShowUpdateMode(Math.Max(0, Array.FindIndex(UpdateChoices, c => c.Mode == config.UpdateMode)), save: false);
 
         var folder = Card(this, LeftX, Header + 373, LeftWidth, 94, 14);
@@ -96,6 +101,7 @@ public sealed partial class SettingsForm : ThemedForm
 
         _earlier = EarlierChests(monitor);
         ObsCard();
+        BackupCard();
         BottomButtons(out var close);
         HeaderRow(config.Language);
 
@@ -145,15 +151,15 @@ public sealed partial class SettingsForm : ThemedForm
     /// <summary>The OBS page: its address with a copy button, and whether it is on.</summary>
     private void ObsCard()
     {
-        var card = Card(this, RightX, Header + 324, RightWidth, 143, 14);
+        var card = Card(this, RightX, Header + 310, RightWidth, 96, 14);
         Title(card, L.T("Overlay para OBS", "Overlay for OBS"), 92);
         var url = ObsServer.Url;
         var on = url != null;
         var state = new Card { Location = new Point(RightWidth - 13 - 78, 8), Size = new Size(78, 20), Radius = 10, BackColor = on ? Theme.GoldSoft : Theme.Bg2, Edge = on ? Theme.GoldLine : Theme.Line };
         SettingsParts.Text(state, on ? L.T("● ACTIVO", "● ON") : L.T("● INACTIVO", "● OFF"), 7.0f, FontStyle.Bold, on ? Theme.GoldHi : Theme.Danger, new Point(0, 0), new Size(78, 20), ContentAlignment.MiddleCenter);
         card.Controls.Add(state);
-        var address = Field(card, new Point(13, 38), RightWidth - 26 - 72, url ?? L.T("Puerto ocupado", "Port in use"));
-        var copy = Button(L.T("Copiar", "Copy"), new Point(RightWidth - 13 - 66, 38), new Size(66, 30), 10);
+        var address = Field(card, new Point(13, 34), RightWidth - 26 - 72, url ?? L.T("Puerto ocupado", "Port in use"));
+        var copy = Button(L.T("Copiar", "Copy"), new Point(RightWidth - 13 - 66, 34), new Size(66, 30), 10);
         copy.Enabled = on;
         copy.Click += (_, _) =>
         {
@@ -171,10 +177,25 @@ public sealed partial class SettingsForm : ThemedForm
         };
         card.Controls.Add(copy);
         SettingsParts.Text(card, on
-                ? L.F("En OBS, añade una fuente «Navegador» con esta dirección. Fondo transparente. Se actualiza sola mientras {0} está abierto.",
-                    "In OBS, add a \"Browser\" source with this address. Transparent background. It updates by itself while {0} is open.", AppInfo.ShortName)
-                : L.F("Otro programa usa el puerto; reinicia {0} para probar de nuevo.", "Another program uses the port; restart {0} to try again.", AppInfo.ShortName),
-            7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 79), new Size(RightWidth - 26, 48));
+                ? L.T("En OBS: fuente «Navegador», fondo transparente.", "In OBS: a \"Browser\" source, transparent background.")
+                : L.F("Puerto ocupado por otro programa: reinicia {0}.", "Port taken by another program: restart {0}.", AppInfo.ShortName),
+            7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 72), new Size(RightWidth - 26, 16));
+    }
+
+    /// <summary>
+    /// The backups made when the stats are reset: the latest one, and a button to bring one back into the history
+    /// (several: a list to pick from).
+    /// </summary>
+    private void BackupCard()
+    {
+        const int ButtonWidth = 92;
+        var card = Card(this, RightX, Header + 415, RightWidth, 52, 14);
+        Title(card, L.T("Copia de seguridad", "Backup"), ButtonWidth + 8);
+        _backupLine = SettingsParts.Text(card, "", 7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 29), new Size(RightWidth - 26 - ButtonWidth - 8, 16));
+        _restore = Button(L.T("Restaurar…", "Restore…"), new Point(RightWidth - 13 - ButtonWidth, 10), new Size(ButtonWidth, 32), 10);
+        _restore.Click += (_, _) => ChooseBackup();
+        card.Controls.Add(_restore);
+        ShowBackups();
     }
 
     /// <summary>
@@ -183,7 +204,7 @@ public sealed partial class SettingsForm : ThemedForm
     /// </summary>
     private void BottomButtons(out PillButton close)
     {
-        const int UninstallWidth = 104, Y = Header + 476;
+        const int UninstallWidth = 104, Y = Header + 476; // under both columns, which end together at 467
         var reset = Button(L.T("Restablecer estadísticas…", "Reset statistics…"), new Point(LeftX, Y), new Size(LeftWidth - UninstallWidth - 6, 40), 12);
         reset.ForeColor = Theme.Danger;
         reset.Click += (_, _) => ResetStats();
@@ -233,6 +254,11 @@ public sealed partial class SettingsForm : ThemedForm
 
     private void ShowSettings()
     {
+        ShowBackups();
+        if (!_earlier.Focused && EarlierValue() != Math.Min(MaxEarlierChests, _monitor.InitialChests))
+        {
+            ShowEarlier(_monitor.InitialChests); // e.g. brought back by restoring a backup
+        }
         var config = _monitor.Config;
         _loading = true;
         try

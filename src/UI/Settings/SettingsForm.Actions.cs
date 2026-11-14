@@ -168,6 +168,69 @@ public sealed partial class SettingsForm
         }
     }
 
+    // ---- Backups ----------------------------------------------------------------------------------------------------------
+
+    /// <summary>The latest backup ("Latest: 14/11/26 18:02 · 78 matches"), read again only when there is a newer one.</summary>
+    private void ShowBackups()
+    {
+        var latest = _store.Backups().FirstOrDefault();
+        if (latest.Path == _backupShown && _backupShown != null)
+        {
+            return;
+        }
+        _backupShown = latest.Path;
+        _restore.Enabled = latest.Path != null;
+        _backupLine.Text = latest.Path == null
+            ? L.T("Aún no hay: se hace al restablecer", "None yet: made when you reset")
+            : $"{L.T("Última", "Latest")}: {latest.Made.ToString("dd/MM/yy HH:mm", L.Culture)} · {MatchesIn(latest.Path)}";
+    }
+
+    /// <summary>"78 matches" in a backup ("?" when it cannot be read).</summary>
+    private static string MatchesIn(string backup) =>
+        JsonFile.Read<TrackerData>(backup) is { } data ? L.Count(data.Matches.Count, "partida", "partidas", "match", "matches") : "?";
+
+    /// <summary>One backup: straight to the question. Several: a list under the button, newest first.</summary>
+    private void ChooseBackup()
+    {
+        var backups = _store.Backups();
+        if (backups.Count == 1)
+        {
+            RestoreBackup(backups[0].Path, backups[0].Made);
+            return;
+        }
+        var menu = new ContextMenuStrip { Renderer = new DarkMenuRenderer(), ShowImageMargin = false, Font = Theme.Text(9f) };
+        foreach (var (path, made) in backups)
+        {
+            var item = new ToolStripMenuItem($"{made.ToString("dd/MM/yy HH:mm", L.Culture)} · {MatchesIn(path)}", null, (_, _) => RestoreBackup(path, made)) { ForeColor = Theme.Ink };
+            menu.Items.Add(item);
+        }
+        menu.Closed += (_, _) => BeginInvoke(menu.Dispose);
+        menu.Show(_restore, new Point(0, _restore.Height));
+    }
+
+    /// <summary>After confirming, brings the backup's matches (and its chests from before FCT) back into the history.</summary>
+    private void RestoreBackup(string path, DateTime made)
+    {
+        var points = new List<InfoPoint>
+        {
+            new(Icons.Matches, Theme.GoldHi, L.T("Se suman a tu historial", "They're added to your history"),
+                L.T("Vuelven sus partidas, cofres y tesoros. Las que ya tienes, también las que jugaste después, se quedan.",
+                    "Its matches, chests and treasures come back. The ones you already have, also those played since, stay.")),
+        };
+        if (File.Exists(Store.EarlierChestsOf(path)))
+        {
+            points.Add(new InfoPoint(Icons.Calc, Theme.GoldHi, L.F("Y los cofres de antes de {0}", "And the chests from before {0}", AppInfo.ShortName),
+                L.T("Los que tenías al restablecer, si ahora no tienes otros.", "The ones you had when you reset, unless you have others now.")));
+        }
+        if (!InfoDialog.Confirm(this, L.T("¿Restaurar la copia?", "Restore the backup?"),
+                L.F("Copia del {0}: {1}.", "Backup of {0}: {1}.", made.ToString("dd/MM/yy HH:mm", L.Culture), MatchesIn(path)),
+                points.ToArray(), L.T("Restaurar", "Restore"), L.T("Cancelar", "Cancel"), Icons.Folder))
+        {
+            return;
+        }
+        _monitor.RestoreBackup(path); // the window's strip says how many came back; the figure below follows
+    }
+
     /// <summary>After confirming, deletes the whole history (a copy of data.json is kept first).</summary>
     private void ResetStats()
     {
@@ -178,7 +241,7 @@ public sealed partial class SettingsForm
                     new InfoPoint(Icons.Matches, Theme.GoldHi, L.T("Desde tu próxima partida", "From your next match"),
                         L.T("Las partidas que ya tienes guardadas no se vuelven a contar.", "The matches you already have saved aren't counted again.")),
                     new InfoPoint(Icons.Folder, Theme.GoldHi, L.T("Guardamos una copia", "We keep a copy"),
-                        L.T("Por si acaso, en la carpeta de tus datos.", "Just in case, in your data folder.")),
+                        L.T("Por si acaso: la recuperas cuando quieras en Copia de seguridad → Restaurar.", "Just in case: bring it back whenever you want in Backup → Restore.")),
                 },
                 L.T("Borrar todo", "Delete everything"), L.T("Cancelar", "Cancel"), Icons.Warning))
         {
@@ -186,8 +249,9 @@ public sealed partial class SettingsForm
         }
         var backup = _monitor.ResetStats();
         ShowEarlier(0);
+        _backupShown = null; // the new backup shows once it is written
         InfoDialog.Confirm(this, L.T("Listo, empezamos de cero", "Done, starting from zero"),
-            L.F("Tu copia está en la carpeta de tus datos: {0}", "Your copy is in your data folder: {0}", Path.GetFileName(backup)),
+            L.T("Si cambias de idea, recupéralo todo en Copia de seguridad → Restaurar.", "If you change your mind, bring it all back in Backup → Restore."),
             Array.Empty<InfoPoint>(), L.T("Vale", "OK"), null, Icons.Check);
     }
 

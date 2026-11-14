@@ -27,6 +27,34 @@ public sealed class Store
     public string CsvPath => InFolder("matches.csv");
     public string ErrorLogPath => InFolder("errors.log");
 
+    // ---- Backups (made when the stats are reset) ----------------------------------------------------------------------
+
+    private const string BackupPrefix = "data-backup-", BackupStamp = "yyyyMMdd-HHmmss";
+
+    /// <summary>Where a new backup of the history goes ("data-backup-20261114-180210.json").</summary>
+    public string NewBackupPath() => InFolder($"{BackupPrefix}{DateTime.Now.ToString(BackupStamp, System.Globalization.CultureInfo.InvariantCulture)}.json");
+
+    /// <summary>The chests from before FCT kept with a backup (per profile), next to it.</summary>
+    public static string EarlierChestsOf(string backup) => Path.ChangeExtension(backup, null) + ".earlier.json";
+
+    /// <summary>The backups of the history in the folder, newest first, with when each was made.</summary>
+    public List<(string Path, DateTime Made)> Backups()
+    {
+        try
+        {
+            return Directory.EnumerateFiles(Folder, BackupPrefix + "*.json")
+                .Where(path => !path.EndsWith(".earlier.json", StringComparison.OrdinalIgnoreCase))
+                .Select(path => (path, Made: DateTime.TryParseExact(Path.GetFileNameWithoutExtension(path)[BackupPrefix.Length..], BackupStamp,
+                    System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var made) ? made : File.GetLastWriteTime(path)))
+                .OrderByDescending(backup => backup.Made)
+                .ToList();
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return new List<(string, DateTime)>();
+        }
+    }
+
     /// <summary>Earlier name of the stats page; removed once the current one has been written.</summary>
     public string LegacyStatsPath => InFolder("report.html");
 

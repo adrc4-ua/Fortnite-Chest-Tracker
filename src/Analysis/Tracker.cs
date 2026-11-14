@@ -76,6 +76,32 @@ public sealed class Tracker
     }
 
     /// <summary>
+    /// Brings a backup back: its matches (with their chests and treasures) that the history does not have are added,
+    /// and what it knew of each replay too; nothing already here is replaced, so matches played since are kept.
+    /// Returns how many matches came back.
+    /// </summary>
+    public int Restore(TrackerData backup)
+    {
+        var known = Data.Matches.Select(m => m.SessionId).ToHashSet();
+        var added = 0;
+        foreach (var match in backup.Matches.Where(m => known.Add(m.SessionId)))
+        {
+            Data.Matches.Add(match);
+            added++;
+        }
+        foreach (var (file, verdict) in backup.ProcessedFiles)
+        {
+            // replays marked "skipped" by the reset get back what they were
+            if (!Data.ProcessedFiles.TryGetValue(file, out var now) || now == Skipped)
+            {
+                Data.ProcessedFiles[file] = verdict;
+            }
+        }
+        _store.SaveData(Data);
+        return added;
+    }
+
+    /// <summary>
     /// After an analyzer change, forgets which replays were read (except the final verdicts) so the ones still on disk
     /// are read again and their matches replaced. Call before scanning. True when existing matches will be re-read.
     /// </summary>
