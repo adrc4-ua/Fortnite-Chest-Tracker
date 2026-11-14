@@ -8,7 +8,7 @@ namespace FCT.UI;
 /// <summary>
 /// Chests per day of the week, drawn like the page's chest curve: a smooth gold line over a fading fill, guide lines
 /// with the scale on the left, the average of the days played as a dashed line, a dot per day (today in white, with
-/// its figure above) and the day names below ("today" in gold). Days still to come get no dot.
+/// its figure above) and the day names below (today's in gold). Days still to come get no dot.
 /// </summary>
 [SupportedOSPlatform("windows")]
 public sealed class DailyChart : Control
@@ -209,15 +209,15 @@ public sealed class DailyChart : Control
             }
         }
 
-        /// <summary>Short day names under the plot ("today" in gold); the first and last kept inside the edges.</summary>
+        /// <summary>Short day names under the plot (today's in gold); the first and last kept inside the edges.</summary>
         private void DayNames()
         {
             for (var i = 0; i < _days.Count; i++)
             {
                 var day = _days[i];
                 var isToday = IsToday(day);
-                var name = isToday ? L.T("hoy", "today") : day.Day.ToString("ddd", L.Culture);
-                if (!isToday && name.Length > 3)
+                var name = day.Day.ToString("ddd", L.Culture);
+                if (name.Length > 3)
                 {
                     name = name[..3];
                 }

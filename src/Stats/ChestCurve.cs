@@ -50,7 +50,7 @@ internal static class ChestCurve
             }
             if (isToday || (last - i) % 5 == 0) // a date every five days, counted back from today
             {
-                var label = isToday ? L.T("hoy", "today") : ShortDay(days[i]);
+                var label = ShortDay(days[i]); // today: its own date, in gold
                 html.Append($"<span class=\"c-x{(isToday ? " is-now" : "")}\" style=\"left:{Left(points[i].X)}\">{Esc(label)}</span>");
             }
         }
