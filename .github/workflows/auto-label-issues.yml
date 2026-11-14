@@ -82,15 +82,9 @@ jobs:
               labelsToAdd.add('triaje');
             }
 
-            // Tipo de solicitud: soporta indistintamente 'bug' o 'problema'
-            if (/Problema o fallo|Bug report/i.test(body)) {
-              if (repoLabels.includes('bug')) {
-                labelsToAdd.add('bug');
-              } else if (repoLabels.includes('problema')) {
-                labelsToAdd.add('problema');
-              } else {
-                labelsToAdd.add('bug');
-              }
+            // Tipo de solicitud: asigna 'bug', 'mejora' o 'pregunta'
+            if (/Problema o fallo|Bug report|Bug/i.test(body)) {
+              labelsToAdd.add('bug');
             } else if (/Sugerencia o mejora|Suggestion or enhancement/i.test(body)) {
               labelsToAdd.add('mejora');
             } else if (/Petición o duda|Question or request/i.test(body)) {
