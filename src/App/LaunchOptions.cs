@@ -20,6 +20,9 @@ internal sealed class LaunchOptions
     /// <summary>Restarted by the updater: waits for the previous instance to finish closing.</summary>
     public bool AfterUpdate { get; private set; }
 
+    /// <summary>"--show": the window opens even when FCT starts by itself (a restart that had it in view).</summary>
+    public bool Show { get; private set; }
+
     public string? OverlayPreview { get; private set; }
 
     /// <summary>--diagnose: the replay's signals side by side, for a file or a folder.</summary>
@@ -47,6 +50,7 @@ internal sealed class LaunchOptions
                 case "--reset-config": options.ResetConfig = true; break;
                 case "--auto": options.Auto = true; break;
                 case "--after-update": options.AfterUpdate = true; break;
+                case "--show": options.Show = true; break;
                 case "--overlay-preview": options.OverlayPreview = Value(); break;
                 case "--diagnose": options.Diagnose = Value(); break;
                 case "--licenses": options.RunAndExit = AppInfo.PrintLicenses; break;

@@ -165,9 +165,13 @@ public sealed partial class MainForm : ThemedForm
     /// <summary>Closes the app for real (menu "Salir", the overlay's ✕, Fortnite closing, an update).</summary>
     internal void ExitApp()
     {
+        ShownAtExit = Visible && WindowState != FormWindowState.Minimized;
         _exiting = true;
         Close();
     }
+
+    /// <summary>The window was in view when the app closed (a restart into a new version shows it again).</summary>
+    internal bool ShownAtExit { get; private set; }
 
     /// <summary>Brings the window to the front (tray icon, its menu, or the app opened again).</summary>
     internal void ShowFromTray()

@@ -68,6 +68,9 @@ public static class NativeOverlay
     /// <summary>Turned on (it is on screen only while the game is open).</summary>
     public static bool IsVisible => _window != IntPtr.Zero && _visible;
 
+    /// <summary>A window of the game is open and in sight (not minimized, not covered), as the overlay last saw it.</summary>
+    public static bool GameInSight => _window != IntPtr.Zero && _game.Watching && _gameOpen;
+
     /// <param name="x">Saved position; -10000 or less keeps it off screen for good (--overlay-preview).</param>
     /// <param name="isGame">Given a process id, whether it is the game: the overlay only shows while a window of the
     /// game is open and not minimized, on any screen. Null: always (previews).</param>

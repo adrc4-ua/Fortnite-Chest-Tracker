@@ -198,9 +198,10 @@ internal static class Program
             // Only when FCT opens by itself (with the game, or restarting after an update) does it wait in the tray with the
             // overlay alone; opened by the player, the window always shows (the game is never in front at that moment).
             var openedByItself = options.Auto || options.AfterUpdate;
-            form.StartInBackground = !firstRun && openedByItself && fortniteOpen && monitor.OverlayVisible;
+            form.StartInBackground = !firstRun && openedByItself && !options.Show && fortniteOpen && monitor.OverlayVisible;
             Application.Run(form);
         }
+        var gameInSight = OperatingSystem.IsWindows() && NativeOverlay.GameInSight; // before the overlay stops
         monitor.Stop();
 
         if (monitor.UninstallRequested && OperatingSystem.IsWindows())
@@ -213,10 +214,16 @@ internal static class Program
         if ((monitor.RestartAfterUpdate || monitor.RestartRequested) && AppInfo.ExePath is { } exe)
         {
             instance.Release();
-            var again = args.Where(a => a != "--after-update").Select(a => a.Contains(' ') ? $"\"{a}\"" : a);
+            var again = args.Where(a => a is not ("--after-update" or "--show")).Select(a => a.Contains(' ') ? $"\"{a}\"" : a);
             if (monitor.RestartAfterUpdate)
             {
                 again = again.Append("--after-update"); // the new version announces itself
+            }
+            // the new one opens its window if this one had it in view, or the game is not in sight (minimized, covered):
+            // it only waits in the tray when the player was playing with the window put away
+            if (monitor.RestartRequested || form.ShownAtExit || !gameInSight)
+            {
+                again = again.Append("--show");
             }
             Process.Start(new ProcessStartInfo(exe, string.Join(" ", again)) { UseShellExecute = true })?.Dispose();
         }

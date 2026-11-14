@@ -9,6 +9,10 @@ public sealed partial class MainForm
     private string? _profilesShown;
     private bool _pickingProfile;
 
+    // What the window shows: kept here, as the controls' Visible is false while the window itself is hidden (started in
+    // the background), which made it size itself without the team card and show up cut.
+    private bool _teamShown, _noticeShown, _updateShown;
+
     private void OnChanged(MonitorState state)
     {
         _state = state;
@@ -115,9 +119,10 @@ public sealed partial class MainForm
     /// <summary>The team card; without team data (teammates off) it hides and the window shrinks back.</summary>
     private void ShowTeam(TeamSummary? team)
     {
-        if (_team.Card.Visible != (team != null))
+        if (_teamShown != (team != null))
         {
-            _team.Card.Visible = team != null;
+            _teamShown = team != null;
+            _team.Card.Visible = _teamShown;
             FitHeight();
         }
         if (team != null)
@@ -163,21 +168,23 @@ public sealed partial class MainForm
     {
         _keepOpenOffered = state.AutoCloseOffer;
         var notice = !string.IsNullOrEmpty(state.Notice);
-        _update.Visible = !notice && state.Update != null;
+        _updateShown = !notice && state.Update != null;
+        _update.Visible = _updateShown;
         if (state.Update != null)
         {
             _update.Text = L.T("Instalar la actualización", "Install the update");
         }
         _notice.Text = state.Notice ?? "";
         _notice.Cursor = state.AutoCloseOffer ? Cursors.Hand : Cursors.Default;
+        _noticeShown = notice;
         _noticeCard.Visible = notice;
     }
 
     /// <summary>The window's design height for what shows (team card, bottom strip), kept at the same scale.</summary>
     private void FitHeight()
     {
-        var team = _team.Card.Visible;
-        var strip = _noticeCard.Visible || _update.Visible;
+        var team = _teamShown;
+        var strip = _noticeShown || _updateShown;
         var stripY = team ? StripYUnderTeam : StripY;
         _layout.MoveTo(_noticeCard, stripY);
         _layout.MoveTo(_update, stripY);
