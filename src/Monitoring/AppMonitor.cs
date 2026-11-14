@@ -183,10 +183,13 @@ public sealed class AppMonitor
     }
 
     /// <summary>A message where the window's buttons are; it goes away by itself after a while.</summary>
-    public void SetNotice(string? text)
+    public void SetNotice(string? text) => SetNotice(text, NoticeSeconds);
+
+    /// <summary>A message where the window's buttons are, for <paramref name="seconds"/>.</summary>
+    public void SetNotice(string? text, int seconds)
     {
         _notice = text;
-        _noticeUntil = DateTime.UtcNow.AddSeconds(NoticeSeconds);
+        _noticeUntil = DateTime.UtcNow.AddSeconds(seconds);
         RequestPublish();
     }
 

@@ -189,7 +189,8 @@ internal static class Program
                {
                    if (OnWindowThread(form, form.ShowFromTray))
                    {
-                       monitor.SetNotice(L.F("{0} ya estaba abierto: solo puede haber uno a la vez.", "{0} was already open: there can only be one at a time.", AppInfo.ShortName));
+                       monitor.SetNotice(L.F("{0} ya estaba abierto: solo puede haber uno a la vez.", "{0} was already open: there can only be one at a time.", AppInfo.ShortName),
+                           seconds: 5); // a quick reminder: the window it asked for is already in front
                    }
                }))
         {
