@@ -22,6 +22,7 @@ internal static class Program
         Application.SetCompatibleTextRenderingDefault(false);
 
         var options = LaunchOptions.Parse(args);
+        AppInfo.Isolated = options.DataFolder != null; // a test copy: before anything, the command line tools included
         PrepareConsole(options.Terminal);
         ReportCrashes(options.Terminal);
         if (options.RunAndExit != null)
@@ -208,12 +209,11 @@ internal static class Program
         {
             instance.Release();
             // a test copy (--data) only deletes its own exe: Windows' startup and what is shared belong to the real one
-            var realCopy = options.DataFolder == null;
-            if (realCopy)
+            if (!AppInfo.Isolated)
             {
                 Uninstaller.RemoveTraces();
             }
-            Uninstaller.DeleteSelfAfterExit(shared: realCopy);
+            Uninstaller.DeleteSelfAfterExit(shared: !AppInfo.Isolated);
             return 0;
         }
         if ((monitor.RestartAfterUpdate || monitor.RestartRequested) && AppInfo.ExePath is { } exe)

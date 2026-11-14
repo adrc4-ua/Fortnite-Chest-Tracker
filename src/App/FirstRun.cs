@@ -87,7 +87,10 @@ internal static class FirstRun
             return null;
         }
         instance.Release();
-        Process.Start(new ProcessStartInfo(updated, "--after-update") { UseShellExecute = true })?.Dispose();
+        // the same options again (a test copy keeps its own data folder), plus the new version's announcement
+        var again = Environment.GetCommandLineArgs().Skip(1).Where(a => a is not ("--after-update" or "--show"))
+            .Select(a => a.Contains(' ') ? $"\"{a}\"" : a).Append("--after-update").Append("--show");
+        Process.Start(new ProcessStartInfo(updated, string.Join(" ", again)) { UseShellExecute = true })?.Dispose();
         return Outcome.Updated;
     }
 

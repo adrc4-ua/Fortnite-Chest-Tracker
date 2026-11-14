@@ -91,9 +91,9 @@ public static class Updater
         {
             Download(update.AssetUrl, incoming);
             Verify(incoming, update);
-            if (OperatingSystem.IsWindows())
+            if (OperatingSystem.IsWindows() && !AppInfo.Isolated)
             {
-                FortniteWatch.StopStandby(); // an old-style standby may be running this very exe
+                FortniteWatch.StopStandby(); // an old-style standby may be running this very exe (never the normal copy's from a test one)
             }
             Swap(exe, incoming);
             return null;

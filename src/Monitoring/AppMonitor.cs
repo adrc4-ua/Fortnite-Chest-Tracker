@@ -81,6 +81,9 @@ public sealed class AppMonitor
     public bool RestartRequested { get; private set; }
     public bool UninstallRequested { get; private set; }
 
+    /// <summary>How far from the normal port a test copy (another data folder) opens its OBS and stats page.</summary>
+    private const int IsolatedPortOffset = 100;
+
     public string? ShownProfileName => _shownName;
 
     /// <summary>Epic id of the profile on screen (its key, when the replays carry one), or null.</summary>
@@ -141,7 +144,8 @@ public sealed class AppMonitor
         ObsServer.StatsFile = _store.StatsPath;
         ObsServer.StatsLang = L.Code;
         ObsServer.Settings = ApplyFromStatsPage;
-        ObsServer.Start(Config.ObsPort > 0 ? Config.ObsPort : ObsServer.DefaultPort);
+        // a test copy keeps away from the normal one's port, so OBS never ends up on the wrong one
+        ObsServer.Start((Config.ObsPort > 0 ? Config.ObsPort : ObsServer.DefaultPort) + (AppInfo.Isolated ? IsolatedPortOffset : 0));
         _gameLog = new GameLogWatcher(_screens.Shown);
         new Thread(Run) { IsBackground = true, Name = "Vigilancia" }.Start();
     }

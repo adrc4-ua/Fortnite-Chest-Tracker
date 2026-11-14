@@ -61,6 +61,13 @@ public static class Uninstaller
                 "{0} is open: close it (or use Settings → Uninstall) and try again.", AppInfo.ShortName));
             return 1;
         }
+        if (AppInfo.Isolated)
+        {
+            DeleteSelfAfterExit(shared: false);
+            Console.WriteLine(L.T("Copia con otra carpeta de datos: solo se borra este exe; el FCT normal no se toca.",
+                "A copy with another data folder: only this exe is deleted; the normal FCT is not touched."));
+            return 0;
+        }
         RemoveTraces();
         DeleteSelfAfterExit();
         Console.WriteLine(L.F("{0} desinstalado: sin tarea programada ni entradas de inicio, y el exe se borra en unos segundos. Tus datos siguen en {1} (bórralos a mano si quieres).",
