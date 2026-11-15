@@ -61,6 +61,19 @@ internal static class MatchDiagnosis
             lines.Add($"  ★ {Pretty.Clock(treasure.ObtainedAtSeconds ?? 0)}  {treasure.DisplayName}  ·  {L.T("por", "by")} {finder}  ·  {source}  ·  {evidence}");
         }
 
+        // Every golden chest of a featured treasure the replay saw, squad's or not: which prize id it carried, whether
+        // the catalogue knows it, and who opened it (opponents' ones show that featured treasures are read at all).
+        var matchLocal = DateTime.SpecifyKind(replay.GameData?.UtcTimeStartedMatch ?? replay.Info?.Timestamp ?? DateTime.UtcNow, DateTimeKind.Utc).ToLocalTime();
+        foreach (var payout in signals.Payouts.OrderBy(p => p.Time))
+        {
+            var prize = Prizes.ById(payout.PrizeId, Prizes.WeekOf(matchLocal));
+            var opener = payout.Pawn is { } pawn && pawn != 0
+                ? match.TargetPawns.Contains(pawn) ? me : match.MatePawns.TryGetValue(pawn, out var mate) ? mate : L.T("rival", "opponent")
+                : L.T("desconocido", "unknown");
+            lines.Add($"  ◆ {Pretty.Clock(payout.Time)}  {L.T("cofre de premio destacado", "featured treasure chest")}: {payout.PrizeId} → "
+                      + $"{(prize != null ? $"{prize.Name} ({Prizes.TypeName(prize.Type)})" : L.T("no está en el catálogo", "not in the catalogue"))} · {opener} · {payout.Container}");
+        }
+
         // A featured treasure without its grant, while grants are visible: the two signals disagree.
         var unconfirmed = match.Treasures.Count(t => t.FromPrizeChest && !match.ConfirmedPayouts.Contains(t));
         if (match.RecorderIsTarget && unconfirmed > 0 && signals.Grants.Count > 0)
