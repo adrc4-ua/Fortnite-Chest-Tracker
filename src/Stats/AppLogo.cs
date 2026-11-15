@@ -6,24 +6,28 @@ using System.Runtime.InteropServices;
 namespace FCT.Stats;
 
 /// <summary>
-/// FCT's icon as a PNG data URI for the stats page header and its browser tab. Rendered once at 96 px (crisp at 48 px
-/// on high-DPI screens, yet small enough for a page that reloads itself). Null when unavailable: the page then
-/// draws a chest instead.
+/// FCT's icon as a PNG data URI for the stats page header and its browser tab, and the open chest with the pirate
+/// token for the overview once the player has it. Rendered once at 96 px (crisp at 48 px on high-DPI screens, yet
+/// small enough for a page that updates itself). Null when unavailable: the page then draws a chest instead.
 /// </summary>
 internal static class AppLogo
 {
     private const int Pixels = 96;
-    private static readonly Lazy<string?> Cached = new(Render);
+    private static readonly Lazy<string?> Cached = new(() => Render("FCT.app.ico"));
+    private static readonly Lazy<string?> TokenCached = new(() => Render("FCT.token-chest.ico"));
 
     public static string? DataUri => Cached.Value;
 
-    private static string? Render()
+    /// <summary>The open chest with the pirate token (the Pirate Shop Access), for the overview of a player who has it.</summary>
+    public static string? TokenChest => TokenCached.Value;
+
+    private static string? Render(string resource)
     {
         if (!OperatingSystem.IsWindows())
         {
             return null;
         }
-        using var embedded = typeof(AppLogo).Assembly.GetManifestResourceStream("FCT.app.ico");
+        using var embedded = typeof(AppLogo).Assembly.GetManifestResourceStream(resource);
         if (embedded == null)
         {
             return null;

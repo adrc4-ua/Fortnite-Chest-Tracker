@@ -4,6 +4,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- **Cofre con el token pirata**: cuando consigues el acceso a la tienda pirata, el cofre de «Cofres abiertos» en el resumen de la web pasa a ser el cofre abierto con el token.
 - **Artilugios reconocidos por su icono, no solo por su color**: cada carta de la pantalla final se compara con iconos de referencia sacados de pantallas reales, reducidos a una huella de color que no depende de la resolución, del brillo ni de la compresión. Funciona igual en todos los idiomas (los iconos no llevan texto) y reconoce el extractor portátil que antes se quedaba sin nombre en capturas comprimidas. Una carta en pleno destello o un tesoro destacado se queda sin nombre, nunca con uno equivocado.
 - **Cartas encontradas en cualquier pantalla**: 720p, 1080p, 1440p, 4K, ultrapanorámicas (21:9 y 32:9, con el panel pegado al borde o centrado), 16:10 y 4:3, y también con la imagen oscura, muy brillante o comprimida. Antes el acelerador podía partirse en dos mitades y perderse.
 

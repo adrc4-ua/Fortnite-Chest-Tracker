@@ -185,6 +185,7 @@ internal sealed class PageData
         PlayedDays = Matches.Select(LocalStart).Concat(data.UnjumpedStarts.Select(start => start.ToLocalTime()))
             .GroupBy(start => start.Date).ToDictionary(day => day.Key, day => day.Count());
         Treasures = Matches.SelectMany(m => m.TreasureFinds.Select(f => (m, f))).ToList();
+        PirateToken = Treasures.Any(t => Prizes.ByName(Prizes.Describe(t.f, LocalStart(t.m)).Name) is { Type: Prizes.Kind.ShopAccess });
         ExtraKinds = config.ExtraKinds();
         Player = Matches.Select(m => m.PlayerName).FirstOrDefault(n => !string.IsNullOrEmpty(n)) ?? "";
         Teammates = config.ShowTeammates ? TeammatesTab.Build(Matches, ExtraKinds) : null;
@@ -212,6 +213,9 @@ internal sealed class PageData
     public List<MatchRecord> Matches { get; }
 
     public List<(MatchRecord m, TreasureFind f)> Treasures { get; }
+
+    /// <summary>The player got the pirate token (the Pirate Shop Access) in one of the matches shown.</summary>
+    public bool PirateToken { get; }
     public IReadOnlyCollection<string> ExtraKinds { get; }
     public string Player { get; }
 

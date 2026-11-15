@@ -30,6 +30,8 @@
   <ItemGroup>
     <!-- Also inside the exe as a resource: the stats page shows it as its logo. -->
     <EmbeddedResource Include="Assets\app.ico" LogicalName="FCT.app.ico" />
+    <!-- The overview's chest once the player has the pirate token. -->
+    <EmbeddedResource Include="Assets\cofre_abierto_token.ico" LogicalName="FCT.token-chest.ico" />
     <!-- Reference prints of the treasure gizmos, to tell them apart on the end-of-match screen. -->
     <EmbeddedResource Include="PostMatch\treasure-prints.json" LogicalName="FCT.treasure-prints.json" />
     <!-- Style and script of the stats page and of the OBS overlay (written into each page). -->

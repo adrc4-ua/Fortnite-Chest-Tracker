@@ -50,7 +50,9 @@ internal static class OverviewTab
         var todayLine = $"{L.T("Hoy", "Today")}: <b>{Num(todays.Sum(m => m.ChestsOpened))}</b>"
                         + (todays.Count > 0 ? " · " + L.Count(todays.Count, "partida", "partidas", "match", "matches") : "");
 
-        var hero = "<div class=\"fig fig-hero\">" + (logo == null ? "" : $"<img src=\"{logo}\" alt=\"\" width=\"88\" height=\"88\">")
+        // the chest opens and shows the pirate token once the player has it
+        var chest = page.PirateToken && AppLogo.TokenChest is { } token ? token : logo;
+        var hero = "<div class=\"fig fig-hero\">" + (chest == null ? "" : $"<img src=\"{chest}\" alt=\"\" width=\"88\" height=\"88\">")
                    + $"<div><div class=\"fig-label\">{L.T("Cofres abiertos", "Chests opened")}</div><div class=\"fig-value\">{Num(counted + Math.Max(0, page.InitialChests))}</div>"
                    + $"<div class=\"fig-note fig-today\">{todayLine}</div>"
                    + (notes.Count > 0 ? $"<div class=\"fig-note\">{string.Join(" · ", notes)}</div>" : "") + "</div></div>";
