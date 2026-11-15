@@ -30,7 +30,7 @@ public sealed class GameLogWatcher : IDisposable
     {
         _path = path ?? DefaultPath;
         _onTreasureScreen = onTreasureScreen;
-        _timer = new System.Threading.Timer(_ => Poll(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(500));
+        _timer = new System.Threading.Timer(_ => Poll(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(200));
     }
 
     private void Poll()

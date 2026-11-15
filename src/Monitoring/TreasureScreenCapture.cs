@@ -11,11 +11,13 @@ namespace FCT.Monitoring;
 internal sealed class TreasureScreenCapture
 {
     /// <summary>
-    /// The screen often stays only 2 to 7 s (the player leaves at once), sometimes much longer: captures every half
-    /// second over the first 6 s, then every 1.5 s up to 12 s. The first one waits out the cards' entry animation
-    /// (each card flashes gold as it lands, and reads wrong until it settles).
+    /// The screen often stays only 2 to 7 s (the player leaves at once), sometimes much longer: captures every third
+    /// of a second over the first 6 s, then every 1.5 s up to 12 s. The first one waits out the cards' entry animation
+    /// (each card flashes gold as it lands, and reads wrong until it settles); it is short because the game log line
+    /// that triggers this capture, and the 500 ms poll that notices it, can already eat over a second of the time the
+    /// screen stays up.
     /// </summary>
-    private static readonly int[] CaptureDelaysMs = { 800, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 500, 1500, 1500, 1500, 1500 };
+    private static readonly int[] CaptureDelaysMs = { 500, 350, 350, 350, 350, 350, 350, 350, 350, 350, 350, 350, 1500, 1500, 1500, 1500 };
 
     private readonly ConcurrentQueue<TreasureScreen> _read = new();
     private readonly Action _wake;
@@ -52,9 +54,10 @@ internal sealed class TreasureScreenCapture
     /// One reading out of several. A capture often misses a card (caught while it was still landing, or in a frame
     /// where it did not stand out), but a phantom card never shows up in more than one: so there are as many cards as
     /// at least two captures saw (a single capture only counts when it is the only one). Each card's name is voted
-    /// among the captures that saw it; the cards settle and never flash again, so the vote runs over the later half
-    /// of them (at least two), and among equals the name read later wins. A card read as a gizmo only once among many
-    /// unknown readings (a featured treasure) stays unknown.
+    /// among every capture that saw it (not only the later ones: the player can leave the screen early, after which
+    /// later captures see a different, noisy UI and must not outvote the earlier, confident reads), and among equals
+    /// the name read later wins. A card read as a gizmo only once among many unknown readings (a featured treasure)
+    /// stays unknown.
     /// </summary>
     internal static List<string> Combine(IReadOnlyList<List<string>> readings)
     {
@@ -73,8 +76,7 @@ internal sealed class TreasureScreenCapture
         for (var slot = 0; slot < count; slot++)
         {
             var rows = counted.Where(r => r.Count > slot).ToList();
-            var window = rows.Skip(rows.Count - Math.Max(2, (rows.Count + 1) / 2)).ToList();
-            var seen = window.Select(r => r[slot]).ToList();
+            var seen = rows.Select(r => r[slot]).ToList();
             var unknown = seen.Count(name => name == TreasureScreenReader.Unknown);
             var named = seen.Where(name => name != TreasureScreenReader.Unknown)
                 .GroupBy(name => name)
