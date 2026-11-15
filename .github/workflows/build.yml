@@ -109,6 +109,9 @@ jobs:
     permissions:
       contents: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
       - uses: actions/download-artifact@v4
         with:
           name: FCT
@@ -119,15 +122,85 @@ jobs:
           TAG: ${{ github.event.release.tag_name || inputs.tag }}
         run: |
           gh release upload "$TAG" dist/FCT.exe --clobber --repo "$GITHUB_REPOSITORY"
-      # SignPath Foundation asks for the code signing policy on the download page: added once to the release notes.
-      - name: Add the code signing policy to the release notes
+      # Formats the release notes: download instructions (EN + ES), changelog notes and the SignPath policy footer.
+      - name: Format release notes with download guide and policy
         env:
           GH_TOKEN: ${{ secrets.RELEASE_TOKEN || github.token }}
           TAG: ${{ github.event.release.tag_name || inputs.tag }}
         run: |
-          body="$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json body -q .body)"
-          if ! grep -q "Code signing policy" <<< "$body"; then
-            note="Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/) · [Code signing policy](https://github.com/$GITHUB_REPOSITORY/blob/main/CODE_SIGNING_POLICY.md) · [Third-party notices](https://github.com/$GITHUB_REPOSITORY/blob/main/THIRD_PARTY_NOTICES.md) · Not affiliated with Epic Games."
-            printf '%s\n\n---\n%s\n' "$body" "$note" > notes.md
-            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --notes-file notes.md
-          fi
+          python3 - << 'EOF'
+          import os, subprocess, re
+
+          tag = os.environ.get("TAG", "")
+          repo = os.environ.get("GITHUB_REPOSITORY", "")
+          if not tag or not repo:
+              exit(0)
+
+          try:
+              res = subprocess.run(["gh", "release", "view", tag, "--repo", repo, "--json", "body", "-q", ".body"],
+                                   capture_output=True, text=True, check=True)
+              current_body = res.stdout
+          except Exception:
+              current_body = ""
+
+          # Remove default Full Changelog, old SignPath footers and headers to prevent duplicate sections
+          clean_lines = []
+          skip_header = False
+          for line in current_body.splitlines():
+              if re.match(r'^\s*\*\*Full Changelog\*\*', line):
+                  continue
+              if "SignPath" in line or "Code signing policy" in line or "Not affiliated with Epic Games" in line:
+                  continue
+              if "### ⬇️ Download" in line or "### 📋 Changes" in line:
+                  skip_header = True
+                  continue
+              if skip_header and line.startswith("### "):
+                  skip_header = False
+              if not skip_header:
+                  clean_lines.append(line)
+
+          custom_text = "\n".join(clean_lines).strip()
+          custom_text = re.sub(r'^---\s*', '', custom_text).strip()
+          custom_text = re.sub(r'\s*---$', '', custom_text).strip()
+
+          # Try extracting changelog bullets for this tag from CHANGELOG.md
+          bullets = ""
+          try:
+              with open("CHANGELOG.md", "r", encoding="utf-8") as f:
+                  cl = f.read()
+              ver = tag.lstrip("v")
+              m = re.search(rf'## \[{re.escape(ver)}\][^\n]*\n(.*?)(?=\n## |\n\[|\Z)', cl, re.DOTALL)
+              if m:
+                  bullets = m.group(1).strip()
+          except Exception:
+              pass
+
+          changes_content = bullets or custom_text
+          changes_section = ""
+          if changes_content:
+              changes_section = f"\n\n---\n\n### 📋 Changes / Novedades\n\n{changes_content}"
+
+          header = """### ⬇️ Download / Descarga
+
+**English:**
+To use Fortnite Chest Tracker, just download **`FCT.exe`** from the **Assets** section below and open it. That's it!
+* **No installation needed:** A single portable file — nothing gets installed on your PC.
+* **Requirements:** Windows 10 or 11. In Fortnite, turn on *Record Replays* (*Settings → Game → Replays*).
+* If Windows SmartScreen shows *"Windows protected your PC"*, click **More info → Run anyway** (common for new software with few downloads).
+
+**Español:**
+Para usar Fortnite Chest Tracker, simplemente descarga **`FCT.exe`** en la sección **Assets** de abajo y ábrelo con doble clic. ¡Y listo!
+* **Sin instalación:** Es un único archivo portátil, no instala nada en tu PC.
+* **Requisitos:** Windows 10 u 11. En Fortnite, activa *Grabar repeticiones* (*Ajustes → Juego → Repeticiones*).
+* Si Windows muestra *"Windows protegió su PC"*, pulsa **Más información → Ejecutar de todas formas** (habitual en programas nuevos con pocas descargas)."""
+
+          footer = f"""---
+<sub>Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/) · [Code signing policy](https://github.com/{repo}/blob/main/CODE_SIGNING_POLICY.md) · [Third-party notices](https://github.com/{repo}/blob/main/THIRD_PARTY_NOTICES.md) · Not affiliated with Epic Games.</sub>"""
+
+          new_notes = f"{header}{changes_section}\n\n{footer}\n"
+          with open("notes.md", "w", encoding="utf-8") as f:
+              f.write(new_notes)
+
+          subprocess.run(["gh", "release", "edit", tag, "--repo", repo, "--notes-file", "notes.md"], check=True)
+          print(f"Release notes for {tag} formatted successfully.")
+          EOF
