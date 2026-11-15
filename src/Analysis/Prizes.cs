@@ -11,7 +11,7 @@ namespace FCT.Analysis;
 /// Access) with an animated chest, so they are named here.</item>
 /// <item>Treasure gizmos: the five gizmos, in every week. The replay does not say which one was received.</item>
 /// </list>
-/// Names are the official English ones (also used by the Spanish game for these items). Weeks 3 to 5 come from the
+/// Names are the official English ones (also used by the Spanish game for these items). Weeks 4 and 5 come from the
 /// files of the game as leaked (ShiinaBR, Fortnite.gg), marked unconfirmed until they are in the game.
 /// </summary>
 public static class Prizes
@@ -53,7 +53,7 @@ public static class Prizes
     /// Every prize of the hunt with its id, as in the game's prize table (DT_DelilahTreasureHunt_Prizes, build 43.10):
     /// each row has its own id, never reused from week to week. Week 1 is items 1 to 5, the gizmos 9 to 13 and weeks 2
     /// to 5 five items each from 14 (outfit, back bling, jam track, loading screen, gold car). Names are the official
-    /// ones; weeks 3 to 5 come from the community until they are in the game.
+    /// ones; weeks 4 and 5 come from the community until they are in the game.
     /// </summary>
     public static readonly Prize[] All =
     {
@@ -76,12 +76,14 @@ public static class Prizes
         new("London", Kind.JamTrack, 2, "DelilahPrize:dpid_item16"),
         new("So Kawaii", Kind.LoadingScreen, 2, "DelilahPrize:dpid_item17"),
         new("Cadillac CT5-V Blackwing", Kind.Vehicle, 2, "DelilahPrize:dpid_item18"),
-        // Weeks 3 to 5: the slots are in the table, the names as leaked from the game's files
-        new("Solid Gold Miku", Kind.Outfit, 3, "DelilahPrize:dpid_item19", Announced: false),
-        new("Miku's Takarabako", Kind.BackBling, 3, "DelilahPrize:dpid_item20", Announced: false),
-        new("PPPP", Kind.JamTrack, 3, "DelilahPrize:dpid_item21", Announced: false),
-        new("May Fortune Find You", Kind.LoadingScreen, 3, "DelilahPrize:dpid_item22", Announced: false),
-        new("Chevrolet Corvette ZR1", Kind.Vehicle, 3, "DelilahPrize:dpid_item23", Announced: false),
+        // Week 3: confirmed by the official cosmetics list (loadingscreen_delilahthw3, Backpack_FledGravelReward…) and by
+        // prizes 20 to 22 won in real matches
+        new("Solid Gold Miku", Kind.Outfit, 3, "DelilahPrize:dpid_item19"),
+        new("Miku's Takarabako", Kind.BackBling, 3, "DelilahPrize:dpid_item20"),
+        new("PPPP", Kind.JamTrack, 3, "DelilahPrize:dpid_item21"),
+        new("May Fortune Find You", Kind.LoadingScreen, 3, "DelilahPrize:dpid_item22"),
+        new("Chevrolet Corvette ZR1", Kind.Vehicle, 3, "DelilahPrize:dpid_item23"),
+        // Weeks 4 and 5: the slots are in the table, the names as leaked from the game's files
         new("Solid Gold Kasane Teto", Kind.Outfit, 4, "DelilahPrize:dpid_item24", Announced: false),
         new("Rogue Wave and Tidewalker", Kind.BackBling, 4, "DelilahPrize:dpid_item25", Announced: false),
         new("Sea Shanty", Kind.JamTrack, 4, "DelilahPrize:dpid_item26", Announced: false),
