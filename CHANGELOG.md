@@ -2,6 +2,11 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
+## [Sin publicar]
+
+- **Artilugios reconocidos por su icono, no solo por su color**: cada carta de la pantalla final se compara con iconos de referencia sacados de pantallas reales, reducidos a una huella de color que no depende de la resolución, del brillo ni de la compresión. Funciona igual en todos los idiomas (los iconos no llevan texto) y reconoce el extractor portátil que antes se quedaba sin nombre en capturas comprimidas. Una carta en pleno destello o un tesoro destacado se queda sin nombre, nunca con uno equivocado.
+- **Cartas encontradas en cualquier pantalla**: 720p, 1080p, 1440p, 4K, ultrapanorámicas (21:9 y 32:9, con el panel pegado al borde o centrado), 16:10 y 4:3, y también con la imagen oscura, muy brillante o comprimida. Antes el acelerador podía partirse en dos mitades y perderse.
+
 ## [5.8.3] - 2026-11-15
 
 - **Ya no se pierde la segunda carta de la pantalla de tesoros**: una carta cuenta en cuanto la ven al menos dos capturas. Antes mandaba el número de cartas que veía la mayoría, y una carta que solo aparecía en parte de las capturas (por ejemplo un acelerador junto a un extractor) se quedaba sin nombre. Las pantallas guardadas con sus lecturas se recalculan solas al abrir FCT.
