@@ -2,6 +2,10 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
+## [5.9.4] - 2026-11-15
+
+- **Pantalla de tesoros leída más rápido y sin perder cartas si sales pronto**: el registro del juego se sondea cada 200 ms (antes 500 ms) y las capturas se toman cada tercio de segundo desde los 500 ms iniciales. El voto de cada carta tiene en cuenta todas las capturas que la vieron para que salir antes de tiempo no sobreescriba una lectura clara con la interfaz posterior, y se añaden nuevas huellas para los fuegos artificiales.
+
 ## [5.9.3] - 2026-11-15
 
 - **El aviso de "analizando tus replays" ya no aplasta "Últimos tesoros"**: con ese aviso arriba (y en ventanas algo más bajas de lo normal) la lista de últimos tesoros del resumen se quedaba reducida a casi nada, mostrando solo la tarjeta de compañeros debajo de un hueco vacío. Ahora esa zona siempre reserva sitio para verse bien; si aun así no cabe, la página se desplaza en vez de recortar el contenido.
@@ -316,6 +320,7 @@ Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede a
 
 - Primera versión publicada.
 
+[5.9.4]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.9.3...v5.9.4
 [5.9.3]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.9.2...v5.9.3
 [5.9.2]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.9.1...v5.9.2
 [5.9.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.9.0...v5.9.1
