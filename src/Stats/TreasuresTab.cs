@@ -14,12 +14,6 @@ internal static class TreasuresTab
         var treasures = page.Treasures;
         var html = new StringBuilder(Head("tesoros", L.T("Tesoros", "Treasures"), L.T("Los que hay ahora y los que has conseguido", "The ones available now and the ones you got"),
             Figures(treasures, page.Matches.Count)));
-        var unusual = treasures.Where(t => !t.f.SourceIsChest).ToList();
-        if (unusual.Count > 0)
-        {
-            var sources = Esc(string.Join(", ", unusual.Select(t => L.Name(ChestKinds.Shown(t.f.SourceKind))).Distinct()));
-            html.Append($"<div class=\"alert\"><span class=\"alert-ico\">⚑</span><div><b>{L.Count(unusual.Count, "tesoro obtenido", "tesoros obtenidos", "treasure obtained", "treasures obtained")} {L.T("sin abrir un cofre", "other than from a chest")}</b>: {sources}. {L.T("Resaltados en la tabla de abajo.", "Highlighted in the table below.")}</div></div>");
-        }
         var (now, allWeeks) = Hunt(treasures, page.Config.PrizeMarks);
         html.Append("<div class=\"pair-row\">").Append(now).Append(Sources(treasures)).Append("</div>").Append(allWeeks);
         // the two lists keep their size, with or without treasures: a list scrolls inside, an empty one says so
@@ -82,22 +76,22 @@ internal static class TreasuresTab
     private static string Sources(List<(MatchRecord m, TreasureFind f)> treasures)
     {
         // the chests that give treasures are always listed (also at 0); buried ones are normal chests
-        var sources = new List<(string Name, int Count, bool Chest)>();
+        var sources = new List<(string Name, int Count)>();
         foreach (var kind in new[] { ChestKinds.Normal, ChestKinds.Rare, ChestKinds.Extraction })
         {
-            sources.Add((L.Name(kind), treasures.Count(t => ChestKinds.Shown(t.f.SourceKind) == kind), true));
+            sources.Add((L.Name(kind), treasures.Count(t => ChestKinds.Shown(t.f.SourceKind) == kind)));
         }
         foreach (var other in treasures.Where(t => !sources.Exists(s => s.Name == L.Name(ChestKinds.Shown(t.f.SourceKind))))
                      .GroupBy(t => L.Name(ChestKinds.Shown(t.f.SourceKind))))
         {
-            sources.Add((other.Key, other.Count(), other.First().f.SourceIsChest));
+            sources.Add((other.Key, other.Count()));
         }
         sources = sources.OrderByDescending(s => s.Count).ToList(); // stable: at a tie, the chests' order above
         var largest = Math.Max(1, sources.Max(s => s.Count));
         var rows = new StringBuilder();
-        foreach (var (name, count, chest) in sources)
+        foreach (var (name, count) in sources)
         {
-            rows.Append(Bar((chest ? "" : "⚑ ") + Esc(name), Num(count), 100.0 * count / largest, chest ? null : "bar-warn"));
+            rows.Append(Bar(Esc(name), Num(count), 100.0 * count / largest));
         }
         return Section(L.T("Dónde consigo mis tesoros", "Where I get my treasures"), L.Count(treasures.Count, "tesoro", "tesoros", "treasure", "treasures"),
             $"<div class=\"sheet sheet-pad\"><div class=\"bars\">{rows}</div></div>");
@@ -119,10 +113,10 @@ internal static class TreasuresTab
             {
                 finder = $"<span class=\"muted\">{finder}</span>";
             }
-            html.Append(find.SourceIsChest ? "<tr>" : "<tr class=\"is-odd\">")
+            html.Append("<tr>")
                 .Append($"<td class=\"nowrap\">{L.DateTimeShort(LocalStart(match))}<div class=\"note\">{Esc(Pretty.Playlist(match.Playlist))}</div></td>")
                 .Append($"<td>{TreasureCell(find, LocalStart(match))}</td><td class=\"ac nowrap\">{finder}</td><td class=\"ac nowrap num\">{at}</td>")
-                .Append($"<td class=\"ac\">{(find.SourceIsChest ? "" : "⚑ ")}{Esc(find.SourceLabel)}</td></tr>");
+                .Append($"<td class=\"ac\">{Esc(find.SourceLabel)}</td></tr>");
         }
         return html.Append("</tbody></table></div>").ToString();
     }

@@ -4,7 +4,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
-- **Los tesoros solo salen de cofres**: dos tesoros aparecían como conseguidos en una caja de munición y eran de un cofre (comprobado con el replay de quien lo abrió): uno roto a la vez que la caja por una explosión y otro abierto por un compañero lejos de quien grabó. Ahora el origen de un tesoro es siempre un cofre, o «Desconocido» si el replay no lo vio, y un tesoro destacado cuyo contenedor no se ve ya no sale como «sin abrir un cofre».
+- **Los tesoros solo salen de cofres**: dos tesoros aparecían como conseguidos en una caja de munición y eran de un cofre (comprobado con el replay de quien lo abrió): uno roto a la vez que la caja por una explosión y otro abierto por un compañero lejos de quien grabó. Ahora el origen de un tesoro es siempre un cofre, o «Desconocido» si el replay no lo vio, y desaparece el aviso «tesoros obtenidos sin abrir un cofre».
 - **Cambio de semana a la hora real**: los premios cambian el domingo a las 15:00 (hora de España), no el lunes a las 3:00; un premio de la semana 3 se consiguió el domingo 15 a las 15:39.
 - **Diagnóstico**: junto a cada tesoro muestra todo lo que se abrió en los segundos de alrededor.
 
