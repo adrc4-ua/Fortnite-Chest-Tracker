@@ -29,7 +29,10 @@ public static class StatsPage
             using (L.Scope(config.Language))
             {
                 var view = Profiles.View(data, pageSettings);
-                SaveText(store.StatsPath, Build(pageSettings, view, Profiles.InitialChests(data, pageSettings), Profiles.AllMatches(data, pageSettings, view)));
+                var page = Build(pageSettings, view, Profiles.InitialChests(data, pageSettings), Profiles.AllMatches(data, pageSettings, view));
+                var stamp = Stamp(page);
+                SaveText(store.StatsPath, page.Replace(StampSlot, $"data-stamp=\"{stamp}\"", StringComparison.Ordinal));
+                ObsServer.StatsStamp = stamp;
                 ObsServer.StatsLang = L.Code;
                 ObsServer.StatsSettings = SettingsMark(pageSettings);
             }
@@ -46,6 +49,16 @@ public static class StatsPage
             Console.WriteLine(L.F("No se pudo escribir el resumen: {0}", "Cannot write the summary: {0}", ex.Message));
         }
     }
+
+    /// <summary>Where the page's mark goes: worked out from the page itself, so it is written in afterwards.</summary>
+    private const string StampSlot = "data-stamp=\"\"";
+
+    /// <summary>
+    /// A short mark of the page's content: the same page always gets the same mark, so an open page only updates when
+    /// something on it really changed.
+    /// </summary>
+    private static string Stamp(string page) =>
+        Convert.ToHexString(System.Security.Cryptography.SHA1.HashData(Encoding.UTF8.GetBytes(page)))[..16];
 
     /// <summary>Writes overlay.html alone (at every figure change of a live match). Failing is not worth a word.</summary>
     public static void WriteOverlay(Store store, OverlayView view)
@@ -82,7 +95,7 @@ public static class StatsPage
             .Append("<title>").Append(AppInfo.Name).Append(page.Player.Length > 0 ? " · " + Esc(page.Player) : "").Append("</title>")
             .Append(logo == null ? "" : $"<link rel=\"icon\" href=\"{logo}\">")
             .Append("<style>").Append(StyleSheet).Append("</style></head>\n")
-            .Append($"<body data-refresh=\"{refresh}\" data-settings=\"{Esc(SettingsMark(config))}\" data-saved=\"{Esc(L.T("Guardado", "Saved"))}\" data-failed=\"{Esc(L.T("No se pudo guardar", "Could not save"))}\">")
+            .Append($"<body {StampSlot} data-refresh=\"{refresh}\" data-settings=\"{Esc(SettingsMark(config))}\" data-saved=\"{Esc(L.T("Guardado", "Saved"))}\" data-failed=\"{Esc(L.T("No se pudo guardar", "Could not save"))}\">")
             .Append("<div class=\"shell\">");
 
         html.Append(Navigation(page, logo));
