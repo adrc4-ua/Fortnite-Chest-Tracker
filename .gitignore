@@ -11,3 +11,6 @@ _Release/
 
 # Volcados de depuración de la librería de replays (solo en compilaciones Debug)
 cmds/
+
+# Notas de contexto para Claude Code: solo locales, no se publican
+/CLAUDE.md
