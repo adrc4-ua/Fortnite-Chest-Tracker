@@ -152,26 +152,24 @@ jobs:
               pass
 
           changelog_url = f"https://github.com/{repo}/blob/main/CHANGELOG.md#{anchor}"
-          changelog_section = f"---\n\n**Changelog:** [{tag}]({changelog_url})"
 
-          header = """### ⬇️ Download / Descarga
+          new_notes = f"""### ⬇️ Download / Descarga
 
 **English:**
 To use Fortnite Chest Tracker, just download **`FCT.exe`** from the **Assets** section below and open it. That's it!
 * **No installation needed:** A single portable file — nothing gets installed on your PC.
 * **Requirements:** Windows 10 or 11. In Fortnite, turn on *Record Replays* (*Settings → Game → Replays*).
-* If Windows SmartScreen shows *"Windows protected your PC"*, click **More info → Run anyway** (common for new software with few downloads).
+* If Windows SmartScreen shows *"Windows protected your PC"*, click **More info → Run anyway** (common for new software).
 
 **Español:**
 Para usar Fortnite Chest Tracker, simplemente descarga **`FCT.exe`** en la sección **Assets** de abajo y ábrelo con doble clic. ¡Y listo!
 * **Sin instalación:** Es un único archivo portátil, no instala nada en tu PC.
 * **Requisitos:** Windows 10 u 11. En Fortnite, activa *Grabar repeticiones* (*Ajustes → Juego → Repeticiones*).
-* Si Windows muestra *"Windows protegió su PC"*, pulsa **Más información → Ejecutar de todas formas** (habitual en programas nuevos con pocas descargas)."""
-
-          footer = f"""---
-<sub>Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/) · [Code signing policy](https://github.com/{repo}/blob/main/CODE_SIGNING_POLICY.md) · [Third-party notices](https://github.com/{repo}/blob/main/THIRD_PARTY_NOTICES.md) · Not affiliated with Epic Games.</sub>"""
-
-          new_notes = f"{header}\n\n{changelog_section}\n\n{footer}\n"
+* Si Windows muestra *"Windows protegió su PC"*, pulsa **Más información → Ejecutar de todas formas** (habitual en programas nuevos).
+---
+<sub>**Changelog:** [{tag}]({changelog_url})</sub>
+<sub>Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by [SignPath Foundation](https://signpath.org/) · [Code signing policy](https://github.com/{repo}/blob/main/CODE_SIGNING_POLICY.md) · [Third-party notices](https://github.com/{repo}/blob/main/THIRD_PARTY_NOTICES.md) · Not affiliated with Epic Games.</sub>
+"""
           with open("notes.md", "w", encoding="utf-8") as f:
               f.write(new_notes)
 
