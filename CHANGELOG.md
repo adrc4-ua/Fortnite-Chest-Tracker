@@ -2,11 +2,17 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
+## [5.8.2] - 2026-11-15
+
+- **La web ya no parpadea ni sube las listas sola**: antes se recargaba entera cada 15 segundos, aunque nada hubiera cambiado, y las listas con scroll propio (tesoros, partidas…) volvían arriba. Ahora solo se actualiza cuando cambian de verdad las cifras o los ajustes, y lo hace en el sitio, sin recargar, manteniendo la pestaña y el scroll de cada lista.
+
+## [5.8.1] - 2026-11-15
+
+- **Fin de los tesoros detectados como «fuegos artificiales» por error**: el destello dorado con el que aterriza cada carta lavaba el icono y cualquier artilugio podía leerse como fuegos; ahora una carta en pleno destello se descarta (los fuegos reales se distinguen por cubrir mucha menos carta), el voto entre capturas se queda con las tardías, donde la carta ya está asentada, el morado del localizador de la suerte se reconoce también claro, y cada pantalla guarda sus lecturas en bruto para poder recombinarlas si las reglas mejoran.
+
 ## [5.8.0] - 2026-11-14
 
 - **Solo cuentan las partidas en las que saltas del autobús**: las que dejas antes de saltar suman a las partidas jugadas y a nada más (cofres, media, récords, tesoros, compañeros, gráficos, overlay, estimación). Las repeticiones que sigan en tu PC se vuelven a leer solas para saberlo; las partidas más antiguas cuentan como antes.
-- **La web ya no parpadea ni sube las listas sola**: antes se recargaba entera cada 15 segundos, aunque nada hubiera cambiado, y las listas con scroll propio (tesoros, partidas…) volvían arriba. Ahora solo se actualiza cuando cambian de verdad las cifras o los ajustes, y lo hace en el sitio, sin recargar, manteniendo la pestaña y el scroll de cada lista.
-- **Fin de los tesoros detectados como «fuegos artificiales» por error**: el destello dorado con el que aterriza cada carta lavaba el icono y cualquier artilugio podía leerse como fuegos; ahora una carta en pleno destello se descarta (los fuegos reales se distinguen por cubrir mucha menos carta), el voto entre capturas se queda con las tardías, donde la carta ya está asentada, el morado del localizador de la suerte se reconoce también claro, y cada pantalla guarda sus lecturas en bruto para poder recombinarlas si las reglas mejoran.
 - **Nombres de tesoros más fiables**: cuando la pantalla final muestra una sola carta y la partida tuvo varios tesoros, todos son de esa clase y se nombran (el juego agrupa los repetidos en una carta); si la repetición no vio algún tesoro, ya no se adivina qué carta era de quién (antes podía quedar un nombre mal puesto); dos cartas leídas iguales son una lectura errónea y no nombran nada; la pantalla vista al caer eliminado cuenta aunque te quedes de espectador largo rato; y las capturas esperan la animación de entrada y votan entre sí el número de cartas.
 - **El overlay no reaparece sobre el escritorio**: con el juego apartado con Win + D, abrir el menú contextual del escritorio, Inicio o un panel de la barra ya no lo hace volver; ahora mira si el escritorio está por delante del juego, no solo quién tiene el foco.
 - **Pestaña Partidas con cifras**: partidas en total (las de la temporada según tus estadísticas al empezar, más cada una que juegas desde entonces, como en la app), hoy, esta semana y por día jugado, encima de la tabla.
@@ -274,7 +280,11 @@ Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede a
 
 - Primera versión publicada.
 
-[Sin publicar]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.6.0...HEAD
+[5.8.2]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.8.1...v5.8.2
+[5.8.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.8.0...v5.8.1
+[5.8.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.7.0...v5.8.0
+[5.7.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.6.1...v5.7.0
+[5.6.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.6.0...v5.6.1
 [5.6.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.5.0...v5.6.0
 [5.5.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.4.0...v5.5.0
 [5.4.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.3.0...v5.4.0
