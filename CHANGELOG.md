@@ -2,7 +2,7 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
-## [Sin publicar]
+## [5.8.3] - 2026-11-15
 
 - **Ya no se pierde la segunda carta de la pantalla de tesoros**: una carta cuenta en cuanto la ven al menos dos capturas. Antes mandaba el número de cartas que veía la mayoría, y una carta que solo aparecía en parte de las capturas (por ejemplo un acelerador junto a un extractor) se quedaba sin nombre. Las pantallas guardadas con sus lecturas se recalculan solas al abrir FCT.
 
@@ -284,6 +284,7 @@ Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede a
 
 - Primera versión publicada.
 
+[5.8.3]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.8.2...v5.8.3
 [5.8.2]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.8.1...v5.8.2
 [5.8.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.8.0...v5.8.1
 [5.8.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.7.0...v5.8.0
