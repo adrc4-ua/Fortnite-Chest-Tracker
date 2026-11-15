@@ -12,25 +12,37 @@ internal static class TreasuresTab
     public static string Build(PageData page)
     {
         var treasures = page.Treasures;
-        var html = new StringBuilder(Head("tesoros", L.T("Tesoros", "Treasures"), L.T("Los que hay ahora y los que has conseguido", "The ones available now and the ones you got")));
-        if (treasures.Count == 0)
-        {
-            html.Append($"<div class=\"sheet\"><div class=\"void void-big\"><div class=\"star\">★</div>{L.T("Aún no has encontrado tesoros. Aparecerán aquí con el momento y el cofre de origen.", "No treasures yet. They will show up here with the time and the chest they came from.")}</div></div>");
-            var (available, weeks) = Hunt(treasures, page.Config.PrizeMarks);
-            return html.Append(available).Append(weeks).Append(Rivals(page.Matches)).ToString();
-        }
-
+        var html = new StringBuilder(Head("tesoros", L.T("Tesoros", "Treasures"), L.T("Los que hay ahora y los que has conseguido", "The ones available now and the ones you got"),
+            Figures(treasures, page.Matches.Count)));
         var unusual = treasures.Where(t => !t.f.SourceIsChest).ToList();
         if (unusual.Count > 0)
         {
             var sources = Esc(string.Join(", ", unusual.Select(t => L.Name(ChestKinds.Shown(t.f.SourceKind))).Distinct()));
             html.Append($"<div class=\"alert\"><span class=\"alert-ico\">⚑</span><div><b>{L.Count(unusual.Count, "tesoro obtenido", "tesoros obtenidos", "treasure obtained", "treasures obtained")} {L.T("sin abrir un cofre", "other than from a chest")}</b>: {sources}. {L.T("Resaltados en la tabla de abajo.", "Highlighted in the table below.")}</div></div>");
         }
-        html.Append(Figures(treasures, page.Matches.Count));
         var (now, allWeeks) = Hunt(treasures, page.Config.PrizeMarks);
         html.Append("<div class=\"pair-row\">").Append(now).Append(Sources(treasures)).Append("</div>").Append(allWeeks);
-        html.Append(Section(L.T("Tesoros obtenidos", "Treasures obtained"), L.Count(treasures.Count, "tesoro", "tesoros", "treasure", "treasures"), Table(treasures), "fit"));
+        // the two lists keep their size, with or without treasures: a list scrolls inside, an empty one says so
+        var own = treasures.Count > 0
+            ? Table(treasures)
+            : $"<div class=\"sheet list-void\"><p class=\"note\">{L.T("Aún no has encontrado tesoros. Aparecerán aquí con el momento y el cofre de origen.", "No treasures yet. They will show up here with the time and the chest they came from.")}</p></div>";
+        html.Append(Section(L.T("Tesoros obtenidos por tu equipo", "Treasures obtained by your team"),
+            L.Count(treasures.Count, "tesoro", "tesoros", "treasure", "treasures"), own, "fit tre-list"));
         return html.Append(Rivals(page.Matches)).ToString();
+    }
+
+    /// <summary>The tab's key numbers, small, at the right of its title.</summary>
+    private static string Figures(List<(MatchRecord m, TreasureFind f)> treasures, int matchCount)
+    {
+        var featured = treasures.Count(t => t.f.Featured);
+        var withTreasure = treasures.Select(t => t.m).Distinct().Count();
+        var share = matchCount > 0 ? (100.0 * withTreasure / matchCount).ToString("0", L.Culture) : "0";
+        static string Fig(string value, string text, bool gold = false) =>
+            $"<span class=\"hfig{(gold ? " is-gold" : "")}\"><b>{value}</b>{text}</span>";
+        return Fig(Num(treasures.Count), L.T("en total", "in total"), true)
+               + Fig(Num(featured), L.T("destacados", "featured"))
+               + Fig(Num(treasures.Count - featured), L.T("artilugios", "gizmos"))
+               + Fig(share + " %", L.T("de partidas con tesoro", "of matches with one"));
     }
 
     /// <summary>
@@ -43,10 +55,12 @@ internal static class TreasuresTab
             .OrderByDescending(x => LocalStart(x.m)).ThenByDescending(x => x.r.AtSeconds).ToList();
         var meta = $"{L.Count(seen.Count, "tesoro destacado", "tesoros destacados", "featured treasure", "featured treasures")} · "
                    + L.T("solo los abiertos cerca de ti · no suman a tus cifras", "only the ones opened near you · not in your figures");
+        var title = L.T("Tesoros obtenidos por rivales", "Treasures obtained by opponents");
         if (seen.Count == 0)
         {
-            return Section(L.T("Vistos a rivales", "Seen won by opponents"), meta,
-                $"<div class=\"sheet\"><p class=\"note list-empty\">{L.T("Ningún rival ha conseguido un tesoro destacado cerca de ti todavía.", "No opponent has got a featured treasure near you yet.")}</p></div>");
+            return Section(title, meta,
+                $"<div class=\"sheet list-void\"><p class=\"note\">{L.T("Ningún rival ha conseguido un tesoro destacado cerca de ti todavía.", "No opponent has got a featured treasure near you yet.")}</p></div>",
+                "tre-list rivals-sec");
         }
         var html = new StringBuilder("<div class=\"sheet scrollx\"><table><thead><tr>")
             .Append($"<th>{L.T("Partida", "Match")}</th><th>{L.T("Tesoro", "Treasure")}</th><th>{L.T("Rival", "Opponent")}</th>")
@@ -61,22 +75,7 @@ internal static class TreasuresTab
                 .Append($"<td class=\"nowrap\">{L.DateTimeShort(LocalStart(match))}<div class=\"note\">{Esc(Pretty.Playlist(match.Playlist))}</div></td>")
                 .Append($"<td>{TreasureCell(find, LocalStart(match))}</td><td class=\"nowrap\">{who}</td><td class=\"ac nowrap num\">{Pretty.Clock(rival.AtSeconds)}</td></tr>");
         }
-        return Section(L.T("Vistos a rivales", "Seen won by opponents"), meta, html.Append("</tbody></table></div>").ToString(), "rivals-sec");
-    }
-
-    private static string Figures(List<(MatchRecord m, TreasureFind f)> treasures, int matchCount)
-    {
-        var featured = treasures.Count(t => t.f.Featured);
-        var withTreasure = treasures.Select(t => t.m).Distinct().Count();
-        var share = matchCount > 0 ? (100.0 * withTreasure / matchCount).ToString("0", L.Culture) : "0";
-        static string Mini(string value, string text, string valueClass = "") =>
-            $"<div class=\"mini\"><b{(valueClass.Length > 0 ? $" class=\"{valueClass}\"" : "")}>{value}</b><span>{text}</span></div>";
-        return "<div class=\"mini-figs\">"
-               + Mini(Num(treasures.Count), L.T("tesoros en total", "treasures in total"), "is-gold")
-               + Mini(Num(featured), L.T("tesoros destacados", "featured treasures"))
-               + Mini(Num(treasures.Count - featured), L.T("artilugios de tesoro", "treasure gizmos"))
-               + Mini(share + " %", L.T("de partidas con tesoro", "of matches with a treasure"))
-               + "</div>";
+        return Section(title, meta, html.Append("</tbody></table></div>").ToString(), "tre-list rivals-sec");
     }
 
     private static string Sources(List<(MatchRecord m, TreasureFind f)> treasures)
@@ -180,9 +179,9 @@ internal static class TreasuresTab
             var lit = prize.Type == Prizes.Kind.ShopAccess && Got(prize) > 0;
             card.Append($"<span class=\"token{(lit ? " token-got" : "")}\"><i>{PageIcons.Of(prize)}</i>{Esc(Prizes.Shown(prize))}</span>");
         }
-        card.Append("</div>")
-            .Append($"<button class=\"weeks-btn\" type=\"button\" aria-expanded=\"false\" aria-controls=\"weeks\" data-open=\"{Esc(L.T("Ver todas las semanas", "See every week"))}\" data-close=\"{Esc(L.T("Ocultar las semanas", "Hide the weeks"))}\">{L.T("Ver todas las semanas", "See every week")}</button>")
-            .Append("</div>");
+        card.Append("</div></div>");
+        // the button that opens the five weeks sits on the title's line, to keep the card short
+        var weeksButton = $"<button class=\"weeks-btn\" type=\"button\" aria-expanded=\"false\" aria-controls=\"weeks\" data-open=\"{Esc(L.T("Ver todas las semanas", "See every week"))}\" data-close=\"{Esc(L.T("Ocultar las semanas", "Hide the weeks"))}\">{L.T("Ver todas las semanas", "See every week")}</button>";
 
         var weeks = new StringBuilder("<section class=\"weeks-sec\" id=\"weeks\" hidden><div class=\"weeks\">");
         for (var week = 1; week <= Prizes.WeekStarts.Length; week++)
@@ -204,6 +203,6 @@ internal static class TreasuresTab
                 .Append($"<span class=\"week-dates\">{Dates(week)}</span></div>{list}</div>");
         }
         weeks.Append("</div></section>");
-        return (Section(L.T("Tesoros disponibles actualmente", "Treasures available now"), meta, card.ToString()), weeks.ToString());
+        return (Section(L.T("Tesoros disponibles actualmente", "Treasures available now"), meta, card.ToString(), headExtra: weeksButton), weeks.ToString());
     }
 }

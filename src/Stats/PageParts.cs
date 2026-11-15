@@ -44,12 +44,16 @@ internal static class PageParts
     public const string Dash = "<span class=\"muted\">—</span>";
 
     /// <summary>A section with its diamond title, an optional right-hand note and its body.</summary>
-    public static string Section(string title, string? meta, string body, string? sectionClass = null) =>
-        $"<section{(sectionClass == null ? "" : $" class=\"{sectionClass}\"")}><div class=\"sec-head\"><h2>{title}</h2>{(meta == null ? "" : $"<span class=\"sec-meta\">{meta}</span>")}</div>{body}</section>";
+    /// <param name="headExtra">Something more on the title's line, at its right (a button).</param>
+    public static string Section(string title, string? meta, string body, string? sectionClass = null, string? headExtra = null) =>
+        $"<section{(sectionClass == null ? "" : $" class=\"{sectionClass}\"")}><div class=\"sec-head\"><h2>{title}</h2>"
+        + (meta == null && headExtra == null ? "" : $"<span class=\"sec-meta\">{meta}{headExtra}</span>") + $"</div>{body}</section>";
 
     /// <summary>The head of each tab: gold icon tile, title and a line saying what is in it.</summary>
-    public static string Head(string tab, string title, string subtitle) =>
-        $"<header class=\"head\"><span class=\"head-icon\">{PageIcons.Tabs.GetValueOrDefault(tab)}</span><div><h1>{title}</h1><p>{subtitle}</p></div></header>";
+    /// <param name="figures">Small figures shown at the right of the title (the tab's key numbers), or null.</param>
+    public static string Head(string tab, string title, string subtitle, string? figures = null) =>
+        $"<header class=\"head\"><span class=\"head-icon\">{PageIcons.Tabs.GetValueOrDefault(tab)}</span><div><h1>{title}</h1><p>{subtitle}</p></div>"
+        + (figures == null ? "" : $"<div class=\"head-figs\">{figures}</div>") + "</header>";
 
     /// <summary>A labelled bar of a list (kinds, sources…).</summary>
     public static string Bar(string label, string number, double widthPercent, string? rowClass = null, bool labelHasPill = false) =>
