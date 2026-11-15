@@ -2,13 +2,19 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
-## [Sin publicar]
+## [5.9.0] - 2026-11-15
 
 - **Pestaña Tesoros más compacta**: las cifras pasan a la cabecera, junto al título; el botón de las semanas, a la línea de su título; y «Tesoros obtenidos por tu equipo» y «Tesoros obtenidos por rivales» se ven a la vez en una pantalla de 1920×1080, del mismo tamaño, con al menos dos tesoros cada una, las mismas columnas alineadas y su propio scroll. Sin tesoros, cada lista mantiene su tamaño con su aviso. En el móvil, la pestaña ya no se sale de la pantalla.
 - **Tesoros destacados de rivales**: al final de la pestaña Tesoros, la sección «Tesoros obtenidos por rivales» muestra los cosméticos y tokens que consiguen otros jugadores al abrir un cofre cerca de ti, con la partida, el rival, el minuto y el cofre en el que salió. Son solo los que ocurren cerca (el replay no guarda el resto) y no suman a ninguna de tus cifras. Las repeticiones guardadas se vuelven a leer solas para incluirlos.
+
+## [5.8.5] - 2026-11-15
+
 - **Tesoros destacados bien identificados**: el catálogo de premios usa ahora los identificadores reales de la tabla de premios del juego (antes los cosméticos de la semana 2 en adelante salían sin nombre o con el de otro premio). Cada semana es traje, mochila o pico, pista, pantalla de carga y coche dorado, y los nombres son los oficiales.
 - **El token pirata ya no se puede perder**: su identificador es distinto al del resto de premios y antes se descartaba, así que se habría contado como un artilugio cualquiera. Ahora se reconoce, y un cofre dorado con un identificador ilegible cuenta igualmente como tesoro destacado. Las repeticiones guardadas se vuelven a leer solas con estas reglas.
 - **Cofre con el token pirata**: cuando consigues el acceso a la tienda pirata, el cofre de «Cofres abiertos» en el resumen de la web pasa a ser el cofre abierto con el token.
+
+## [5.8.4] - 2026-11-15
+
 - **Artilugios reconocidos por su icono, no solo por su color**: cada carta de la pantalla final se compara con iconos de referencia sacados de pantallas reales, reducidos a una huella de color que no depende de la resolución, del brillo ni de la compresión. Funciona igual en todos los idiomas (los iconos no llevan texto) y reconoce el extractor portátil que antes se quedaba sin nombre en capturas comprimidas. Una carta en pleno destello o un tesoro destacado se queda sin nombre, nunca con uno equivocado.
 - **Cartas encontradas en cualquier pantalla**: 720p, 1080p, 1440p, 4K, ultrapanorámicas (21:9 y 32:9, con el panel pegado al borde o centrado), 16:10 y 4:3, y también con la imagen oscura, muy brillante o comprimida. Antes el acelerador podía partirse en dos mitades y perderse.
 
@@ -294,6 +300,9 @@ Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede a
 
 - Primera versión publicada.
 
+[5.9.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.8.5...v5.9.0
+[5.8.5]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.8.4...v5.8.5
+[5.8.4]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.8.3...v5.8.4
 [5.8.3]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.8.2...v5.8.3
 [5.8.2]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.8.1...v5.8.2
 [5.8.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.8.0...v5.8.1
