@@ -21,7 +21,11 @@ internal sealed class SignalReader : FortniteReplayReader.ReplayReader
 {
     private static readonly Regex TreasureActor = new(@"FlameCeleb|RelicExtractor|RelicFinder|LuckyLocator|SmugglerExtractionKey|ExtractionAccelerat", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     private static readonly Regex TrackedObject = new(@"TreasureHandler|WID_(FlameCeleb|RelicExtractor|RelicFinder|LuckyLocator|SmugglerExtractionKey)", RegexOptions.Compiled);
-    private static readonly Regex PrizeId = new(@"[A-Za-z][A-Za-z0-9_]*:[A-Za-z0-9_.\-]+", RegexOptions.Compiled);
+    /// <summary>"DelilahPrize:dpid_item17", or a bare GUID (the Pirate Shop Access, the only prize with one).</summary>
+    private static readonly Regex PrizeId = new(@"[A-Za-z][A-Za-z0-9_]*:[A-Za-z0-9_.\-]+|[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}", RegexOptions.Compiled);
+
+    /// <summary>A golden chest whose prize id could not be read: still a featured treasure, just without a name.</summary>
+    public const string UnreadPrize = "DelilahPrize:unread";
     private static readonly Regex InstanceTail = new(@"_UAID_.*$", RegexOptions.Compiled);
 
     static SignalReader()
@@ -397,7 +401,7 @@ internal sealed class SignalReader : FortniteReplayReader.ReplayReader
             }
         });
         var found = PrizeId.Match(text);
-        return found.Success ? found.Value : null;
+        return found.Success ? found.Value : UnreadPrize;
     }
 
     /// <summary>FCT_DEBUG=2: the library's own log, on the error output, with the replay time.</summary>

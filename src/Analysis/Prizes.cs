@@ -6,8 +6,9 @@ namespace FCT.Analysis;
 /// Rewards of the treasure hunt ("Treasure Hunters", Chapter 7, 1 Nov – 5 Dec 2026): every chest has a small chance
 /// to pay one out to the whole squad. Two families:
 /// <list type="bullet">
-/// <item>Featured treasures: the weekly cosmetics (outfit, pickaxe, vehicle…) and the Pirate Shop Access. The server
-/// sends their prize id ("DelilahPrize:dpid_item3") with an animated chest, so they are named here.</item>
+/// <item>Featured treasures: the weekly cosmetics (outfit, pickaxe or back bling, jam track, loading screen, gold car)
+/// and the Pirate Shop Access. The server sends their prize id ("DelilahPrize:dpid_item17", a GUID for the Pirate Shop
+/// Access) with an animated chest, so they are named here.</item>
 /// <item>Treasure gizmos: the five gizmos, in every week. The replay does not say which one was received.</item>
 /// </list>
 /// Names are the official English ones (also used by the Spanish game for these items). Weeks 3 to 5 come from the
@@ -42,45 +43,55 @@ public static class Prizes
     /// <summary>When a week (1–5) ends (the next one starts), in local time.</summary>
     public static DateTime EndOf(int week) => (week < WeekStarts.Length ? WeekStarts[week] : End).ToLocalTime();
 
+    /// <summary>
+    /// The prize id of the Pirate Shop Access: unlike every other prize (DelilahPrize:dpid_itemN), its row of the game's
+    /// prize table (DT_DelilahTreasureHunt_Prizes, DelilahTreasure_6) carries a GUID.
+    /// </summary>
+    public const string PirateShopId = "9f73f94d-2e61-4523-97d7-d61235d3365e";
+
+    /// <summary>
+    /// Every prize of the hunt with its id, as in the game's prize table (DT_DelilahTreasureHunt_Prizes, build 43.10):
+    /// each row has its own id, never reused from week to week. Week 1 is items 1 to 5, the gizmos 9 to 13 and weeks 2
+    /// to 5 five items each from 14 (outfit, back bling, jam track, loading screen, gold car). Names are the official
+    /// ones; weeks 3 to 5 come from the community until they are in the game.
+    /// </summary>
     public static readonly Prize[] All =
     {
         // Every week
-        new("Pirate Shop Access", Kind.ShopAccess, 0),
-        new("Golden Firework", Kind.Gizmo, 0),
-        new("Portable Extractor", Kind.Gizmo, 0),
-        new("Sprite Locator", Kind.Gizmo, 0),
-        new("Lucky Locator", Kind.Gizmo, 0),
-        new("Extraction Accelerator", Kind.Gizmo, 0),
+        new("Pirate Shop Access", Kind.ShopAccess, 0, PirateShopId),
+        new("Extraction Accelerator", Kind.Gizmo, 0, "DelilahPrize:dpid_item9"),
+        new("Portable Extractor", Kind.Gizmo, 0, "DelilahPrize:dpid_item10"),
+        new("Golden Firework", Kind.Gizmo, 0, "DelilahPrize:dpid_item11"),
+        new("Sprite Locator", Kind.Gizmo, 0, "DelilahPrize:dpid_item12"),
+        new("Lucky Locator", Kind.Gizmo, 0, "DelilahPrize:dpid_item13"),
         // Week 1
-        new("Solid Gold A$AP Rocky", Kind.Outfit, 1),
-        new("Solid Gold A$AP Rocky Gauntlets", Kind.Pickaxe, 1, "DelilahPrize:dpid_item1"),
-        new("Plunder in Paradise", Kind.LoadingScreen, 1, "DelilahPrize:dpid_item2"),
-        new("Mercedes-AMG G 63 'G-Wagon'", Kind.Vehicle, 1, "DelilahPrize:dpid_item3"),
-        new("No Trespassing", Kind.JamTrack, 1, "DelilahPrize:dpid_item4"),
-        new("Golden Llama Crew", Kind.Decal, 1),
-        // Week 2. The prize ids are slots, the same every week (item1 pickaxe / back bling, item2 loading screen,
-        // item3 vehicle, item4 jam track): the item behind each one changes with the week.
-        new("Solid Gold Lil Uzi Vert", Kind.Outfit, 2),
-        new("Diamond and Gold", Kind.BackBling, 2, "DelilahPrize:dpid_item1"),
-        new("So Kawaii", Kind.LoadingScreen, 2, "DelilahPrize:dpid_item2"),
-        new("Cadillac CT5-V Blackwing", Kind.Vehicle, 2, "DelilahPrize:dpid_item3"),
-        new("London", Kind.JamTrack, 2, "DelilahPrize:dpid_item4"),
-        // Weeks 3 to 5, as leaked from the game's files (same slots as week 2)
-        new("Solid Gold Miku", Kind.Outfit, 3, Announced: false),
-        new("Miku's Takarabako", Kind.BackBling, 3, "DelilahPrize:dpid_item1", Announced: false),
-        new("May Fortune Find You", Kind.LoadingScreen, 3, "DelilahPrize:dpid_item2", Announced: false),
-        new("Chevrolet Corvette ZR1", Kind.Vehicle, 3, "DelilahPrize:dpid_item3", Announced: false),
-        new("PPPP", Kind.JamTrack, 3, "DelilahPrize:dpid_item4", Announced: false),
-        new("Solid Gold Kasane Teto", Kind.Outfit, 4, Announced: false),
-        new("Rogue Wave and Tidewalker", Kind.BackBling, 4, "DelilahPrize:dpid_item1", Announced: false),
-        new("Oscar's Wraps", Kind.LoadingScreen, 4, "DelilahPrize:dpid_item2", Announced: false),
-        new("Lamborghini Urus SE", Kind.Vehicle, 4, "DelilahPrize:dpid_item3", Announced: false),
-        new("Sea Shanty", Kind.JamTrack, 4, "DelilahPrize:dpid_item4", Announced: false),
-        new("Solid Gold Captain X", Kind.Outfit, 5, Announced: false),
-        new("Roasted Meat", Kind.BackBling, 5, "DelilahPrize:dpid_item1", Announced: false),
-        new("Jones and the Straw Hats", Kind.LoadingScreen, 5, "DelilahPrize:dpid_item2", Announced: false),
-        new("G-Wagon", Kind.Vehicle, 5, "DelilahPrize:dpid_item3", Announced: false),
-        new("I Follow Rivers", Kind.JamTrack, 5, "DelilahPrize:dpid_item4", Announced: false),
+        new("Solid Gold Rugahand", Kind.Outfit, 1, "DelilahPrize:dpid_item1"),
+        new("Solid Gold Gauntlets", Kind.Pickaxe, 1, "DelilahPrize:dpid_item2"),
+        new("No Trespassing", Kind.JamTrack, 1, "DelilahPrize:dpid_item3"),
+        new("Plunder in Paradise", Kind.LoadingScreen, 1, "DelilahPrize:dpid_item4"),
+        new("Mercedes-AMG G 63 'G-Wagon'", Kind.Vehicle, 1, "DelilahPrize:dpid_item5"),
+        // Week 2
+        new("Solid Gold Lil Uzi Vert", Kind.Outfit, 2, "DelilahPrize:dpid_item14"),
+        new("Diamond and Gold", Kind.BackBling, 2, "DelilahPrize:dpid_item15"),
+        new("London", Kind.JamTrack, 2, "DelilahPrize:dpid_item16"),
+        new("So Kawaii", Kind.LoadingScreen, 2, "DelilahPrize:dpid_item17"),
+        new("Cadillac CT5-V Blackwing", Kind.Vehicle, 2, "DelilahPrize:dpid_item18"),
+        // Weeks 3 to 5: the slots are in the table, the names as leaked from the game's files
+        new("Solid Gold Miku", Kind.Outfit, 3, "DelilahPrize:dpid_item19", Announced: false),
+        new("Miku's Takarabako", Kind.BackBling, 3, "DelilahPrize:dpid_item20", Announced: false),
+        new("PPPP", Kind.JamTrack, 3, "DelilahPrize:dpid_item21", Announced: false),
+        new("May Fortune Find You", Kind.LoadingScreen, 3, "DelilahPrize:dpid_item22", Announced: false),
+        new("Chevrolet Corvette ZR1", Kind.Vehicle, 3, "DelilahPrize:dpid_item23", Announced: false),
+        new("Solid Gold Kasane Teto", Kind.Outfit, 4, "DelilahPrize:dpid_item24", Announced: false),
+        new("Rogue Wave and Tidewalker", Kind.BackBling, 4, "DelilahPrize:dpid_item25", Announced: false),
+        new("Sea Shanty", Kind.JamTrack, 4, "DelilahPrize:dpid_item26", Announced: false),
+        new("Oscar's Wraps", Kind.LoadingScreen, 4, "DelilahPrize:dpid_item27", Announced: false),
+        new("Lamborghini Urus SE", Kind.Vehicle, 4, "DelilahPrize:dpid_item28", Announced: false),
+        new("Solid Gold Captain X", Kind.Outfit, 5, "DelilahPrize:dpid_item29", Announced: false),
+        new("Roasted Meat", Kind.BackBling, 5, "DelilahPrize:dpid_item30", Announced: false),
+        new("I Follow Rivers", Kind.JamTrack, 5, "DelilahPrize:dpid_item31", Announced: false),
+        new("Jones and the Straw Hats", Kind.LoadingScreen, 5, "DelilahPrize:dpid_item32", Announced: false),
+        new("G-Wagon", Kind.Vehicle, 5, "DelilahPrize:dpid_item33", Announced: false),
     };
 
     /// <summary>Week of the event (1–5) at a moment (local or UTC time), or 0 outside the event.</summary>
@@ -99,9 +110,14 @@ public static class Prizes
         return week;
     }
 
-    /// <summary>Prize behind an id in a week of the event (0: the week is not known, the first one that matches).</summary>
+    /// <summary>
+    /// Prize behind an id (each id is one prize, whatever the week). Any GUID is the Pirate Shop Access: the only
+    /// prize of the table with a GUID for id (another year's token may come with its own).
+    /// </summary>
     public static Prize? ById(string? id, int week = 0) =>
-        id == null ? null : All.FirstOrDefault(p => string.Equals(p.Id, id, StringComparison.OrdinalIgnoreCase) && (week == 0 || p.Week == 0 || p.Week == week));
+        id == null ? null
+        : All.FirstOrDefault(p => string.Equals(p.Id, id, StringComparison.OrdinalIgnoreCase))
+          ?? (Guid.TryParse(id, out _) ? All.First(p => p.Type == Kind.ShopAccess) : null);
     /// <summary>Prize by its name: the stored (English) one or the one shown in the current language.</summary>
     public static Prize? ByName(string? name) =>
         name == null ? null : All.FirstOrDefault(p => string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase)
@@ -146,7 +162,12 @@ public static class Prizes
                 var known = ByName(name);
                 return (name.Length > 0 ? name : custom.Trim(), known != null ? TypeName(known.Type) : NullIfEmpty(m.Groups["type"].Value), true);
             }
-            return ById(f.PrizeId, week) is { } p ? (p.Name, TypeName(p.Type), true) : (Featured, null, true);
+            return ById(f.PrizeId, week) switch
+            {
+                { Type: Kind.Gizmo } gizmo => (Shown(gizmo), TypeName(Kind.Gizmo), false), // a gizmo's own prize id: still a gizmo
+                { } p => (p.Name, TypeName(p.Type), true),
+                null => (Featured, null, true),
+            };
         }
 
         // Gizmo read on the post-match screen.
