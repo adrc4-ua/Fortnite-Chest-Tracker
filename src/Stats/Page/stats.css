@@ -432,6 +432,10 @@ html:not(.served) .week li.mark:hover{background:none}
   .content>.pane:not([hidden]){flex:1;min-height:0;display:flex;flex-direction:column;overflow:auto}
   .content>.pane>*{flex:0 0 auto}
   .content>.pane>.fit,.content>.pane>.pair{flex:1 1 0;min-height:140px}
+  /* .pair holds two flex-basis-0 columns (the matches table and the treasures+team pile) that need real room to
+     show anything at all; a loading banner above them (or a short window) used to squeeze them to nothing instead
+     of the pane scrolling. A higher floor here makes the pane scroll first, which looks right at any height. */
+  .content>.pane>.pair{min-height:300px}
   .fit{display:flex;flex-direction:column;min-height:0}
   .fit>.sheet{flex:0 1 auto;min-height:0;overflow:auto}
   .pair>section{display:flex;flex-direction:column;min-height:0}
@@ -439,7 +443,7 @@ html:not(.served) .week li.mark:hover{background:none}
   #t-resumen .pair>section>.sheet{flex:1 1 auto;display:flex;flex-direction:column}
   #t-resumen .pair>section>.sheet:has(tbody tr:nth-child(5)) table.short{min-height:100%}
   .pair>.pile{min-height:0;display:flex;flex-direction:column;gap:12px;overflow:hidden}
-  .pile>section.stretch{flex:1 1 0;min-height:0;display:flex;flex-direction:column}
+  .pile>section.stretch{flex:1 1 0;min-height:150px;display:flex;flex-direction:column}
   .pile>section.stretch>.sheet{flex:0 1 auto;min-height:0;overflow:auto}
   #t-resumen .pile>section.stretch>.sheet{flex:1 1 auto}
   #t-resumen .pile>section.stretch>.list-sheet{display:flex;flex-direction:column;overflow:hidden}
