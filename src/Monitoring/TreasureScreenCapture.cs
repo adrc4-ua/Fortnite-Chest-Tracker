@@ -14,8 +14,8 @@ internal sealed class TreasureScreenCapture
     /// The screen often stays only 2 to 7 s (the player leaves at once), sometimes much longer: captures every third
     /// of a second over the first 6 s, then every 1.5 s up to 12 s. The first one waits out the cards' entry animation
     /// (each card flashes gold as it lands, and reads wrong until it settles); it is short because the game log line
-    /// that triggers this capture, and the 500 ms poll that notices it, can already eat over a second of the time the
-    /// screen stays up.
+    /// that triggers this capture, and the 200 ms poll that notices it, can already eat part of the time the screen
+    /// stays up.
     /// </summary>
     private static readonly int[] CaptureDelaysMs = { 500, 350, 350, 350, 350, 350, 350, 350, 350, 350, 350, 350, 1500, 1500, 1500, 1500 };
 
