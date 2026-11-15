@@ -1,13 +1,8 @@
 name: Build FCT.exe
-# Pushes (branches and v* tags) only build the exe, as an artifact: tags never create releases.
-# Releases are made by hand on GitHub. FCT.exe is attached to a release:
-#  - by itself when the release is published, if its tag already has this workflow;
-#  - by hand for any tag: Actions → "Build FCT.exe" → Run workflow → write the tag (e.g. v5.9.4). The workflow of the
-#    branch you run it from (main) is used, so this also works for tags made before this file existed.
+# Releases are created on GitHub. FCT.exe is built and attached:
+#  - Automatically when a release is published;
+#  - Manually for any tag: Actions → "Build FCT.exe" → Run workflow → enter the tag (e.g. v5.9.4).
 on:
-  push:
-    branches: ['**']
-    tags: ['v*']
   release:
     types: [published]
   workflow_dispatch:
@@ -30,14 +25,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.tag || github.ref }}
+          ref: ${{ inputs.tag || github.event.release.tag_name || github.ref }}
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
       - name: Publish
         shell: pwsh
         env:
-          BUILD_TAG: ${{ inputs.tag != '' && inputs.tag || (github.ref_type == 'tag' && github.ref_name || '') }}
+          BUILD_TAG: ${{ inputs.tag != '' && inputs.tag || (github.event.release.tag_name || (github.ref_type == 'tag' && github.ref_name || '')) }}
           # fortnite-api.com key (repository secret FORTNITE_API_KEY): lets the app look up the player's total matches.
           # Without the secret the build still works and the player types the number.
           FORTNITE_API_KEY: ${{ secrets.FORTNITE_API_KEY }}
