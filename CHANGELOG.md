@@ -8,7 +8,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [5.8.1] - 2026-11-15
 
-- **Fin de los tesoros detectados como «fuegos artificiales» por error**: el destello dorado con el que aterriza cada carta lavaba el icono y cualquier artilugio podía leerse como fuegos; ahora una carta en pleno destello se descarta (los fuegos reales se distinguen por cubrir mucha menos carta), el voto entre capturas se queda con las tardías, donde la carta ya está asentada, el morado del localizador de la suerte se reconoce también claro, y cada pantalla guarda sus lecturas en bruto para poder recombinarlas si las reglas mejoran.
+- **Fin de los tesoros detectados como «fuegos artificiales» por error**: el destello dorado con el que aterriza cada carta lavaba el icono y cualquier artilugio podía leerse como fuegos; ahora una carta en pleno destello se descarta (los fuegos reales se distinguen por cubrir mucha menos carta), el voto entre capturas se queda con las tardías, donde la carta ya está asentada, una carta cuenta en cuanto la ven dos capturas (antes una segunda carta vista solo en parte de las capturas se perdía), el morado del localizador de la suerte se reconoce también claro, y cada pantalla guarda sus lecturas en bruto para poder recombinarlas si las reglas mejoran.
 
 ## [5.8.0] - 2026-11-14
 

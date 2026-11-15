@@ -49,25 +49,31 @@ internal sealed class TreasureScreenCapture
     });
 
     /// <summary>
-    /// One reading out of several: as many cards as most captures saw (a phantom card in one capture, or a card a
-    /// capture caught mid-animation, does not change the count; on a tie the later captures win, where the cards had
-    /// settled), and for each card the name read most often among the captures with that count. A card read as a
-    /// gizmo only once among many unknown readings (a featured treasure) stays unknown.
+    /// One reading out of several. A capture often misses a card (caught while it was still landing, or in a frame
+    /// where it did not stand out), but a phantom card never shows up in more than one: so there are as many cards as
+    /// at least two captures saw (a single capture only counts when it is the only one). Each card's name is voted
+    /// among the captures that saw it; the cards settle and never flash again, so the vote runs over the later half
+    /// of them (at least two), and among equals the name read later wins. A card read as a gizmo only once among many
+    /// unknown readings (a featured treasure) stays unknown.
     /// </summary>
     internal static List<string> Combine(IReadOnlyList<List<string>> readings)
     {
         var counted = readings.Where(r => r.Count > 0).ToList();
-        var count = counted.Count == 0 ? 0 : counted.GroupBy(r => r.Count)
-            .OrderByDescending(g => g.Count())
-            .ThenByDescending(g => counted.FindLastIndex(r => r.Count == g.Key))
-            .First().Key;
-        var rows = counted.Where(r => r.Count == count).ToList();
-        // The cards settle and never flash again, so the late captures are the reliable ones: the vote runs over the
-        // later half of them (at least two), and among equals the name read later wins.
-        var window = rows.Skip(rows.Count - Math.Max(2, (rows.Count + 1) / 2)).ToList();
+        if (counted.Count == 0)
+        {
+            return new List<string>();
+        }
+        var needed = Math.Min(2, counted.Count);
+        var count = counted.Max(r => r.Count);
+        while (count > 0 && counted.Count(r => r.Count >= count) < needed)
+        {
+            count--;
+        }
         var cards = new List<string>(count);
         for (var slot = 0; slot < count; slot++)
         {
+            var rows = counted.Where(r => r.Count > slot).ToList();
+            var window = rows.Skip(rows.Count - Math.Max(2, (rows.Count + 1) / 2)).ToList();
             var seen = window.Select(r => r[slot]).ToList();
             var unknown = seen.Count(name => name == TreasureScreenReader.Unknown);
             var named = seen.Where(name => name != TreasureScreenReader.Unknown)
