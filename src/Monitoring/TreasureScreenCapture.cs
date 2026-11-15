@@ -38,7 +38,7 @@ internal sealed class TreasureScreenCapture
             }
             if (Combine(readings) is { Count: > 0 } cards)
             {
-                _read.Enqueue(new TreasureScreen { ShownUtc = shownUtc, Cards = cards });
+                _read.Enqueue(new TreasureScreen { ShownUtc = shownUtc, Cards = cards, Readings = readings });
                 _wake();
             }
         }
@@ -62,14 +62,18 @@ internal sealed class TreasureScreenCapture
             .ThenByDescending(g => counted.FindLastIndex(r => r.Count == g.Key))
             .First().Key;
         var rows = counted.Where(r => r.Count == count).ToList();
+        // The cards settle and never flash again, so the late captures are the reliable ones: the vote runs over the
+        // later half of them (at least two), and among equals the name read later wins.
+        var window = rows.Skip(rows.Count - Math.Max(2, (rows.Count + 1) / 2)).ToList();
         var cards = new List<string>(count);
         for (var slot = 0; slot < count; slot++)
         {
-            var seen = rows.Select(r => r[slot]).ToList();
+            var seen = window.Select(r => r[slot]).ToList();
             var unknown = seen.Count(name => name == TreasureScreenReader.Unknown);
             var named = seen.Where(name => name != TreasureScreenReader.Unknown)
                 .GroupBy(name => name)
                 .OrderByDescending(g => g.Count())
+                .ThenByDescending(g => seen.LastIndexOf(g.Key))
                 .FirstOrDefault();
             // a featured treasure reads as unknown: one stray gizmo reading among them does not rename it
             var trusted = named != null && (named.Count() >= 2 || named.Count() >= unknown);

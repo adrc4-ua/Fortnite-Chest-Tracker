@@ -161,6 +161,13 @@ public static class TreasureScreenReader
     };
 
     /// <summary>
+    /// The landing flash washes any icon into pale gold, so a mid-flash card used to read as the firework. The real
+    /// firework's rays cover at most ~0.16 of the card (measured on real end screens); a washed-out icon covers 0.28
+    /// to 0.43. Above this the card is still flashing and stays unknown, to be outvoted by the settled captures.
+    /// </summary>
+    private const double PaleCap = 0.24;
+
+    /// <summary>
     /// The gizmo whose colour dominates the icon. A gizmo icon is mostly one colour; a featured treasure (an outfit, a
     /// vehicle…) mixes several, so the winner must clearly lead the runner-up or the card stays <see cref="Unknown"/>.
     /// </summary>
@@ -188,6 +195,10 @@ public static class TreasureScreenReader
         double Share(string family) => counts[family] / (double)(samples * samples);
         var ranked = Families.OrderByDescending(g => Share(g.Family) / g.Floor).ToList();
         var (best, runnerUp) = (ranked[0], ranked[1]);
+        if (best.Family == "pale" && Share("pale") > PaleCap)
+        {
+            return Unknown; // a card still flashing in, not the firework
+        }
         var clearLead = Share(best.Family) / best.Floor >= 2 * Share(runnerUp.Family) / runnerUp.Floor;
         return Share(best.Family) >= best.Floor && clearLead ? best.Gizmo : Unknown;
     }
@@ -202,10 +213,11 @@ public static class TreasureScreenReader
         var (hue, s, v) = Hsv(r, g, b);
         if (hue is >= 0.50 and <= 0.72 && s is >= 0.05 and <= 0.65 && v is >= 0.12 and <= 0.70) return "steel";
         if (v < 0.30) return null;
-        if (s < 0.30 && v >= 0.55) return "pale";
+        // the tinted families before "pale", so a light lilac or mint pixel keeps its hue instead of counting as white
         if (hue is >= 0.20 and <= 0.45 && s > 0.30) return "green";
-        if (hue is >= 0.70 and <= 0.92 && s > 0.35) return "purple";
+        if (hue is >= 0.66 and <= 0.93 && s > 0.25) return "purple";
         if ((hue >= 0.94 || hue <= 0.04) && s > 0.45) return "red";
+        if (s < 0.30 && v >= 0.55) return "pale";
         return null;
     }
 

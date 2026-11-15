@@ -12,6 +12,12 @@ public sealed class TreasureScreen
     public DateTime ShownUtc { get; set; }
 
     public List<string> Cards { get; set; } = new();
+
+    /// <summary>
+    /// What each capture read (cards left to right), in capture order. Kept so that better combining rules can redo
+    /// <see cref="Cards"/> from the raw readings; null on screens saved by older versions.
+    /// </summary>
+    public List<List<string>>? Readings { get; set; }
 }
 
 /// <summary>

@@ -123,10 +123,20 @@ public sealed class AppMonitor
 
     public void Start()
     {
-        // Saved treasure screens again with today's rules: fixes what an older version assigned wrongly.
+        // Saved treasure screens again with today's rules: fixes what an older version assigned wrongly. Screens
+        // that kept their raw readings get their cards combined again first, with today's combining too.
         try
         {
             var fixedAny = false;
+            foreach (var screen in _data.TreasureScreens)
+            {
+                if (screen.Readings is { Count: > 0 } readings
+                    && TreasureScreenCapture.Combine(readings) is { Count: > 0 } cards && !cards.SequenceEqual(screen.Cards))
+                {
+                    screen.Cards = cards;
+                    fixedAny = true;
+                }
+            }
             foreach (var match in _data.Matches)
             {
                 fixedAny |= TreasureScreenMerge.Apply(match, _data.TreasureScreens);
