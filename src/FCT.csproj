@@ -30,6 +30,8 @@
   <ItemGroup>
     <!-- Also inside the exe as a resource: the stats page shows it as its logo. -->
     <EmbeddedResource Include="Assets\app.ico" LogicalName="FCT.app.ico" />
+    <!-- Reference prints of the treasure gizmos, to tell them apart on the end-of-match screen. -->
+    <EmbeddedResource Include="PostMatch\treasure-prints.json" LogicalName="FCT.treasure-prints.json" />
     <!-- Style and script of the stats page and of the OBS overlay (written into each page). -->
     <EmbeddedResource Include="Stats\Page\*.css;Stats\Page\*.js" LogicalName="FCT.page.%(Filename)%(Extension)" />
     <!-- The license and the third-party notices travel with the exe (the GPL and MIT ask for it); the exe prints them with its licenses option. -->

@@ -69,13 +69,19 @@ internal static class PostMatchTools
     [DllImport("user32.dll", CharSet = CharSet.Unicode)] private static extern int GetWindowText(IntPtr hwnd, System.Text.StringBuilder text, int max);
     [DllImport("user32.dll")] private static extern bool IsWindowVisible(IntPtr hwnd);
 
+    /// <summary>
+    /// The cards found, with how close the closest gizmo is (and the next one), and each card's print: a new reference
+    /// for treasure-prints.json is that print, from a capture where the card shows the gizmo clearly.
+    /// </summary>
     private static void Print(WindowCapture.Frame frame)
     {
         var cards = TreasureScreenReader.Read(frame);
         Console.WriteLine($"  {cards.Count} treasure card(s)");
         foreach (var c in cards)
         {
-            Console.WriteLine($"    {c.Item}  ({c.X},{c.Y} {c.Width}×{c.Height})");
+            var (closest, best, next) = TreasureFingerprint.Match(frame, c.X, c.Y, c.Width, c.Height);
+            Console.WriteLine($"    {c.Item}  ({c.X},{c.Y} {c.Width}×{c.Height})  closest {closest ?? "-"} {best:0.000}, next {next:0.000}");
+            Console.WriteLine($"      print {TreasureFingerprint.Encode(TreasureFingerprint.Of(frame, c.X, c.Y, c.Width, c.Height))}");
         }
     }
 
