@@ -4,8 +4,8 @@ using static FCT.Stats.PageParts;
 namespace FCT.Stats;
 
 /// <summary>
-/// The "Tesoros" tab: what the treasure hunt offers now (and every week), where the player's treasures came from, and
-/// each treasure obtained with its moment and source.
+/// The "Tesoros" tab: what the treasure hunt offers now (and every week), where the player's treasures came from, each
+/// treasure obtained with its moment and source, and, apart, the featured treasures opponents were seen getting.
 /// </summary>
 internal static class TreasuresTab
 {
@@ -17,7 +17,7 @@ internal static class TreasuresTab
         {
             html.Append($"<div class=\"sheet\"><div class=\"void void-big\"><div class=\"star\">★</div>{L.T("Aún no has encontrado tesoros. Aparecerán aquí con el momento y el cofre de origen.", "No treasures yet. They will show up here with the time and the chest they came from.")}</div></div>");
             var (available, weeks) = Hunt(treasures, page.Config.PrizeMarks);
-            return html.Append(available).Append(weeks).ToString();
+            return html.Append(available).Append(weeks).Append(Rivals(page.Matches)).ToString();
         }
 
         var unusual = treasures.Where(t => !t.f.SourceIsChest).ToList();
@@ -30,7 +30,38 @@ internal static class TreasuresTab
         var (now, allWeeks) = Hunt(treasures, page.Config.PrizeMarks);
         html.Append("<div class=\"pair-row\">").Append(now).Append(Sources(treasures)).Append("</div>").Append(allWeeks);
         html.Append(Section(L.T("Tesoros obtenidos", "Treasures obtained"), L.Count(treasures.Count, "tesoro", "tesoros", "treasure", "treasures"), Table(treasures), "fit"));
-        return html.ToString();
+        return html.Append(Rivals(page.Matches)).ToString();
+    }
+
+    /// <summary>
+    /// Featured treasures opponents got near the player: only the golden chests opened close by are in the replay, so
+    /// it is what was seen, not every one of the match. Kept apart, in no figure.
+    /// </summary>
+    private static string Rivals(List<MatchRecord> matches)
+    {
+        var seen = matches.SelectMany(m => (m.RivalTreasures ?? new List<RivalTreasure>()).Select(r => (m, r)))
+            .OrderByDescending(x => LocalStart(x.m)).ThenByDescending(x => x.r.AtSeconds).ToList();
+        var meta = $"{L.Count(seen.Count, "tesoro destacado", "tesoros destacados", "featured treasure", "featured treasures")} · "
+                   + L.T("solo los abiertos cerca de ti · no suman a tus cifras", "only the ones opened near you · not in your figures");
+        if (seen.Count == 0)
+        {
+            return Section(L.T("Vistos a rivales", "Seen won by opponents"), meta,
+                $"<div class=\"sheet\"><p class=\"note list-empty\">{L.T("Ningún rival ha conseguido un tesoro destacado cerca de ti todavía.", "No opponent has got a featured treasure near you yet.")}</p></div>");
+        }
+        var html = new StringBuilder("<div class=\"sheet scrollx\"><table><thead><tr>")
+            .Append($"<th>{L.T("Partida", "Match")}</th><th>{L.T("Tesoro", "Treasure")}</th><th>{L.T("Rival", "Opponent")}</th>")
+            .Append($"<th class=\"ac\">{L.T("Momento", "Time")}</th></tr></thead><tbody>");
+        foreach (var (match, rival) in seen)
+        {
+            var who = rival.Player == null
+                ? $"<span class=\"muted\">{L.T("Desconocido", "Unknown")}</span>"
+                : Esc(rival.Player) + (rival.Bot ? $" <span class=\"chipl\">{L.T("bot", "bot")}</span>" : "");
+            var find = new TreasureFind { PrizeId = rival.PrizeId, FromPrizeChest = true };
+            html.Append("<tr>")
+                .Append($"<td class=\"nowrap\">{L.DateTimeShort(LocalStart(match))}<div class=\"note\">{Esc(Pretty.Playlist(match.Playlist))}</div></td>")
+                .Append($"<td>{TreasureCell(find, LocalStart(match))}</td><td class=\"nowrap\">{who}</td><td class=\"ac nowrap num\">{Pretty.Clock(rival.AtSeconds)}</td></tr>");
+        }
+        return Section(L.T("Vistos a rivales", "Seen won by opponents"), meta, html.Append("</tbody></table></div>").ToString(), "rivals-sec");
     }
 
     private static string Figures(List<(MatchRecord m, TreasureFind f)> treasures, int matchCount)

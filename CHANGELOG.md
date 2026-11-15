@@ -4,6 +4,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- **Tesoros destacados de rivales**: al final de la pestaña Tesoros, la sección «Vistos a rivales» muestra los cosméticos y tokens que consiguen otros jugadores al abrir un cofre cerca de ti, con la partida, el minuto y el rival. Son solo los que ocurren cerca (el replay no guarda el resto) y no suman a ninguna de tus cifras. Las repeticiones guardadas se vuelven a leer solas para incluirlos.
 - **Tesoros destacados bien identificados**: el catálogo de premios usa ahora los identificadores reales de la tabla de premios del juego (antes los cosméticos de la semana 2 en adelante salían sin nombre o con el de otro premio). Cada semana es traje, mochila o pico, pista, pantalla de carga y coche dorado, y los nombres son los oficiales.
 - **El token pirata ya no se puede perder**: su identificador es distinto al del resto de premios y antes se descartaba, así que se habría contado como un artilugio cualquiera. Ahora se reconoce, y un cofre dorado con un identificador ilegible cuenta igualmente como tesoro destacado. Las repeticiones guardadas se vuelven a leer solas con estas reglas.
 - **Cofre con el token pirata**: cuando consigues el acceso a la tienda pirata, el cofre de «Cofres abiertos» en el resumen de la web pasa a ser el cofre abierto con el token.

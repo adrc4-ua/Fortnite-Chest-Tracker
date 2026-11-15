@@ -9,10 +9,10 @@ public sealed class ReplayAnalyzer
 {
     /// <summary>
     /// Raise it whenever the analysis changes, so saved matches whose replay still exists are read again.
-    /// 18: the Pirate Shop Access's prize id (a GUID) and golden chests with an unreadable id. 17: whether the player left the battle bus. 16: final elimination recorded. 15: every treasure grant read, squad treasures with their finder.
+    /// 19: featured treasures seen won by opponents. 18: the Pirate Shop Access's prize id (a GUID) and golden chests with an unreadable id. 17: whether the player left the battle bus. 16: final elimination recorded. 15: every treasure grant read, squad treasures with their finder.
     /// 14: chests behind instance names, refilled chests.
     /// </summary>
-    public const int CurrentVersion = 18;
+    public const int CurrentVersion = 19;
 
     /// <summary>Set to an empty list before <see cref="Analyze"/> to receive the cross-check of the match (--diagnose).</summary>
     public List<string>? Diagnosis { get; set; }
@@ -65,6 +65,7 @@ public sealed class ReplayAnalyzer
             OtherInteractions = match.Others,
             Chests = match.Chests,
             TreasureFinds = match.Treasures,
+            RivalTreasures = match.RivalTreasures(),
             Teammates = match.Teammates,
         };
     }

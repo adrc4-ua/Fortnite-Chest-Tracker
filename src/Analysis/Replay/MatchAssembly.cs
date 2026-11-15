@@ -153,6 +153,34 @@ internal sealed class MatchAssembly
     private bool IsSquadPawn(uint pawn) => TargetPawns.Contains(pawn) || MatePawns.ContainsKey(pawn);
 
     /// <summary>
+    /// Golden chests opened by opponents near the recording player: the prize, when, and who (from the opener's pawn
+    /// to its player). A chest whose opener is unknown could be the squad's out of sight, so it is left out.
+    /// </summary>
+    public List<RivalTreasure> RivalTreasures()
+    {
+        var players = Players;
+        var list = new List<RivalTreasure>();
+        foreach (var payout in Signals.Payouts.OrderBy(p => p.Time))
+        {
+            if (payout.Pawn is not { } opener || opener == 0 || IsSquadPawn(opener))
+            {
+                continue;
+            }
+            var player = Signals.PawnState.TryGetValue(opener, out var state) && Signals.StatePlayer.TryGetValue(state, out var id)
+                ? players.FirstOrDefault(p => p.Id == id)
+                : null;
+            list.Add(new RivalTreasure
+            {
+                PrizeId = payout.PrizeId,
+                AtSeconds = MathF.Round(payout.Time, 1),
+                Player = string.IsNullOrWhiteSpace(player?.PlayerName) ? null : player.PlayerName.Trim(),
+                Bot = player?.IsBot == true,
+            });
+        }
+        return list;
+    }
+
+    /// <summary>
     /// Featured treasures (cosmetics, shop access): the golden chest names the prize, who opened the chest and which
     /// container it was. Only the target's and the teammates' count; an opponent's prize is not the squad's.
     /// </summary>

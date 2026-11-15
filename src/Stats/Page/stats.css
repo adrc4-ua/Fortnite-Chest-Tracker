@@ -432,5 +432,8 @@ html:not(.served) .week li.mark:hover{background:none}
   #t-resumen .pile .finds li{scroll-snap-align:start}
   .pile>.teamlink-sec{flex:none;margin-top:0}
   .pair-row>section>.sheet{max-height:42vh;overflow:auto}
+  /* the player's own treasures keep their room; what opponents got stays below, scrolled to, with its own scroll */
+  #t-tesoros>.fit{min-height:340px}
+  .rivals-sec>.sheet{max-height:240px;overflow:auto}
 }
 @media (prefers-reduced-motion:reduce){.spinner{animation:none}}

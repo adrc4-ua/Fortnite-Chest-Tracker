@@ -57,6 +57,12 @@ public sealed class MatchRecord
     /// <summary>True once the end-of-match treasure screen named the gizmos of this match.</summary>
     public bool TreasureScreenRead { get; set; }
 
+    /// <summary>
+    /// Featured treasures opponents were seen getting near the player (null in matches read by analyzers older than
+    /// version 19). For information only: they are in no figure.
+    /// </summary>
+    public List<RivalTreasure>? RivalTreasures { get; set; }
+
     /// <summary>Squad mates (empty when playing alone; null in matches read by analyzers older than version 13).</summary>
     public List<TeammateRecord>? Teammates { get; set; }
 
