@@ -141,6 +141,9 @@ internal static class TreasuresTab
             .GroupBy(name => name, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(name => name.Key, name => name.Count(), StringComparer.OrdinalIgnoreCase);
         int Got(Prizes.Prize prize) => obtained.GetValueOrDefault(Prizes.Shown(prize));
+        // obtained: won in a match or struck off by hand (the player's mark wins either way). Only whether it was
+        // obtained, never how many times: these are not figures.
+        bool Obtained(Prizes.Prize prize) => marks.TryGetValue(prize.Name, out var mark) ? mark : Got(prize) > 0;
         var now = DateTime.Now;
         var current = Prizes.WeekOf(now);
         // local dates: a week changing at 3:00 in the morning ends on the day the next one starts
@@ -149,9 +152,9 @@ internal static class TreasuresTab
 
         string Tile(Prizes.Prize prize)
         {
-            var count = Got(prize);
-            var under = count > 0 ? $"<span class=\"prize-won\">★ ×{count}</span>" : prize.Announced ? "" : $"<span class=\"chipl\">{L.T("sin confirmar", "unconfirmed")}</span>";
-            return $"<div class=\"prize{(count > 0 ? " prize-got" : "")}\"><span class=\"prize-kind\"><i>{PageIcons.Of(prize)}</i><span>{Esc(Prizes.TypeName(prize.Type))}</span></span><b>{Esc(Prizes.Shown(prize))}</b>{under}</div>";
+            var got = Obtained(prize);
+            var under = got || prize.Announced ? "" : $"<span class=\"chipl\">{L.T("sin confirmar", "unconfirmed")}</span>";
+            return $"<div class=\"prize{(got ? " prize-got" : "")}\" data-prize=\"{Esc(prize.Name)}\"><span class=\"prize-kind\"><i>{PageIcons.Of(prize)}</i><span>{Esc(Prizes.TypeName(prize.Type))}</span></span><b>{Esc(Prizes.Shown(prize))}</b>{under}</div>";
         }
 
         var meta = current > 0
@@ -187,10 +190,9 @@ internal static class TreasuresTab
                 : "<ul>" + string.Concat(prizes.Select(p =>
                 {
                     // struck off once obtained, or by hand (the player's mark wins either way)
-                    var count = Got(p);
-                    var struck = marks.TryGetValue(p.Name, out var mark) ? mark : count > 0;
+                    var struck = Obtained(p);
                     return $"<li class=\"mark{(struck ? " struck" : "")}\" data-prize=\"{Esc(p.Name)}\" role=\"button\" tabindex=\"0\" aria-pressed=\"{(struck ? "true" : "false")}\">"
-                           + $"<i>{PageIcons.Of(p)}</i><span>{Esc(Prizes.Shown(p))}</span>{(count > 0 ? $"<b>×{count}</b>" : "")}</li>";
+                           + $"<i>{PageIcons.Of(p)}</i><span>{Esc(Prizes.Shown(p))}</span></li>";
                 })) + "</ul>";
             var isNow = week == current;
             weeks.Append($"<div class=\"week{(isNow ? " week-now" : "")}\"><div class=\"week-head\"><b>{L.F("Semana {0}", "Week {0}", week)}</b>")

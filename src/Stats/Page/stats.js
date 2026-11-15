@@ -144,7 +144,14 @@
       const flip = () => {
         if (!served) return;
         const struck = !item.classList.contains('struck');
-        const show = on => { item.classList.toggle('struck', on); item.setAttribute('aria-pressed', String(on)); };
+        // struck off = obtained: this week's card of the same prize turns gold at once (FCT rewrites the page too)
+        const show = on => {
+          item.classList.toggle('struck', on);
+          item.setAttribute('aria-pressed', String(on));
+          for (const card of doc.querySelectorAll('.prize[data-prize]')) {
+            if (card.dataset.prize === item.dataset.prize) card.classList.toggle('prize-got', on);
+          }
+        };
         show(struck);
         post('mark', (struck ? '1' : '0') + '|' + item.dataset.prize).catch(() => { show(!struck); say(body.dataset.failed, true); });
       };
