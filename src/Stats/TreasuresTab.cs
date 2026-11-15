@@ -126,7 +126,9 @@ internal static class TreasuresTab
     {
         var (name, type, featured) = Prizes.Describe(find, matchLocal);
         var tags = (featured && name != Prizes.Featured ? $"<span class=\"chipl chip-gold\">{Esc(Prizes.Featured)}</span>" : "")
-                   + (type == null ? "" : $"<span class=\"chipl\">{Esc(type)}</span>");
+                   + (type == null ? "" : $"<span class=\"chipl\">{Esc(type)}</span>")
+                   // named by the game's list of prizes, which only narrowed the win down to a few matches
+                   + (find.PrizeMatchLikely ? $"<span class=\"chipl\" title=\"{Esc(L.T("El juego confirma que lo conseguiste, pero pudo ser en otra partida cercana", "The game confirms you got it, but it may have been in a nearby match"))}\">{L.T("partida probable", "likely match")}</span>" : "");
         return $"<div class=\"tr-name\"><span class=\"star\">{(featured ? "★★" : "★")}</span><span>{Esc(name)}</span></div>"
                + (tags.Length > 0 ? $"<div class=\"tr-tags\">{tags}</div>" : "");
     }

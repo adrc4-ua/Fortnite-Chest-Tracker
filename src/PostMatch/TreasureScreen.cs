@@ -56,6 +56,7 @@ public static class TreasureScreenMerge
     public static bool Apply(MatchRecord m, IEnumerable<TreasureScreen> screens)
     {
         var before = Signature(m);
+        PrizeListMerge.Undo(m); // the prize list names treasures after the screen: undone, done again by the caller
         Reset(m);
         if (ScreenOf(m, screens) is { } screen)
         {

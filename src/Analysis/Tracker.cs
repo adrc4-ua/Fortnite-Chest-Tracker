@@ -167,6 +167,13 @@ public sealed class Tracker
         }
         var results = ready.Count == 1 ? new List<ScanResult> { ReadOne(ready[0]) } : ReadBatch(ready);
         var added = results.Count(r => r.Match != null);
+        if (added > 0)
+        {
+            // featured treasures the replays could not name, from the game's own list of the player's prizes
+            PrizeListLog.Update(Data);
+            PrizeListMerge.Apply(Data);
+            _store.SaveData(Data);
+        }
         if (added > 0 || ready.Count > 1)
         {
             StatsPage.WriteAll(_store, _config, Data);

@@ -41,6 +41,22 @@ public sealed class TreasureFind
     /// <summary>Only on the end-of-match screen, not in the replay (won after being eliminated): no time, no finder.</summary>
     public bool FromScreen { get; set; }
 
+    /// <summary>
+    /// Named through the game's list of owned prizes (<see cref="TrackerData.PrizeLists"/>): the replay saw a treasure
+    /// (or none) but not its golden chest. <see cref="GenericPrizeId"/> keeps what it was before, so it can be undone.
+    /// </summary>
+    public bool FromPrizeList { get; set; }
+
+    /// <summary>Added by the prize list: the replay did not see this treasure at all.</summary>
+    public bool AddedFromPrizeList { get; set; }
+
+    /// <summary>The prize list only narrows the win down to a few matches: this is the most likely one.</summary>
+    public bool PrizeMatchLikely { get; set; }
+
+    /// <summary>The prize id and item the treasure had before the prize list named it.</summary>
+    public string? GenericPrizeId { get; set; }
+    public string? GenericItem { get; set; }
+
     // ---- Where it came from ------------------------------------------------------------------------------------------------
 
     public string SourceKind { get; set; } = "";

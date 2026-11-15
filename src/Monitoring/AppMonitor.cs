@@ -141,6 +141,7 @@ public sealed class AppMonitor
             {
                 fixedAny |= TreasureScreenMerge.Apply(match, _data.TreasureScreens);
             }
+            fixedAny |= PrizeListMerge.Apply(_data); // the lists already filed (new ones are read by the monitor)
             if (fixedAny)
             {
                 _store.SaveData(_data);
@@ -405,6 +406,7 @@ public sealed class AppMonitor
             changed |= _publishRequested;
             _publishRequested = false;
             changed |= FileTreasureScreens();
+            changed |= FilePrizeLists();
             changed |= ResetIfAsked();
             changed |= RestoreIfAsked();
             changed |= CountSkippedIfAsked();
@@ -472,6 +474,29 @@ public sealed class AppMonitor
         var fallback = _watcher != null && !AutoMode ? 60 : 10;
         _nextScan = DateTime.UtcNow.AddSeconds(_tracker.IsFinishing ? 2 : _tracker.HasPending ? 15 : fallback);
         return added > 0 || liveChanged;
+    }
+
+    /// <summary>
+    /// Reads what is new in the game's logs for its list of the player's prizes (all the logs on disk the first time,
+    /// on this thread so the start is not held up) and names the featured treasures it reveals. True when anything changed.
+    /// </summary>
+    private bool FilePrizeLists()
+    {
+        try
+        {
+            if (!PrizeListLog.Update(_data) || !PrizeListMerge.Apply(_data))
+            {
+                return false;
+            }
+            _store.SaveData(_data);
+            _statsRequested = true;
+            return true;
+        }
+        catch (Exception ex)
+        {
+            ErrorLog.Write("Lista de premios del juego", ex);
+            return false;
+        }
     }
 
     private bool FileTreasureScreens()

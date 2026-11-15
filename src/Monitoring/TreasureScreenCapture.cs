@@ -129,6 +129,7 @@ internal sealed class TreasureScreenCapture
             {
                 TreasureScreenMerge.Apply(match, data.TreasureScreens);
             }
+            PrizeListMerge.Apply(data);
         }
         return added;
     }

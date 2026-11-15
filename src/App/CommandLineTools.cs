@@ -7,6 +7,11 @@ internal static class CommandLineTools
     public static int Once(Store store, Config config, TrackerData data, Tracker tracker)
     {
         tracker.Scan(ignoreQuietPeriod: true);
+        // the game's own list of the player's prizes names the featured treasures the replays could not
+        if (PrizeListLog.Update(data) | PrizeListMerge.Apply(data))
+        {
+            store.SaveData(data);
+        }
         StatsPage.WriteAll(store, config, data);
         tracker.PrintSummary();
         Console.WriteLine(L.F("  Estadísticas: {0}", "  Stats: {0}", store.StatsPath));

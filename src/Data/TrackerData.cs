@@ -28,4 +28,23 @@ public sealed class TrackerData
 
     /// <summary>End-of-match treasure screens read so far; kept so they can be matched again after a re-analysis.</summary>
     public List<TreasureScreen> TreasureScreens { get; set; } = new();
+
+    /// <summary>
+    /// The game's own list of the featured prizes the player owns, each time it changed (from the game's log): the
+    /// exact source of which featured treasure was won, even when the replay did not see its golden chest.
+    /// </summary>
+    public List<PrizeList> PrizeLists { get; set; } = new();
+}
+
+/// <summary>The featured prizes the player owned, as the game listed them over a stretch of time.</summary>
+public sealed class PrizeList
+{
+    /// <summary>When the game first listed exactly these prizes (UTC).</summary>
+    public DateTime FirstSeenUtc { get; set; }
+
+    /// <summary>The last time it listed them unchanged (UTC).</summary>
+    public DateTime LastSeenUtc { get; set; }
+
+    /// <summary>Prize ids ("DelilahPrize:dpid_item21", the Pirate Shop Access's GUID).</summary>
+    public List<string> Ids { get; set; } = new();
 }
