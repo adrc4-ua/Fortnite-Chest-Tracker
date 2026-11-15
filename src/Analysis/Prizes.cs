@@ -24,13 +24,13 @@ public static class Prizes
     public sealed record Prize(string Name, Kind Type, int Week, string? Id = null, bool Announced = true);
 
     /// <summary>
-    /// Start of each week of the event (UTC). The prizes change on Sundays at 9 PM Eastern Time (Monday 2:00 UTC, 3:00 in
-    /// Spain); the event ends on <see cref="End"/>.
+    /// Start of each week of the event (UTC). The prizes change on Sundays at 9 AM Eastern Time (14:00 UTC, 15:00 in
+    /// Spain): a week 3 prize was won at 14:39 UTC on Sunday 15 November, in a replay. The event ends on <see cref="End"/>.
     /// </summary>
     public static readonly DateTime[] WeekStarts =
     {
-        new(2026, 11, 1, 0, 0, 0, DateTimeKind.Utc), new(2026, 11, 9, 2, 0, 0, DateTimeKind.Utc), new(2026, 11, 16, 2, 0, 0, DateTimeKind.Utc),
-        new(2026, 11, 23, 2, 0, 0, DateTimeKind.Utc), new(2026, 11, 30, 2, 0, 0, DateTimeKind.Utc),
+        new(2026, 11, 1, 0, 0, 0, DateTimeKind.Utc), new(2026, 11, 8, 14, 0, 0, DateTimeKind.Utc), new(2026, 11, 15, 14, 0, 0, DateTimeKind.Utc),
+        new(2026, 11, 22, 14, 0, 0, DateTimeKind.Utc), new(2026, 11, 29, 14, 0, 0, DateTimeKind.Utc),
     };
     public static readonly DateTime End = new(2026, 12, 5, 0, 0, 0, DateTimeKind.Utc);
 

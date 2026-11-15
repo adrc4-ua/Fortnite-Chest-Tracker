@@ -2,6 +2,12 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
+## [Sin publicar]
+
+- **Los tesoros solo salen de cofres**: dos tesoros aparecían como conseguidos en una caja de munición y eran de un cofre (comprobado con el replay de quien lo abrió): uno roto a la vez que la caja por una explosión y otro abierto por un compañero lejos de quien grabó. Ahora el origen de un tesoro es siempre un cofre, o «Desconocido» si el replay no lo vio, y un tesoro destacado cuyo contenedor no se ve ya no sale como «sin abrir un cofre».
+- **Cambio de semana a la hora real**: los premios cambian el domingo a las 15:00 (hora de España), no el lunes a las 3:00; un premio de la semana 3 se consiguió el domingo 15 a las 15:39.
+- **Diagnóstico**: junto a cada tesoro muestra todo lo que se abrió en los segundos de alrededor.
+
 ## [5.9.0] - 2026-11-15
 
 - **Pestaña Tesoros más compacta**: las cifras pasan a la cabecera, junto al título; el botón de las semanas, a la línea de su título; y «Tesoros obtenidos por tu equipo» y «Tesoros obtenidos por rivales» se ven a la vez en una pantalla de 1920×1080, del mismo tamaño, con al menos dos tesoros cada una, las mismas columnas alineadas y su propio scroll. Sin tesoros, cada lista mantiene su tamaño con su aviso. En el móvil, la pestaña ya no se sale de la pantalla.

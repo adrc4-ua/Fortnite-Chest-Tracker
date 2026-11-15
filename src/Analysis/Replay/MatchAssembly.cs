@@ -207,7 +207,7 @@ internal sealed class MatchAssembly
                 ObtainedAtSeconds = MathF.Round(payout.Time, 1),
                 SourceKind = kind,
                 SourceBlueprint = label,
-                SourceIsChest = ChestKinds.IsChest(kind),
+                SourceIsChest = kind == "unknown" || ChestKinds.IsChest(kind), // a container the replay does not name: a chest, as always
                 SourceCertain = true,
                 SourceDestroyed = Signals.Searches.Exists(s => s.Destroyed && s.Key == payout.Container),
                 Finder = own ? TreasureFind.FinderSelf : TreasureFind.FinderTeammate,
@@ -249,8 +249,11 @@ internal sealed class MatchAssembly
     private TreasureFind Gizmo(float time, string handler)
     {
         // Buried chests grant the prize when the dig ends, ~2.5 s before they report "searched": up to +4 s for them only.
+        // Only chests: treasures come out of chests alone. An ammo box at the same moment (both broken by one explosion),
+        // or the only search seen while the chest was opened by a teammate out of the replay's range, is not the source
+        // (both cases checked on real matches with the replay of the player who opened the chest).
         var source = Signals.Searches
-            .Where(s => s.Pawn is { } pawn && IsSquadPawn(pawn))
+            .Where(s => s.Pawn is { } pawn && IsSquadPawn(pawn) && ChestKinds.IsChest(ChestKinds.Classify(s.Label)))
             .Where(s => s.Time >= time - 3 && (s.Time <= time + 2 || (s.Time <= time + 4 && ChestKinds.Classify(s.Label) == ChestKinds.Buried)))
             .OrderBy(s => Math.Abs(s.Time - time))
             .FirstOrDefault();

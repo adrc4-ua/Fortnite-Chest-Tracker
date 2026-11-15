@@ -59,6 +59,15 @@ internal static class MatchDiagnosis
             };
             var source = treasure.SourceCertain ? treasure.SourceLabel : $"{treasure.SourceLabel} ({Pretty.Likely})";
             lines.Add($"  ★ {Pretty.Clock(treasure.ObtainedAtSeconds ?? 0)}  {treasure.DisplayName}  ·  {L.T("por", "by")} {finder}  ·  {source}  ·  {evidence}");
+            // everything searched in the seconds around it (the source is the closest squad search, of any kind)
+            if (treasure.ObtainedAtSeconds is { } at)
+            {
+                foreach (var near in signals.Searches.Where(x => Math.Abs(x.Time - at) <= 8).OrderBy(x => x.Time))
+                {
+                    var who = near.Pawn is { } p ? Who(p) : L.T("sin jugador", "no player");
+                    lines.Add($"      {near.Time - at,6:+0.0;-0.0} s  {L.Name(ChestKinds.Classify(near.Label))}{(near.Destroyed ? " (" + L.T("destruido", "destroyed") + ")" : "")} · {who}");
+                }
+            }
         }
 
         // Every golden chest of a featured treasure the replay saw, squad's or not: which prize id it carried, whether
