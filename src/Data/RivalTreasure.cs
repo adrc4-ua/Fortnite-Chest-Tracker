@@ -17,4 +17,11 @@ public sealed class RivalTreasure
 
     /// <summary>The opponent was a bot.</summary>
     public bool Bot { get; set; }
+
+    /// <summary>Kind of container the golden chest came out of (as for the squad's treasures; "" before analyzer 20).</summary>
+    public string SourceKind { get; set; } = "";
+
+    /// <summary>The container, as shown ("Cofre", "Cofre raro"…); unknown when the replay does not say.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string SourceLabel => L.Name(ChestKinds.Shown(SourceKind.Length == 0 ? "unknown" : SourceKind));
 }

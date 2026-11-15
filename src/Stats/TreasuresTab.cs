@@ -54,7 +54,7 @@ internal static class TreasuresTab
         var seen = matches.SelectMany(m => (m.RivalTreasures ?? new List<RivalTreasure>()).Select(r => (m, r)))
             .OrderByDescending(x => LocalStart(x.m)).ThenByDescending(x => x.r.AtSeconds).ToList();
         var meta = $"{L.Count(seen.Count, "tesoro destacado", "tesoros destacados", "featured treasure", "featured treasures")} · "
-                   + L.T("solo los abiertos cerca de ti · no suman a tus cifras", "only the ones opened near you · not in your figures");
+                   + L.T("solo los abiertos cerca de ti", "only the ones opened near you");
         var title = L.T("Tesoros obtenidos por rivales", "Treasures obtained by opponents");
         if (seen.Count == 0)
         {
@@ -63,8 +63,8 @@ internal static class TreasuresTab
                 "tre-list rivals-sec");
         }
         var html = new StringBuilder("<div class=\"sheet scrollx\"><table><thead><tr>")
-            .Append($"<th>{L.T("Partida", "Match")}</th><th>{L.T("Tesoro", "Treasure")}</th><th>{L.T("Rival", "Opponent")}</th>")
-            .Append($"<th class=\"ac\">{L.T("Momento", "Time")}</th></tr></thead><tbody>");
+            .Append($"<th>{L.T("Partida", "Match")}</th><th>{L.T("Tesoro", "Treasure")}</th><th class=\"ac\">{L.T("Rival", "Opponent")}</th>")
+            .Append($"<th class=\"ac\">{L.T("Momento", "Time")}</th><th class=\"ac\">{L.T("Origen", "Source")}</th></tr></thead><tbody>");
         foreach (var (match, rival) in seen)
         {
             var who = rival.Player == null
@@ -73,7 +73,8 @@ internal static class TreasuresTab
             var find = new TreasureFind { PrizeId = rival.PrizeId, FromPrizeChest = true };
             html.Append("<tr>")
                 .Append($"<td class=\"nowrap\">{L.DateTimeShort(LocalStart(match))}<div class=\"note\">{Esc(Pretty.Playlist(match.Playlist))}</div></td>")
-                .Append($"<td>{TreasureCell(find, LocalStart(match))}</td><td class=\"nowrap\">{who}</td><td class=\"ac nowrap num\">{Pretty.Clock(rival.AtSeconds)}</td></tr>");
+                .Append($"<td>{TreasureCell(find, LocalStart(match))}</td><td class=\"ac nowrap\">{who}</td><td class=\"ac nowrap num\">{Pretty.Clock(rival.AtSeconds)}</td>")
+                .Append($"<td class=\"ac\">{(rival.SourceKind.Length == 0 ? Dash : Esc(rival.SourceLabel))}</td></tr>");
         }
         return Section(title, meta, html.Append("</tbody></table></div>").ToString(), "tre-list rivals-sec");
     }
@@ -105,8 +106,8 @@ internal static class TreasuresTab
     private static string Table(List<(MatchRecord m, TreasureFind f)> treasures)
     {
         var html = new StringBuilder("<div class=\"sheet scrollx\"><table><thead><tr>")
-            .Append($"<th>{L.T("Partida", "Match")}</th><th>{L.T("Tesoro", "Treasure")}</th><th>{L.T("Conseguido por", "Obtained by")}</th>")
-            .Append($"<th class=\"ac\">{L.T("Momento", "Time")}</th><th>{L.T("Origen", "Source")}</th></tr></thead><tbody>");
+            .Append($"<th>{L.T("Partida", "Match")}</th><th>{L.T("Tesoro", "Treasure")}</th><th class=\"ac\">{L.T("Conseguido por", "Obtained by")}</th>")
+            .Append($"<th class=\"ac\">{L.T("Momento", "Time")}</th><th class=\"ac\">{L.T("Origen", "Source")}</th></tr></thead><tbody>");
         foreach (var (match, find) in treasures)
         {
             var at = find.ObtainedAtSeconds is { } seconds
@@ -120,8 +121,8 @@ internal static class TreasuresTab
             }
             html.Append(find.SourceIsChest ? "<tr>" : "<tr class=\"is-odd\">")
                 .Append($"<td class=\"nowrap\">{L.DateTimeShort(LocalStart(match))}<div class=\"note\">{Esc(Pretty.Playlist(match.Playlist))}</div></td>")
-                .Append($"<td>{TreasureCell(find, LocalStart(match))}</td><td class=\"nowrap\">{finder}</td><td class=\"ac nowrap num\">{at}</td>")
-                .Append($"<td>{(find.SourceIsChest ? "" : "⚑ ")}{Esc(find.SourceLabel)}</td></tr>");
+                .Append($"<td>{TreasureCell(find, LocalStart(match))}</td><td class=\"ac nowrap\">{finder}</td><td class=\"ac nowrap num\">{at}</td>")
+                .Append($"<td class=\"ac\">{(find.SourceIsChest ? "" : "⚑ ")}{Esc(find.SourceLabel)}</td></tr>");
         }
         return html.Append("</tbody></table></div>").ToString();
     }

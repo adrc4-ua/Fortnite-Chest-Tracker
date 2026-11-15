@@ -148,6 +148,11 @@ h2::before{content:"";display:inline-block;width:6px;height:6px;border-radius:2p
 /* lists of treasures: rows of one height, so a list shows a whole number of them; two rows tall at least */
 .tre-list{--row:76px;--two-rows:calc(43px + 2 * var(--row) + 2px)}
 .tre-list tbody tr{height:var(--row)}
+/* both lists of treasures share their columns, so one sits right under the other (narrow screens scroll sideways) */
+.tre-list table{table-layout:fixed;min-width:760px}
+.tre-list th:nth-child(1){width:20%}.tre-list th:nth-child(2){width:30%}.tre-list th:nth-child(3){width:18%}
+.tre-list th:nth-child(4){width:14%}.tre-list th:nth-child(5){width:18%}
+.tre-list td{overflow:hidden;text-overflow:ellipsis}
 .tre-list>.sheet{max-height:60vh;overflow:auto}
 .list-void{display:grid;place-items:center;min-height:var(--two-rows);padding:16px;text-align:center}
 .list-void .note{margin:0}
@@ -449,12 +454,10 @@ html:not(.served) .week li.mark:hover{background:none}
   #t-resumen .pile .finds li{scroll-snap-align:start}
   .pile>.teamlink-sec{flex:none;margin-top:0}
   .pair-row>section>.sheet{max-height:42vh;overflow:auto}
-  /* Tesoros: both lists of treasures fit the screen, each one showing at least two rows and scrolling inside; the
-     team's takes the room left, the opponents' keeps two rows; an empty one keeps its size, with its notice */
-  #t-tesoros>.tre-list{flex:1 1 0;min-height:calc(var(--two-rows) + 32px)}
+  /* Tesoros: both lists of treasures fit the screen, the same size (the room left shared between them), each one
+     showing at least two rows and scrolling inside; an empty one keeps its size, with its notice */
+  #t-tesoros>.tre-list{flex:1 1 0;min-height:calc(var(--two-rows) + 32px);display:flex;flex-direction:column}
   #t-tesoros>.tre-list>.sheet{flex:1 1 auto;min-height:var(--two-rows);overflow:auto}
-  #t-tesoros>.rivals-sec{flex:0 0 auto}
-  #t-tesoros>.rivals-sec>.sheet{flex:none;height:var(--two-rows)}
   #t-tesoros .pair-row .bar{padding:6px 0}
 }
 @media (prefers-reduced-motion:reduce){.spinner{animation:none}}

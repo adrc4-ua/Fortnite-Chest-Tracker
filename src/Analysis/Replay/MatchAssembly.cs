@@ -169,9 +169,11 @@ internal sealed class MatchAssembly
             var player = Signals.PawnState.TryGetValue(opener, out var state) && Signals.StatePlayer.TryGetValue(state, out var id)
                 ? players.FirstOrDefault(p => p.Id == id)
                 : null;
+            var label = SignalReader.ShortName(payout.Container);
             list.Add(new RivalTreasure
             {
                 PrizeId = payout.PrizeId,
+                SourceKind = label.Length == 0 ? "unknown" : ChestKinds.Classify(label),
                 AtSeconds = MathF.Round(payout.Time, 1),
                 Player = string.IsNullOrWhiteSpace(player?.PlayerName) ? null : player.PlayerName.Trim(),
                 Bot = player?.IsBot == true,
