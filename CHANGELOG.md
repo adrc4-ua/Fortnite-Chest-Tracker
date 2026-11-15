@@ -2,13 +2,17 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
+## [Sin publicar]
+
+- **Ya no se pierde la segunda carta de la pantalla de tesoros**: una carta cuenta en cuanto la ven al menos dos capturas. Antes mandaba el número de cartas que veía la mayoría, y una carta que solo aparecía en parte de las capturas (por ejemplo un acelerador junto a un extractor) se quedaba sin nombre. Las pantallas guardadas con sus lecturas se recalculan solas al abrir FCT.
+
 ## [5.8.2] - 2026-11-15
 
 - **La web ya no parpadea ni sube las listas sola**: antes se recargaba entera cada 15 segundos, aunque nada hubiera cambiado, y las listas con scroll propio (tesoros, partidas…) volvían arriba. Ahora solo se actualiza cuando cambian de verdad las cifras o los ajustes, y lo hace en el sitio, sin recargar, manteniendo la pestaña y el scroll de cada lista.
 
 ## [5.8.1] - 2026-11-15
 
-- **Fin de los tesoros detectados como «fuegos artificiales» por error**: el destello dorado con el que aterriza cada carta lavaba el icono y cualquier artilugio podía leerse como fuegos; ahora una carta en pleno destello se descarta (los fuegos reales se distinguen por cubrir mucha menos carta), el voto entre capturas se queda con las tardías, donde la carta ya está asentada, una carta cuenta en cuanto la ven dos capturas (antes una segunda carta vista solo en parte de las capturas se perdía), el morado del localizador de la suerte se reconoce también claro, y cada pantalla guarda sus lecturas en bruto para poder recombinarlas si las reglas mejoran.
+- **Fin de los tesoros detectados como «fuegos artificiales» por error**: el destello dorado con el que aterriza cada carta lavaba el icono y cualquier artilugio podía leerse como fuegos; ahora una carta en pleno destello se descarta (los fuegos reales se distinguen por cubrir mucha menos carta), el voto entre capturas se queda con las tardías, donde la carta ya está asentada, el morado del localizador de la suerte se reconoce también claro, y cada pantalla guarda sus lecturas en bruto para poder recombinarlas si las reglas mejoran.
 
 ## [5.8.0] - 2026-11-14
 
