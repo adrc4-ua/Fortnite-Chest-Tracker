@@ -33,7 +33,7 @@ public sealed partial class SettingsForm : ThemedForm
     private readonly ToggleSwitch _withFortnite, _openStats, _mates, _addMates, _ranked, _ammo, _food, _cannons;
     private readonly PillButton[] _updateButtons = new PillButton[UpdateChoices.Length];
     private readonly Label _updateHint;
-    private readonly TextBox _folder, _earlier;
+    private readonly ThemedTextBox _folder, _earlier;
     private bool _loading;
 
     public SettingsForm(AppMonitor monitor, Store store)
@@ -116,7 +116,7 @@ public sealed partial class SettingsForm : ThemedForm
     /// <summary>
     /// Chests from before FCT: the figure, editable between − and +, and the same calculation as the first start below.
     /// </summary>
-    private TextBox EarlierChests(AppMonitor monitor)
+    private ThemedTextBox EarlierChests(AppMonitor monitor)
     {
         var card = Card(this, RightX, Header + 40, RightWidth, 136, 16);
         Title(card, L.F("Cofres antes de {0}", "Chests before {0}", AppInfo.ShortName), 120);
@@ -125,13 +125,15 @@ public sealed partial class SettingsForm : ThemedForm
         var minus = Button("−", new Point(13, RowY), new Size(StepWidth, RowHeight), 11, 12f);
         var plus = Button("+", new Point(RightWidth - 13 - StepWidth, RowY), new Size(StepWidth, RowHeight), 11, 12f);
         var back = new Card { Location = new Point(13 + StepWidth + 6, RowY), Size = new Size(RightWidth - 26 - 2 * (StepWidth + 6), RowHeight), Radius = 11, BackColor = Theme.Bg2, Edge = Theme.Line, Flat = true };
-        var figure = new TextBox
+        var figure = new ThemedTextBox
         {
             BorderStyle = BorderStyle.None, BackColor = Theme.Bg2, ForeColor = Theme.GoldBase, Font = Theme.Display(16f, FontStyle.Bold),
             TextAlign = HorizontalAlignment.Center, Width = back.Width - 20, MaxLength = 7,
+            Numeric = NumericMode.Integer,
             Text = Math.Min(MaxEarlierChests, monitor.InitialChests).ToString(L.Culture),
         };
         figure.Location = new Point(10, (back.Height - figure.Height) / 2);
+        figure.AttachToCard(back);
         back.Controls.Add(figure);
         card.Controls.Add(back);
         plus.Click += (_, _) => StepEarlier(10);
@@ -143,7 +145,6 @@ public sealed partial class SettingsForm : ThemedForm
         recalculate.IconSvg = Icons.Calc;
         recalculate.Click += (_, _) => Recalculate();
         card.Controls.Add(recalculate);
-        figure.KeyPress += (_, e) => e.Handled = !char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar);
         figure.TextChanged += (_, _) => Saved(() => _monitor.SetInitialChests(EarlierValue()));
         return figure;
     }

@@ -9,15 +9,51 @@ namespace FCT.UI;
 [SupportedOSPlatform("windows")]
 public sealed class DarkMenuRenderer : ToolStripProfessionalRenderer
 {
+    private static readonly Color ItemText = Theme.Ink;
+    private static readonly Color ItemDisabled = Color.FromArgb(130, 125, 115);
+
     public DarkMenuRenderer() : base(new Palette())
     {
         RoundedEdges = true;
     }
 
+    protected override void OnRenderItemImage(ToolStripItemImageRenderEventArgs e)
+    {
+        if (e.Image == null)
+        {
+            return;
+        }
+
+        var rect = e.ImageRectangle;
+        rect.Y = Math.Max(0, (e.Item.Height - rect.Height) / 2);
+
+        if (!e.Item.Enabled)
+        {
+            ControlPaint.DrawImageDisabled(e.Graphics, e.Image, rect.X, rect.Y, Color.Transparent);
+        }
+        else
+        {
+            e.Graphics.DrawImage(e.Image, rect);
+        }
+    }
+
     protected override void OnRenderItemText(ToolStripItemTextRenderEventArgs e)
     {
-        e.TextColor = e.Item.Selected ? Theme.GoldHi : e.Item.ForeColor;
-        base.OnRenderItemText(e);
+        var color = e.Item.Selected
+            ? Theme.GoldHi
+            : !e.Item.Enabled
+                ? ItemDisabled
+                : (e.Item.ForeColor == SystemColors.ControlText || e.Item.ForeColor.IsEmpty)
+                    ? ItemText
+                    : e.Item.ForeColor;
+
+        var textRect = new Rectangle(
+            e.TextRectangle.X,
+            Math.Max(0, (e.Item.Height - e.TextRectangle.Height) / 2),
+            e.TextRectangle.Width,
+            e.TextRectangle.Height);
+
+        TextRenderer.DrawText(e.Graphics, e.Text, e.TextFont, textRect, color, e.TextFormat);
     }
 
     /// <summary>The separators carry the gold: one thin line, inset from both sides (the frame stays neutral).</summary>

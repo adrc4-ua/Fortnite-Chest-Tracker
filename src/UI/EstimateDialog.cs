@@ -30,14 +30,14 @@ public sealed class EstimateDialog : ThemedForm
     private readonly Card _panel;
     private readonly Label _step1;
     private readonly Card _nameBox;
-    private readonly TextBox _name;
+    private readonly ThemedTextBox _name;
     private readonly PillButton _search;
     private readonly IconTile _statusIcon;
     private readonly Label _status;
     private readonly Panel _manual;
     private readonly Label _manualText;
     private readonly Card _totalBox;
-    private readonly TextBox _total;
+    private readonly ThemedTextBox _total;
     private readonly PillButton _site;
     private readonly Label _step2;
     private readonly PillButton _calc;
@@ -45,7 +45,7 @@ public sealed class EstimateDialog : ThemedForm
     private readonly Panel _calcArea;
     private readonly Panel _typedArea;
     private readonly List<PillButton> _samples = new();
-    private readonly TextBox _average;
+    private readonly ThemedTextBox _average;
     private readonly Card _result;
     private readonly Label _resultValue;
     private readonly Label _resultText;
@@ -118,8 +118,8 @@ public sealed class EstimateDialog : ThemedForm
             ? L.T("1 · ¿Cómo te llamas en Epic?", "1 · What's your Epic name?")
             : L.T("1 · ¿Cuántas partidas llevas esta temporada?", "1 · How many matches this season?"));
         _nameBox = FieldBox(_panel, Inner - 108, 36);
-        _name = FieldText(_nameBox, playerName ?? "", Theme.Text(10f), Theme.Ink);
-        SetCue(_name, L.T("Tu nombre de Epic", "Your Epic name"));
+        _name = FieldText(_nameBox, playerName ?? "", Theme.Text(10f), Theme.Ink, NumericMode.None);
+        _name.CueBanner = L.T("Tu nombre de Epic", "Your Epic name");
         _name.KeyDown += async (_, e) =>
         {
             if (e.KeyCode == Keys.Enter)
@@ -143,15 +143,14 @@ public sealed class EstimateDialog : ThemedForm
         _manualText = new Label
         {
             AutoSize = true, MaximumSize = new Size(Inner, 0), Font = Theme.Text(8.5f), ForeColor = Theme.Muted, BackColor = Color.Transparent, UseMnemonic = false,
-            Text = L.T("Escríbelas tú: en fortnite.gg busca tu nombre y mira las partidas de esta temporada.",
-                "Type them in yourself: look up your name on fortnite.gg and check this season's matches."),
+            Text = L.T("Escríbelas tú: en fortnite.gg busca tu nombre, revisa el número de \"matches\" y escríbelo aquí.",
+                "Type them in yourself: look up your name on fortnite.gg, check the number of \"matches\" and type it here."),
         };
         _manual.Controls.Add(_manualText);
         _totalBox = FieldBox(_manual, 140, 40);
-        _total = FieldText(_totalBox, current is { TotalMatches: > 0 } c ? c.TotalMatches.ToString(CultureInfo.InvariantCulture) : "", Theme.Display(14f, FontStyle.Bold), Theme.GoldBase);
-        SetCue(_total, L.T("Partidas", "Matches"));
+        _total = FieldText(_totalBox, current is { TotalMatches: > 0 } c ? c.TotalMatches.ToString(CultureInfo.InvariantCulture) : "", Theme.Display(14f, FontStyle.Bold), Theme.GoldBase, NumericMode.Integer);
+        _total.CueBanner = L.T("Partidas", "Matches");
         _total.MaxLength = 7;
-        _total.KeyPress += (_, e) => e.Handled = !char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar);
         _total.TextChanged += (_, _) =>
         {
             if (_manualTotal)
@@ -195,10 +194,9 @@ public sealed class EstimateDialog : ThemedForm
         _typedArea = new Panel { Size = new Size(Inner, 64), BackColor = Color.Transparent, Visible = false };
         var averageBox = FieldBox(_typedArea, 140, 40);
         averageBox.Location = Point.Empty;
-        _average = FieldText(averageBox, current?.ManualAverage is double typed ? typed.ToString("0.##", L.Culture) : "", Theme.Display(14f, FontStyle.Bold), Theme.GoldBase);
-        SetCue(_average, "18,5");
+        _average = FieldText(averageBox, current?.ManualAverage is double typed ? typed.ToString("0.##", L.Culture) : "", Theme.Display(14f, FontStyle.Bold), Theme.GoldBase, NumericMode.Decimal);
+        _average.CueBanner = "18,5";
         _average.MaxLength = 6;
-        _average.KeyPress += (_, e) => e.Handled = !char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar) && e.KeyChar != ',' && e.KeyChar != '.';
         _average.TextChanged += (_, _) => UpdatePreview();
         AddText(_typedArea, L.T("cofres por partida, de media.", "chests per match, on average."), Theme.Text(8.75f), Theme.Muted, 152, 11, Inner - 152);
         _panel.Controls.Add(_typedArea);
@@ -472,7 +470,7 @@ public sealed class EstimateDialog : ThemedForm
     private void OpenSite()
     {
         var name = _name.Text.Trim();
-        var url = name.Length > 0 ? "https://fortnite.gg/stats?player=" + Uri.EscapeDataString(name) : "https://fortnite.gg/stats";
+        var url = name.Length > 0 ? "https://fortnite.gg/stats/br?player=" + Uri.EscapeDataString(name) : "https://fortnite.gg/stats/br";
         try
         {
             Process.Start(new ProcessStartInfo(url) { UseShellExecute = true })?.Dispose();
@@ -524,20 +522,23 @@ public sealed class EstimateDialog : ThemedForm
         return box;
     }
 
-    private static TextBox FieldText(Card box, string text, Font font, Color color)
+    private static ThemedTextBox FieldText(Card box, string text, Font font, Color color, NumericMode numeric = NumericMode.None)
     {
-        var t = new TextBox { BorderStyle = BorderStyle.None, BackColor = Theme.Bg2, ForeColor = color, Font = font, Text = text, Width = box.Width - 22 };
+        var t = new ThemedTextBox
+        {
+            BorderStyle = BorderStyle.None,
+            BackColor = Theme.Bg2,
+            ForeColor = color,
+            Font = font,
+            Text = text,
+            Width = box.Width - 22,
+            Numeric = numeric,
+        };
         t.Location = new Point(11, (box.Height - t.Height) / 2);
+        t.AttachToCard(box);
         box.Controls.Add(t);
         return t;
     }
-
-    /// <summary>Texto gris de ayuda dentro de un campo vacío (EM_SETCUEBANNER).</summary>
-    private static void SetCue(TextBox box, string text) =>
-        box.HandleCreated += (_, _) => SendMessage(box.Handle, 0x1501, (IntPtr)1, text);
-
-    [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
-    private static extern IntPtr SendMessage(IntPtr hwnd, int msg, IntPtr wParam, string lParam);
 
     private static int AddText(Control parent, string text, Font font, Color color, int x, int y, int width)
     {

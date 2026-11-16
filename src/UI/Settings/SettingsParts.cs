@@ -43,11 +43,12 @@ internal static class SettingsParts
     }
 
     /// <summary>A borderless read-only text box on a rounded background.</summary>
-    public static TextBox Field(Card card, Point at, int width, string text)
+    public static ThemedTextBox Field(Card card, Point at, int width, string text)
     {
         var back = new Card { Location = at, Size = new Size(width, 30), Radius = 10, BackColor = Theme.Bg2, Edge = Theme.Line };
-        var box = new TextBox { BorderStyle = BorderStyle.None, BackColor = Theme.Bg2, ForeColor = Theme.Ink, Font = Theme.Text(9f), ReadOnly = true, Text = text, Width = width - 20 };
+        var box = new ThemedTextBox { BorderStyle = BorderStyle.None, BackColor = Theme.Bg2, ForeColor = Theme.Ink, Font = Theme.Text(9f), ReadOnly = true, Text = text, Width = width - 20 };
         box.Location = new Point(10, (back.Height - box.Height) / 2);
+        box.AttachToCard(back);
         back.Controls.Add(box);
         card.Controls.Add(back);
         return box;
