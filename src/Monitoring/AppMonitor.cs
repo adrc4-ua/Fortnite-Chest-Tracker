@@ -101,6 +101,7 @@ public sealed class AppMonitor
 
     public bool OverlayEnabled => OperatingSystem.IsWindows();
     public bool OverlayVisible => OperatingSystem.IsWindows() && NativeOverlay.IsVisible;
+    public bool ObsOverlayActive => ObsServer.IsObsActive;
 
     /// <summary>
     /// Days with matches of the profile on screen (all of them, ignoring the "count from" date), newest first, with how
@@ -420,8 +421,19 @@ public sealed class AppMonitor
     {
         WriteStatsPageAtStart();
         var changed = true;
+        var lastObsActive = false;
         while (!_stop)
         {
+            var obsActive = ObsServer.IsObsActive;
+            if (obsActive != lastObsActive)
+            {
+                lastObsActive = obsActive;
+                if (OperatingSystem.IsWindows() && NativeOverlay.IsRunning)
+                {
+                    NativeOverlay.SetSuppressedByObs(obsActive);
+                }
+                changed = true;
+            }
             changed |= _publishRequested;
             _publishRequested = false;
             try

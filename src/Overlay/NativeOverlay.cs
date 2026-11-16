@@ -18,7 +18,7 @@ namespace FCT.Overlay;
 [SupportedOSPlatform("windows")]
 public static class NativeOverlay
 {
-    private const uint WM_APP_TOGGLE = 0x8001, WM_APP_RELAYOUT = 0x8002, WM_APP_LOCK = 0x8003, WM_APP_RECHECK = 0x8004;
+    private const uint WM_APP_TOGGLE = 0x8001, WM_APP_RELAYOUT = 0x8002, WM_APP_LOCK = 0x8003, WM_APP_RECHECK = 0x8004, WM_APP_SUPPRESS_OBS = 0x8005;
     private const int GameTimer = 3, GameTimerMs = 1000, MouseTimer = 4, SoonTimer = 5;
 
     /// <summary>
@@ -42,7 +42,7 @@ public static class NativeOverlay
     private static Action? _close;
 
     // state, used on the overlay's thread (the volatile ones are read from others too)
-    private static volatile bool _visible, _locked, _gameOpen;
+    private static volatile bool _visible, _locked, _gameOpen, _suppressedByObs;
     private static bool _offscreen, _scaleForced;
     private static OverlayInk _ink = null!;
     private static OverlayLayout _layout = new();
@@ -65,11 +65,14 @@ public static class NativeOverlay
     /// <summary>Locked: it cannot be moved (the mouse always goes through it).</summary>
     public static bool IsLocked => _locked;
 
-    /// <summary>Turned on (it is on screen only while the game is open).</summary>
+    /// <summary>Turned on (it is on screen only while the game is open and not suppressed by OBS).</summary>
     public static bool IsVisible => _window != IntPtr.Zero && _visible;
 
+    /// <summary>Temporarily suppressed because the OBS overlay is actively used.</summary>
+    public static bool IsSuppressedByObs => _suppressedByObs;
+
     /// <summary>A window of the game is open and in sight (not minimized, not covered), as the overlay last saw it.</summary>
-    public static bool GameInSight => _window != IntPtr.Zero && _game.Watching && _gameOpen;
+    public static bool GameInSight => _window != IntPtr.Zero && _game.Watching && _gameOpen && !_suppressedByObs;
 
     /// <param name="x">Saved position; -10000 or less keeps it off screen for good (--overlay-preview).</param>
     /// <param name="isGame">Given a process id, whether it is the game: the overlay only shows while a window of the
@@ -125,6 +128,15 @@ public static class NativeOverlay
     public static void ToggleLock() => Post(WM_APP_LOCK);
 
     public static void Toggle() => Post(WM_APP_TOGGLE);
+
+    /// <summary>Hides the native overlay while OBS is using the web overlay, or restores it when OBS stops.</summary>
+    public static void SetSuppressedByObs(bool suppressed)
+    {
+        if (_window != IntPtr.Zero)
+        {
+            PostMessageW(_window, WM_APP_SUPPRESS_OBS, suppressed ? (IntPtr)1 : IntPtr.Zero, IntPtr.Zero);
+        }
+    }
 
     /// <summary>Looks again whether the game is open (Fortnite closing without another window coming forward says nothing).</summary>
     public static void Recheck()
@@ -229,7 +241,7 @@ public static class NativeOverlay
         {
             FollowTheGame();
         }
-        if (_visible && _gameOpen)
+        if (_visible && _gameOpen && !_suppressedByObs)
         {
             Show(_window, true);
         }
@@ -321,6 +333,9 @@ public static class NativeOverlay
             case WM_APP_TOGGLE:
                 SetVisible(window, !_visible);
                 return 0;
+            case WM_APP_SUPPRESS_OBS:
+                SetSuppressed(window, wParam != IntPtr.Zero);
+                return 0;
             case WM_DPICHANGED:
                 // moved to a monitor with another scale: new fonts and size (Relayout places it)
                 if (!_scaleForced)
@@ -345,6 +360,7 @@ public static class NativeOverlay
                 return 0;
             case WM_TIMER when (long)wParam == GameTimer:
             case WM_APP_RECHECK:
+                CheckObsTimeout(window);
                 GameChanged(window);
                 return 0;
             case WM_APP_RELAYOUT:
@@ -680,6 +696,25 @@ public static class NativeOverlay
                 "Overlay unlocked: drag it with the left mouse button; lock it again with the padlock."));
     }
 
+    private static void CheckObsTimeout(IntPtr window)
+    {
+        if (_suppressedByObs && !ObsServer.IsObsActive)
+        {
+            SetSuppressed(window, false);
+        }
+    }
+
+    private static void SetSuppressed(IntPtr window, bool suppressed)
+    {
+        if (suppressed == _suppressedByObs)
+        {
+            return;
+        }
+        _suppressedByObs = suppressed;
+        var shouldShow = _visible && _gameOpen && !_suppressedByObs;
+        Show(window, shouldShow);
+    }
+
     /// <summary>
     /// The game opened or closed. A new Fortnite process turns the overlay on; restoring the same one does not (turned
     /// off by hand, it stays off until Fortnite is launched again).
@@ -703,7 +738,7 @@ public static class NativeOverlay
         }
         if (_visible)
         {
-            Show(window, open);
+            Show(window, open && !_suppressedByObs);
         }
     }
 
@@ -719,7 +754,7 @@ public static class NativeOverlay
         {
             return; // on: it shows as soon as the game is open
         }
-        Show(window, visible);
+        Show(window, visible && !_suppressedByObs);
         if (!visible)
         {
             Console.WriteLine(L.T("Overlay oculto: usa el botón Overlay de la ventana para volver a mostrarlo.", "Overlay hidden: use the Overlay button in the window to show it again."));
@@ -782,7 +817,7 @@ public static class NativeOverlay
     /// </summary>
     private static void Relayout(IntPtr window)
     {
-        var show = _visible && _gameOpen;
+        var show = _visible && _gameOpen && !_suppressedByObs;
         var hdc = GetDC(window);
         try
         {

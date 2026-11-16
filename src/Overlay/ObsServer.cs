@@ -17,9 +17,21 @@ public static class ObsServer
 {
     public const int DefaultPort = 7373;
     private const int PortsToTry = 10;
+    private const int ObsTimeoutMs = 5000;
 
     private static TcpListener? _listener;
     private static volatile string _overlayBox = "";
+    private static long _lastObsPollTicks;
+
+    /// <summary>Whether an OBS browser source (or browser) is currently polling the overlay.</summary>
+    public static bool IsObsActive
+    {
+        get
+        {
+            var ticks = Interlocked.Read(ref _lastObsPollTicks);
+            return ticks > 0 && (Environment.TickCount64 - ticks) < ObsTimeoutMs;
+        }
+    }
 
     /// <summary>Address to paste in OBS; null when no port could be opened.</summary>
     public static string? Url { get; private set; }
@@ -79,6 +91,11 @@ public static class ObsServer
         }
         _listener = null;
         Url = null;
+        Interlocked.Exchange(ref _lastObsPollTicks, 0);
+        if (OperatingSystem.IsWindows() && NativeOverlay.IsRunning)
+        {
+            NativeOverlay.SetSuppressedByObs(false);
+        }
     }
 
     /// <summary>New figures for the OBS page.</summary>
@@ -107,6 +124,10 @@ public static class ObsServer
         {
             return LocalResponse.Text("403 Forbidden", "forbidden");
         }
+        if (request.Method == "GET" && request.Path is "/" or "/overlay" or "/view")
+        {
+            RecordObsActivity();
+        }
         return (request.Method, request.Path) switch
         {
             ("GET", "/" or "/overlay") => LocalResponse.Html(OverlayPage.LivePage(_overlayBox)),
@@ -118,6 +139,16 @@ public static class ObsServer
             ("POST", "/api/ajuste") => ChangeSetting(request, port),
             _ => LocalResponse.Text("404 Not Found", "not found"), // OPTIONS too: no preflight is ever accepted
         };
+    }
+
+    private static void RecordObsActivity()
+    {
+        var wasActive = IsObsActive;
+        Interlocked.Exchange(ref _lastObsPollTicks, Environment.TickCount64);
+        if (!wasActive && OperatingSystem.IsWindows() && NativeOverlay.IsRunning)
+        {
+            NativeOverlay.SetSuppressedByObs(true);
+        }
     }
 
     /// <summary>"localhost:port" (any case) or "127.0.0.1:port", optionally with a scheme in front (for Origin).</summary>

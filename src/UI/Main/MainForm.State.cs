@@ -52,7 +52,11 @@ public sealed partial class MainForm
         ShowMatch(state);
         ShowFigures(state);
         _overlayButton.Enabled = _monitor.OverlayEnabled;
-        _overlayButton.Chip = _monitor.OverlayVisible ? L.T("● Activado", "● On") : L.T("Apagado", "Off");
+        _overlayButton.Chip = !_monitor.OverlayVisible
+            ? L.T("Apagado", "Off")
+            : _monitor.ObsOverlayActive
+                ? "● OBS"
+                : L.T("● Activado", "● On");
         _overlayButton.ChipOn = _monitor.OverlayVisible;
         ShowTeam(state.Team);
         ShowProfiles(state);

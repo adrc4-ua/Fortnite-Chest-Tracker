@@ -1,33 +1,36 @@
 /* FCT overlay for OBS: the same card as the in-game overlay. Transparent page; gold card, mint when a match is live. */
-html,body{margin:0;background:transparent;color:#f3eee3;font:500 16px/1.25 "Segoe UI",system-ui,sans-serif}
+html,body{margin:0;padding:0;background:transparent;color:#f3eee3;font:500 16px/1.25 "Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 svg .f{fill:currentColor;fill-opacity:.3}
 
-.ov{position:relative;display:inline-block;min-width:240px;padding:10px 14px 10px 18px;border-radius:16px;overflow:hidden;
-  background:linear-gradient(180deg,rgba(232,176,75,.07),rgba(232,176,75,0) 55%),rgba(18,18,21,.94);border:1px solid rgba(232,176,75,.30);box-shadow:0 10px 28px rgba(0,0,0,.45)}
-.ov::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#f8d98f,#e8b04b)}
+.ov{position:relative;display:inline-block;box-sizing:border-box;min-width:170px;padding:9px 10px 8px 13px;border-radius:16px;overflow:hidden;
+  background:linear-gradient(180deg,rgba(232,176,75,.07),rgba(232,176,75,0) 55%),#121215}
+.ov::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#f8d98f,#e8b04b)}
 .ov.ov-live::before{background:#86d6a0}
 
-.ov-top{display:flex;align-items:center;justify-content:space-between;gap:16px;font:700 12px "Segoe UI",sans-serif;letter-spacing:.12em;color:#d8c28f}
-.ov-title::before{content:"";display:inline-block;width:6px;height:6px;margin:0 8px 2px 1px;background:#e8b04b;transform:rotate(45deg)}
-.ov-badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:99px;background:rgba(134,214,160,.12);border:1px solid rgba(134,214,160,.32);color:#86d6a0;letter-spacing:.06em}
-.ov-badge::before{content:"";width:8px;height:8px;border-radius:50%;background:#86d6a0;animation:breathe 1.6s ease-in-out infinite}
+.ov-top{display:flex;align-items:center;justify-content:space-between;height:15px;line-height:15px;font:700 11px "Segoe UI",sans-serif;letter-spacing:.12em;color:#d8c28f}
+.ov-title{display:inline-flex;align-items:center}
+.ov-title::before{content:"";display:inline-block;width:5px;height:5px;margin:0 6px 1px 0;background:#e8b04b;transform:rotate(45deg)}
+.ov-badge{display:inline-flex;align-items:center;gap:4px;padding:1px 6px;border-radius:99px;background:#1e2c24;border:1px solid rgba(134,214,160,.35);color:#86d6a0;letter-spacing:.06em;font-size:10px;font-weight:700}
+.ov-badge::before{content:"";width:6px;height:6px;border-radius:50%;background:#86d6a0;animation:breathe 1.6s ease-in-out infinite}
 @keyframes breathe{50%{opacity:.35}}
 
-.ov-numbers{display:flex;align-items:center;justify-content:space-between;gap:16px;margin:6px 0 8px}
-.ov-big{display:block;font-size:34px;font-weight:800;line-height:1.05;font-variant-numeric:tabular-nums}
-.ov-cap{display:block;font-size:11px;font-weight:700;letter-spacing:.1em;color:#968f80;text-transform:uppercase}
+.ov-numbers{display:flex;align-items:center;justify-content:space-between;margin:4px 0 7px;height:56px;gap:8px}
+.ov-total{text-align:center;flex:1}
+.ov-big{display:block;font-size:26px;font-weight:800;line-height:1.05;font-variant-numeric:tabular-nums}
+.ov-cap{display:block;font-size:9px;font-weight:600;letter-spacing:.08em;color:#968f80;text-transform:uppercase}
 .ov-total .ov-big{background:linear-gradient(180deg,#f8d98f,#e8b04b 60%,#c48a2c);-webkit-background-clip:text;background-clip:text;color:transparent}
-.ov-match{min-width:84px;padding:5px 12px;border-radius:12px;background:rgba(232,176,75,.10);border:1px solid rgba(232,176,75,.30);text-align:center}
+
+.ov-match{min-width:68px;height:56px;padding:2px 8px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:10px;background:#272119;border:1px solid #524125;box-sizing:border-box}
 .ov-match .ov-big{background:linear-gradient(180deg,#f8d98f,#e8b04b);-webkit-background-clip:text;background-clip:text;color:transparent}
 .ov-match.ov-live .ov-big{background:none;color:#86d6a0}
 .ov-match.ov-live .ov-cap{color:#86d6a0}
 .ov-match.ov-none .ov-big{background:none;color:#5a554b}
 
-.ov-rows{display:flex;justify-content:space-around;gap:14px;border-top:1px solid #2c2a26;padding-top:7px}
-.ov-cell{text-align:center;flex:1}
-.ov-cell+.ov-cell{border-left:1px solid rgba(232,176,75,.30)}
-.ov-cell .ov-cap{font-size:10px}
-.ov-cell b{display:block;font-size:16px;font-weight:700}
-.ov-cell.ov-gems b{color:#e8b04b;display:flex;align-items:center;justify-content:center;gap:4px}
-.ov-cell.ov-gems svg{width:15px;height:15px}
-.ov-cell small{display:block;font-size:11px;font-weight:600;color:#968f80}
+.ov-rows{display:flex;justify-content:space-between;border-top:1px solid #2c2a26;padding-top:7px}
+.ov-cell{text-align:center;flex:1;padding:0 2px}
+.ov-cell+.ov-cell{border-left:1px solid #524125}
+.ov-cell .ov-cap{font-size:9px;font-weight:700;letter-spacing:.06em;margin-bottom:2px;color:#968f80;text-transform:uppercase}
+.ov-cell b{display:block;font-size:13px;font-weight:700;line-height:1.2;color:#f3eee3}
+.ov-cell.ov-gems b{color:#e8b04b;display:flex;align-items:center;justify-content:center;gap:3px}
+.ov-cell.ov-gems svg{width:11px;height:11px}
+.ov-cell small{display:block;font-size:10px;font-weight:600;color:#968f80}
