@@ -142,7 +142,7 @@
     // settings when FCT serves the page; opened as a file they only show.
     for (const item of doc.querySelectorAll('.week li.mark')) {
       const flip = () => {
-        if (!served) return;
+        if (!served || item.dataset.auto) return;
         const struck = !item.classList.contains('struck');
         // struck off = obtained: this week's card of the same prize turns gold at once (FCT rewrites the page too)
         const show = on => {
@@ -150,6 +150,23 @@
           item.setAttribute('aria-pressed', String(on));
           for (const card of doc.querySelectorAll('.prize[data-prize]')) {
             if (card.dataset.prize === item.dataset.prize) card.classList.toggle('prize-got', on);
+          }
+          const delta = on ? 1 : -1;
+          const adjust = selector => {
+            const el = doc.querySelector(selector);
+            if (!el) return;
+            const val = parseInt(el.textContent.replace(/\D/g, ''), 10);
+            if (!isNaN(val)) el.textContent = Math.max(0, val + delta).toLocaleString();
+          };
+          adjust('[data-fig="tre-total"]');
+          adjust('[data-fig="tre-featured"]');
+          const tabCount = doc.querySelector('#tab-tesoros .tab-count');
+          if (tabCount) {
+            const count = parseInt(tabCount.textContent.replace(/\D/g, ''), 10);
+            if (!isNaN(count)) {
+              const next = Math.max(0, count + delta);
+              tabCount.textContent = next > 0 ? next.toLocaleString() : '';
+            }
           }
         };
         show(struck);

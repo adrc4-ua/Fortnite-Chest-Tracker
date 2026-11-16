@@ -327,6 +327,14 @@ public sealed class AppMonitor
             return false;
         }
         var (struck, name) = (parts[0] == "1", parts[1]);
+        var view = Profiles.View(_data, Config);
+        var treasures = view.Matches.SelectMany(m => m.TreasureFinds.Select(f => (m, f)));
+        var detected = Prizes.DetectedPrizeNames(treasures);
+        var prize = Prizes.ByName(name);
+        if (prize != null && Prizes.IsDetected(prize, detected))
+        {
+            return false;
+        }
         ChangeShown(c => c.PrizeMarks[name] = struck); // rewritten so the next reload keeps it
         return true;
     }

@@ -17,6 +17,8 @@
 *{box-sizing:border-box;scrollbar-width:thin;scrollbar-color:#5c4417 transparent}
 ::-webkit-scrollbar{width:8px;height:8px}
 ::-webkit-scrollbar-thumb{background:#5c4417;border-radius:8px}
+::-webkit-scrollbar-thumb:hover{background:var(--gold)}
+::-webkit-scrollbar-thumb:active{background:var(--gold-hi)}
 ::-webkit-scrollbar-track{background:transparent}
 html{background:var(--bg)}
 body{
@@ -92,7 +94,7 @@ h2::before{content:"";display:inline-block;width:6px;height:6px;border-radius:2p
 
 /* ---- Cards and figures -------------------------------------------------------------------------------------------- */
 .fig,.sheet,.mini{background:linear-gradient(180deg,rgba(232,176,75,.05),rgba(232,176,75,0) 55%),var(--card);border:1px solid rgba(232,176,75,.14);border-radius:var(--radius);box-shadow:var(--shadow)}
-.sheet-pad{padding:16px 18px}
+.sheet-pad{padding:14.59px 18px}
 .figures{display:grid;grid-template-columns:minmax(0,1.9fr) repeat(5,minmax(0,1fr));gap:12px}
 .fig{position:relative;padding:16px 18px;min-width:0;display:flex;flex-direction:column}
 .fig-icon{position:absolute;top:14px;right:14px;display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:11px;color:var(--gold-hi);background:var(--icon-tile);border:1px solid var(--gold-line)}
@@ -306,6 +308,8 @@ td.foot-note{text-align:center;padding:14px 16px}
 .week li.mark{cursor:pointer;border-radius:6px;margin:-2px -4px;padding:2px 4px;transition:background .15s}
 .week li.mark:hover{background:rgba(255,255,255,.04)}
 .week li.mark:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.week li.mark[data-auto]{cursor:default}
+.week li.mark[data-auto]:hover{background:none}
 .week li.struck span{color:var(--faint);text-decoration:line-through;text-decoration-color:var(--gold);text-decoration-thickness:2px}
 .week li.struck i{color:var(--faint)}
 html:not(.served) .week li.mark{cursor:default}
@@ -428,9 +432,10 @@ html:not(.served) .week li.mark:hover{background:none}
 @media (min-width:1000px) and (min-height:620px){
   html,body{height:100%;overflow:hidden}
   .shell{height:100vh}
-  .content{height:100vh;overflow:hidden;display:flex;flex-direction:column}
-  .content>.pane:not([hidden]){flex:1;min-height:0;display:flex;flex-direction:column;overflow:auto}
-  .content>.pane>*{flex:0 0 auto}
+  .content{height:100vh;overflow:hidden;display:flex;flex-direction:column;padding:26px 0 0 30px}
+  .content>.loader{width:calc(100vw - 296px);max-width:calc(100vw - 296px)}
+  .content>.pane:not([hidden]){flex:1;min-height:0;display:flex;flex-direction:column;overflow-y:auto;overflow-x:hidden;padding:0 0 34px 0}
+  .content>.pane>*{flex:0 0 auto;width:calc(100vw - 296px);max-width:calc(100vw - 296px)}
   .content>.pane>.fit,.content>.pane>.pair{flex:1 1 0;min-height:140px}
   /* .pair holds two flex-basis-0 columns (the matches table and the treasures+team pile) that need real room to
      show anything at all; a loading banner above them (or a short window) used to squeeze them to nothing instead

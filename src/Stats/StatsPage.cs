@@ -125,7 +125,7 @@ public static class StatsPage
         {
             ("resumen", L.T("Resumen", "Overview"), null),
             ("cofres", L.T("Cofres", "Chests"), null),
-            ("tesoros", L.T("Tesoros", "Treasures"), page.Treasures.Count > 0 ? Num(page.Treasures.Count) : null),
+            ("tesoros", L.T("Tesoros", "Treasures"), page.TotalTreasures > 0 ? Num(page.TotalTreasures) : null),
             ("partidas", L.T("Partidas", "Matches"), Num(page.Matches.Count + page.Unjumped)),
         };
         if (page.Teammates is { } mates)
@@ -185,6 +185,8 @@ internal sealed class PageData
         PlayedDays = Matches.Select(LocalStart).Concat(data.UnjumpedStarts.Select(start => start.ToLocalTime()))
             .GroupBy(start => start.Date).ToDictionary(day => day.Key, day => day.Count());
         Treasures = Matches.SelectMany(m => m.TreasureFinds.Select(f => (m, f))).ToList();
+        DetectedPrizes = Prizes.DetectedPrizeNames(Treasures);
+        ManualTreasureMarks = Prizes.ManualMarksCount(config.PrizeMarks, DetectedPrizes);
         PirateToken = Treasures.Any(t => Prizes.ByName(Prizes.Describe(t.f, LocalStart(t.m)).Name) is { Type: Prizes.Kind.ShopAccess });
         ExtraKinds = config.ExtraKinds();
         Player = Matches.Select(m => m.PlayerName).FirstOrDefault(n => !string.IsNullOrEmpty(n)) ?? "";
@@ -213,6 +215,15 @@ internal sealed class PageData
     public List<MatchRecord> Matches { get; }
 
     public List<(MatchRecord m, TreasureFind f)> Treasures { get; }
+
+    /// <summary>Names and IDs of treasures found in matches.</summary>
+    public HashSet<string> DetectedPrizes { get; }
+
+    /// <summary>Weekly treasures struck off by hand (not found in matches).</summary>
+    public int ManualTreasureMarks { get; }
+
+    /// <summary>Total treasures: found in matches plus those struck off by hand.</summary>
+    public int TotalTreasures => Treasures.Count + ManualTreasureMarks;
 
     /// <summary>The player got the pirate token (the Pirate Shop Access) in one of the matches shown.</summary>
     public bool PirateToken { get; }

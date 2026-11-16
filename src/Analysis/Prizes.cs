@@ -188,5 +188,31 @@ public static class Prizes
         return ByName(item) is { Type: Kind.Gizmo } g ? (Shown(g), TypeName(Kind.Gizmo), false) : (L.Name(TreasureNames.UnknownGizmo), null, false);
     }
 
+    /// <summary>Names and IDs of prizes found in matches.</summary>
+    public static HashSet<string> DetectedPrizeNames(IEnumerable<(MatchRecord m, TreasureFind f)> treasures)
+    {
+        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var (match, find) in treasures)
+        {
+            if (find.PrizeId != null)
+            {
+                names.Add(find.PrizeId);
+            }
+            var local = (match.MatchStartUtc ?? match.AnalyzedAtUtc).ToLocalTime();
+            names.Add(Describe(find, local).Name);
+        }
+        return names;
+    }
+
+    /// <summary>Whether a prize was detected in a match.</summary>
+    public static bool IsDetected(Prize prize, HashSet<string> detected) =>
+        detected.Contains(prize.Name) ||
+        detected.Contains(Shown(prize)) ||
+        (prize.Id != null && detected.Contains(prize.Id));
+
+    /// <summary>How many weekly prizes were struck off by hand and not found in a match.</summary>
+    public static int ManualMarksCount(IReadOnlyDictionary<string, bool> marks, HashSet<string> detected) =>
+        All.Where(p => p.Week > 0).Count(p => !IsDetected(p, detected) && marks.TryGetValue(p.Name, out var m) && m);
+
     private static string? NullIfEmpty(string s) => string.IsNullOrWhiteSpace(s) ? null : s.Trim();
 }

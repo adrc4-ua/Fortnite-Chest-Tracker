@@ -13,8 +13,8 @@ internal static class TreasuresTab
     {
         var treasures = page.Treasures;
         var html = new StringBuilder(Head("tesoros", L.T("Tesoros", "Treasures"), L.T("Los que hay ahora y los que has conseguido", "The ones available now and the ones you got"),
-            Figures(treasures, page.Matches.Count)));
-        var (now, allWeeks) = Hunt(treasures, page.Config.PrizeMarks);
+            Figures(treasures, page.ManualTreasureMarks, page.Matches.Count)));
+        var (now, allWeeks) = Hunt(treasures, page.Config.PrizeMarks, page.DetectedPrizes);
         html.Append("<div class=\"pair-row\">").Append(now).Append(Sources(treasures)).Append("</div>").Append(allWeeks);
         // the two lists keep their size, with or without treasures: a list scrolls inside, an empty one says so
         var own = treasures.Count > 0
@@ -26,16 +26,18 @@ internal static class TreasuresTab
     }
 
     /// <summary>The tab's key numbers, small, at the right of its title.</summary>
-    private static string Figures(List<(MatchRecord m, TreasureFind f)> treasures, int matchCount)
+    private static string Figures(List<(MatchRecord m, TreasureFind f)> treasures, int manualMarks, int matchCount)
     {
-        var featured = treasures.Count(t => t.f.Featured);
+        var total = treasures.Count + manualMarks;
+        var featured = treasures.Count(t => t.f.Featured) + manualMarks;
+        var gizmos = total - featured;
         var withTreasure = treasures.Select(t => t.m).Distinct().Count();
         var share = matchCount > 0 ? (100.0 * withTreasure / matchCount).ToString("0", L.Culture) : "0";
-        static string Fig(string value, string text, bool gold = false) =>
-            $"<span class=\"hfig{(gold ? " is-gold" : "")}\"><b>{value}</b>{text}</span>";
-        return Fig(Num(treasures.Count), L.T("en total", "in total"), true)
-               + Fig(Num(featured), L.T("destacados", "featured"))
-               + Fig(Num(treasures.Count - featured), L.T("artilugios", "gizmos"))
+        static string Fig(string value, string text, string? figId = null, bool gold = false) =>
+            $"<span class=\"hfig{(gold ? " is-gold" : "")}\"><b{(figId != null ? $" data-fig=\"{figId}\"" : "")}>{value}</b>{text}</span>";
+        return Fig(Num(total), L.T("en total", "in total"), "tre-total", true)
+               + Fig(Num(featured), L.T("destacados", "featured"), "tre-featured")
+               + Fig(Num(gizmos), L.T("artilugios", "gizmos"))
                + Fig(share + " %", L.T("de partidas con tesoro", "of matches with one"));
     }
 
@@ -137,15 +139,11 @@ internal static class TreasuresTab
     /// The hunt as it is now: this week's rewards as tiles (the ones obtained in gold), what any week can give, and a
     /// button that opens the five weeks (returned apart, as they span the whole width under the row).
     /// </summary>
-    private static (string Now, string Weeks) Hunt(List<(MatchRecord m, TreasureFind f)> treasures, IReadOnlyDictionary<string, bool> marks)
+    private static (string Now, string Weeks) Hunt(List<(MatchRecord m, TreasureFind f)> treasures, IReadOnlyDictionary<string, bool> marks, HashSet<string> detected)
     {
-        var obtained = treasures.Select(t => Prizes.Describe(t.f, LocalStart(t.m)).Name)
-            .GroupBy(name => name, StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(name => name.Key, name => name.Count(), StringComparer.OrdinalIgnoreCase);
-        int Got(Prizes.Prize prize) => obtained.GetValueOrDefault(Prizes.Shown(prize));
-        // obtained: won in a match or struck off by hand (the player's mark wins either way). Only whether it was
-        // obtained, never how many times: these are not figures.
-        bool Obtained(Prizes.Prize prize) => marks.TryGetValue(prize.Name, out var mark) ? mark : Got(prize) > 0;
+        bool IsDetected(Prizes.Prize prize) => Prizes.IsDetected(prize, detected);
+        bool IsManual(Prizes.Prize prize) => !IsDetected(prize) && marks.TryGetValue(prize.Name, out var mark) && mark;
+        bool Obtained(Prizes.Prize prize) => IsDetected(prize) || IsManual(prize);
         var now = DateTime.Now;
         var current = Prizes.WeekOf(now);
         // local dates: a week changing at 3:00 in the morning ends on the day the next one starts
@@ -176,7 +174,7 @@ internal static class TreasuresTab
         foreach (var prize in Prizes.All.Where(p => p.Week == 0))
         {
             // what any week can give, muted; only the shop access lights up once obtained (gizmos come all the time)
-            var lit = prize.Type == Prizes.Kind.ShopAccess && Got(prize) > 0;
+            var lit = prize.Type == Prizes.Kind.ShopAccess && IsDetected(prize);
             card.Append($"<span class=\"token{(lit ? " token-got" : "")}\"><i>{PageIcons.Of(prize)}</i>{Esc(Prizes.Shown(prize))}</span>");
         }
         card.Append("</div></div>");
@@ -191,8 +189,13 @@ internal static class TreasuresTab
                 ? $"<p class=\"note\">{notYet}</p>"
                 : "<ul>" + string.Concat(prizes.Select(p =>
                 {
-                    // struck off once obtained, or by hand (the player's mark wins either way)
-                    var struck = Obtained(p);
+                    var isAuto = IsDetected(p);
+                    var struck = isAuto || IsManual(p);
+                    if (isAuto)
+                    {
+                        return $"<li class=\"mark struck is-auto\" data-prize=\"{Esc(p.Name)}\" data-auto=\"1\" aria-disabled=\"true\" title=\"{Esc(L.T("Conseguido en partida", "Obtained in match"))}\">"
+                               + $"<i>{PageIcons.Of(p)}</i><span>{Esc(Prizes.Shown(p))}</span></li>";
+                    }
                     return $"<li class=\"mark{(struck ? " struck" : "")}\" data-prize=\"{Esc(p.Name)}\" role=\"button\" tabindex=\"0\" aria-pressed=\"{(struck ? "true" : "false")}\">"
                            + $"<i>{PageIcons.Of(p)}</i><span>{Esc(Prizes.Shown(p))}</span></li>";
                 })) + "</ul>";
