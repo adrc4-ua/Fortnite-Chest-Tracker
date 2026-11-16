@@ -4,13 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title id="meta-title">Fortnite Chest Tracker (FCT) — Rastreador de Cofres y Tesoros</title>
-  <meta name="description" id="meta-desc" content="Rastrea cada cofre que abres en Fortnite en tiempo real. Descubre qué tesoros abrieron tus rivales, calcula tus cofres de la temporada y mejora tus récords. 100% gratis y seguro.">
+  <meta name="description" id="meta-desc" content="Rastrea cada cofre que abres en Fortnite, partida tras partida. Descubre qué tesoros abrieron tus rivales, calcula tus cofres de la temporada y mejora tus récords. 100% gratis y seguro.">
   <link rel="icon" type="image/png" href="images/icon-chest-open.png">
 
   <!-- Open Graph / Redes Sociales -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Fortnite Chest Tracker (FCT)">
-  <meta property="og:description" content="Cuenta tus cofres en vivo mientras juegas, espía qué tesoros consiguen tus rivales y calcula tu historial sin empezar de cero.">
+  <meta property="og:description" content="Cuenta tus cofres partida tras partida, descubre qué tesoros consiguen tus rivales y calcula tu historial sin empezar de cero.">
   <meta property="og:image" content="images/banner-es.png">
   <meta name="theme-color" content="#e8b04b">
 
@@ -264,11 +264,11 @@
     }
 
     .hero h1 {
-      font-size: clamp(32px, 5.5vw, 56px);
+      font-size: clamp(34px, 4.8vw, 54px);
       font-weight: 800;
-      line-height: 1.14;
+      line-height: 1.18;
       letter-spacing: -0.03em;
-      max-width: 890px;
+      max-width: 1100px;
       margin: 0 auto 20px;
     }
 
@@ -281,9 +281,9 @@
     }
 
     .hero-sub {
-      font-size: clamp(16px, 2vw, 19px);
+      font-size: clamp(16px, 1.9vw, 19px);
       color: var(--muted);
-      max-width: 720px;
+      max-width: 840px;
       margin: 0 auto 36px;
       line-height: 1.55;
     }
@@ -441,38 +441,41 @@
     /* Floating Overlay Badge */
     .floating-overlay-card {
       position: absolute;
-      bottom: -24px;
-      right: 28px;
-      max-width: 380px;
+      bottom: -28px;
+      right: 32px;
+      max-width: 440px;
       background: rgba(18, 18, 21, 0.95);
       backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--gold-line);
-      border-radius: 14px;
-      padding: 14px 16px;
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7);
+      border-radius: 16px;
+      padding: 16px 20px;
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.75);
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 16px;
       text-align: left;
     }
 
     .floating-overlay-card img {
-      width: 100px;
-      border-radius: 8px;
-      border: 1px solid var(--line2);
+      width: 140px;
+      height: auto;
+      border: none;
+      filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.6));
       flex-shrink: 0;
     }
 
     .floating-overlay-text b {
       display: block;
-      font-size: 13.5px;
+      font-size: 14.5px;
       color: var(--gold-hi);
+      margin-bottom: 4px;
     }
 
     .floating-overlay-text span {
-      font-size: 12px;
+      font-size: 12.5px;
       color: var(--muted);
-      line-height: 1.35;
+      line-height: 1.42;
       display: block;
     }
 
@@ -556,10 +559,12 @@
 
     .feature-card .card-img {
       width: 100%;
+      height: auto;
       border-radius: 12px;
       border: 1px solid var(--line2);
-      object-fit: cover;
-      margin-top: auto;
+      margin-top: 18px;
+      display: block;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
     }
 
     /* ---- Deep Dive Rival Treasures --------------------------------------- */
@@ -570,7 +575,7 @@
       padding: 44px;
       margin: 80px 0;
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1.2fr;
       gap: 40px;
       align-items: center;
     }
@@ -880,12 +885,12 @@
       </div>
 
       <h1 data-i18n-html="hero_title">
-        Sabe cuántos cofres llevas y <br>
-        <span class="highlight">qué tesoros abren tus rivales</span>
+        Sabe cuántos cofres llevas en la temporada <br>
+        <span class="highlight">y qué tesoros abren tus rivales a tu alrededor</span>
       </h1>
 
       <p class="hero-sub" data-i18n-html="hero_sub">
-        ¿Buscando el <strong>Token Pirata</strong> o los cosméticos semanales? FCT cuenta tus cofres en vivo mientras juegas, estima tu historial de la temporada sin empezar de cero y te revela qué premios sacaron tus oponentes en tu cara.
+        ¿Buscando el <strong>Token Pirata</strong> o los cosméticos semanales? FCT registra cada cofre partida tras partida, calcula tus cofres de la temporada sin empezar de cero y te revela qué tesoros destacados abrieron tus rivales.
       </p>
 
       <!-- Main CTA Group -->
@@ -931,8 +936,8 @@
         <div class="floating-overlay-card">
           <img src="images/overlay-es.png" data-i18n-src-es="images/overlay-es.png" data-i18n-src-en="images/overlay-en.png" alt="Overlay" id="img-overlay-float">
           <div class="floating-overlay-text">
-            <b data-i18n="overlay_float_title">Overlay en Directo</b>
-            <span data-i18n="overlay_float_desc">Invisible para el anticheat. Solo aparece mientras juegas y suma cofres al instante.</span>
+            <b data-i18n="overlay_float_title">Overlay en Pantalla</b>
+            <span data-i18n="overlay_float_desc">Invisible para el anticheat. Solo aparece mientras juegas y se actualiza partida tras partida.</span>
           </div>
         </div>
       </div>
@@ -949,25 +954,25 @@
         <!-- Card 1 -->
         <div class="feature-card">
           <div class="feature-icon-wrap">
-            <img src="images/icon-treasures.png" alt="Tesoros">
+            <img src="images/icon-chests.png" alt="Cofres">
           </div>
-          <h3 data-i18n="card1_title">Tesoros y Token Pirata</h3>
-          <p data-i18n-html="card1_desc">
-            Lleva el seguimiento de los cosméticos semanales que vas desbloqueando y descubre de inmediato si has obtenido el cotizado <strong>Acceso a la Tienda Pirata</strong>.
+          <h3 data-i18n="card1_title">Estimación: No empiezas de cero</h3>
+          <p data-i18n="card1_desc">
+            Al instalar la app, FCT analiza tus partidas guardadas y tus estadísticas para calcular cuántos cientos de cofres llevas abiertos en toda la temporada actual.
           </p>
-          <img src="images/stats-treasures-es.png" data-i18n-src-es="images/stats-treasures-es.png" data-i18n-src-en="images/stats-treasures-en.png" alt="Lista de tesoros conseguidos" class="card-img" id="img-treasures">
+          <img src="images/hook-estimation-es.png" data-i18n-src-es="images/hook-estimation-es.png" data-i18n-src-en="images/hook-estimation-en.png" alt="Resumen de estadísticas y estimación" class="card-img" id="img-summary">
         </div>
 
         <!-- Card 2 -->
         <div class="feature-card">
           <div class="feature-icon-wrap">
-            <img src="images/icon-chests.png" alt="Cofres">
+            <img src="images/icon-treasures.png" alt="Tesoros">
           </div>
-          <h3 data-i18n="card2_title">Estimación: No empiezas de cero</h3>
-          <p data-i18n="card2_desc">
-            Al instalar la app, FCT analiza tus partidas guardadas y tus estadísticas para calcular cuántos cientos de cofres llevas abiertos en toda la temporada actual.
+          <h3 data-i18n="card2_title">Tesoros y Token Pirata</h3>
+          <p data-i18n-html="card2_desc">
+            Lleva el seguimiento de los cosméticos semanales que vas desbloqueando y descubre de inmediato si has obtenido el cotizado <strong>Acceso a la Tienda Pirata</strong>.
           </p>
-          <img src="images/stats-summary-es.png" data-i18n-src-es="images/stats-summary-es.png" data-i18n-src-en="images/stats-summary-en.png" alt="Resumen de estadísticas y estimación" class="card-img" id="img-summary">
+          <img src="images/hook-treasures-es.png" data-i18n-src-es="images/hook-treasures-es.png" data-i18n-src-en="images/hook-treasures-en.png" alt="Lista de tesoros conseguidos" class="card-img" id="img-treasures">
         </div>
 
         <!-- Card 3 -->
@@ -979,7 +984,7 @@
           <p data-i18n="card3_desc">
             Descubre quién lootea más en tu grupo. FCT desglosa los cofres abiertos por cada compañero de tu squad en cada una de vuestras partidas juntos.
           </p>
-          <img src="images/stats-teammates-es.png" data-i18n-src-es="images/stats-teammates-es.png" data-i18n-src-en="images/stats-teammates-en.png" alt="Estadísticas de compañeros de escuadrón" class="card-img" id="img-teammates">
+          <img src="images/hook-teammates-es.png" data-i18n-src-es="images/hook-teammates-es.png" data-i18n-src-en="images/hook-teammates-en.png" alt="Estadísticas de compañeros de escuadrón" class="card-img" id="img-teammates">
         </div>
       </div>
     </section>
@@ -1014,7 +1019,7 @@
       </div>
 
       <div>
-        <img src="images/stats-treasures-es.png" data-i18n-src-es="images/stats-treasures-es.png" data-i18n-src-en="images/stats-treasures-en.png" alt="Tabla de tesoros de rivales" class="spotlight-img" id="img-spotlight">
+        <img src="images/hook-rivals-es.png" data-i18n-src-es="images/hook-rivals-es.png" data-i18n-src-en="images/hook-rivals-en.png" alt="Tabla de tesoros de rivales" class="spotlight-img" id="img-spotlight">
       </div>
     </section>
 
@@ -1149,15 +1154,15 @@
     const i18nData = {
       es: {
         meta_title: "Fortnite Chest Tracker (FCT) — Rastreador de Cofres y Tesoros",
-        meta_desc: "Rastrea cada cofre que abres en Fortnite en tiempo real. Descubre qué tesoros abrieron tus rivales, calcula tus cofres de la temporada y mejora tus récords. 100% gratis y seguro.",
+        meta_desc: "Rastrea cada cofre que abres en Fortnite, partida tras partida. Descubre qué tesoros abrieron tus rivales, calcula tus cofres de la temporada y mejora tus récords. 100% gratis y seguro.",
         nav_features: "Funciones",
         nav_rivals: "Tesoros y Rivales",
         nav_overlay: "Overlay",
         nav_faq: "Preguntas frecuentes",
         nav_cta: "Descargar Gratis",
         hero_badge: "Temporada Cazadores de Tesoros · Capítulo 7",
-        hero_title: 'Sabe cuántos cofres llevas y <br><span class="highlight">qué tesoros abren tus rivales</span>',
-        hero_sub: '¿Buscando el <strong>Token Pirata</strong> o los cosméticos semanales? FCT cuenta tus cofres en vivo mientras juegas, estima tu historial de la temporada sin empezar de cero y te revela qué premios sacaron tus oponentes en tu cara.',
+        hero_title: 'Sabe cuántos cofres llevas en la temporada <br><span class="highlight">y qué tesoros abren tus rivales a tu alrededor</span>',
+        hero_sub: '¿Buscando el <strong>Token Pirata</strong> o los cosméticos semanales? FCT registra cada cofre partida tras partida, calcula tus cofres de la temporada sin empezar de cero y te revela qué tesoros destacados abrieron tus rivales.',
         cta_main: "Descargar FCT Gratis",
         cta_sub: "Para Windows 10 y 11 · Un solo archivo ejecutable (.exe)",
         trust_safe: "100% Seguro (No da ban)",
@@ -1166,14 +1171,14 @@
         mobile_helper_txt: '📱 <strong>¿Estás en el móvil?</strong> Cópia el enlace para descargarlo al encender tu PC.',
         btn_copy: "Copiar Enlace",
         copied: "¡Enlace copiado! ✓",
-        overlay_float_title: "Overlay en Directo",
-        overlay_float_desc: "Invisible para el anticheat. Solo aparece mientras juegas y suma cofres al instante.",
+        overlay_float_title: "Overlay en Pantalla",
+        overlay_float_desc: "Invisible para el anticheat. Solo aparece mientras juegas y se actualiza partida tras partida.",
         feat_header_sub: "Diseñado para jugadores de Fortnite",
         feat_header_title: "Todo lo que Fortnite no te cuenta",
-        card1_title: "Tesoros y Token Pirata",
-        card1_desc: 'Lleva el seguimiento de los cosméticos semanales que vas desbloqueando y descubre de inmediato si has obtenido el cotizado <strong>Acceso a la Tienda Pirata</strong>.',
-        card2_title: "Estimación: No empiezas de cero",
-        card2_desc: "Al instalar la app, FCT analiza tus partidas guardadas y tus estadísticas para calcular cuántos cientos de cofres llevas abiertos en toda la temporada actual.",
+        card1_title: "Estimación: No empiezas de cero",
+        card1_desc: "Al abrir la app, FCT analiza tus partidas y estadísticas para calcular cuántos cofres llevas abiertos en toda la temporada actual.",
+        card2_title: "Tesoros y Token Pirata",
+        card2_desc: 'Lleva el seguimiento de los cosméticos semanales que vas desbloqueando y descubre de inmediato si has obtenido el cotizado <strong>Acceso a la Tienda Pirata</strong>.',
         card3_title: "Piques en Escuadrón",
         card3_desc: "Descubre quién lootea más en tu grupo. FCT desglosa los cofres abiertos por cada compañero de tu squad en cada una de vuestras partidas juntos.",
         spotlight_badge: "Exclusivo de FCT",
@@ -1212,16 +1217,16 @@
         foot_disclaimer: "Fortnite Chest Tracker es un proyecto independiente de código abierto y no está afiliado ni respaldado por Epic Games."
       },
       en: {
-        meta_title: "Fortnite Chest Tracker (FCT) — Real-Time Chest & Treasure Tracker",
-        meta_desc: "Track every chest you open in Fortnite in real time. Discover what featured treasures opponents found, estimate your season chest count, and push your personal records. 100% free and safe.",
+        meta_title: "Fortnite Chest Tracker (FCT) — Chest & Treasure Tracker",
+        meta_desc: "Track every chest you open in Fortnite, match after match. Discover what featured treasures opponents found, estimate your season chest count, and push your personal records. 100% free and safe.",
         nav_features: "Features",
         nav_rivals: "Treasures & Rivals",
         nav_overlay: "Overlay",
         nav_faq: "FAQ",
         nav_cta: "Free Download",
         hero_badge: "Treasure Hunters Season · Chapter 7",
-        hero_title: 'Know how many chests you\'ve opened and <br><span class="highlight">what treasures opponents find</span>',
-        hero_sub: 'Looking for the <strong>Pirate Token</strong> or weekly cosmetics? FCT counts your chests live as you play, estimates your season history so you don\'t start from scratch, and reveals what prizes opponents looted right next to you.',
+        hero_title: 'Know how many chests you\'ve opened this season <br><span class="highlight">and what treasures rivals uncover around you</span>',
+        hero_sub: 'Hunting for the <strong>Pirate Token</strong> or weekly cosmetics? FCT tracks every chest match after match, estimates your season history so you never start from zero, and reveals what featured treasures opponents opened nearby.',
         cta_main: "Download FCT Free",
         cta_sub: "For Windows 10 & 11 · Portable standalone executable (.exe)",
         trust_safe: "100% Safe (No bans, anti-cheat safe)",
@@ -1230,14 +1235,14 @@
         mobile_helper_txt: '📱 <strong>On mobile?</strong> Copy the link to download it when you hop on your PC.',
         btn_copy: "Copy Link",
         copied: "Link copied! ✓",
-        overlay_float_title: "Live In-Game Overlay",
-        overlay_float_desc: "Undetectable by anti-cheat. Only appears while playing and counts chests live.",
+        overlay_float_title: "In-Game Overlay",
+        overlay_float_desc: "Undetectable by anti-cheat. Only appears while playing and updates match after match.",
         feat_header_sub: "Built for Fortnite players",
         feat_header_title: "Everything Fortnite never shows you",
-        card1_title: "Treasures & Pirate Token",
-        card1_desc: 'Track the weekly cosmetics you unlock and instantly know if you\'ve earned the coveted <strong>Pirate Shop Access</strong> token.',
-        card2_title: "Estimation: Don't start at zero",
-        card2_desc: "Right after opening, FCT checks your saved replays and public stats to estimate all the chests you've already opened this season.",
+        card1_title: "Estimation: Don't start at zero",
+        card1_desc: "Right after opening, FCT checks your saved replays and public stats to estimate all the chests you've already opened this season.",
+        card2_title: "Treasures & Pirate Token",
+        card2_desc: 'Track the weekly cosmetics you unlock and instantly know if you\'ve earned the coveted <strong>Pirate Shop Access</strong> token.',
         card3_title: "Squad Leaderboards",
         card3_desc: "See who loots the most in your squad. FCT breaks down chests opened by each teammate across all your matches together.",
         spotlight_badge: "Exclusive to FCT",
