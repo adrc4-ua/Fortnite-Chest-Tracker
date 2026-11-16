@@ -34,7 +34,7 @@ public static class NativeOverlay
 
     private static Thread? _thread;
     private static IntPtr _window;
-    private static volatile OverlayView _view = new("0", null, OverlayModel.LastMatchCaption, false, null, Array.Empty<OverlayRow>());
+    private static volatile OverlayView _view = new("0", null, OverlayModel.LastMatchCaption, Array.Empty<OverlayRow>());
 
     // callbacks into the app
     private static Action<int, int>? _moved;
@@ -46,7 +46,6 @@ public static class NativeOverlay
     private static bool _offscreen, _scaleForced;
     private static OverlayInk _ink = null!;
     private static OverlayLayout _layout = new();
-    private static int _keptWidth;
     private static GameWindows _game = new(null);
     private static readonly MouseGate _mouse = new();
     private static bool _listening, _dragging, _holding;
@@ -341,7 +340,6 @@ public static class NativeOverlay
                 if (!_scaleForced)
                 {
                     _ink.SetScale((int)((long)wParam & 0xFFFF) / 96f);
-                    _keptWidth = 0;
                     Relayout(window);
                 }
                 return 0;
@@ -821,9 +819,8 @@ public static class NativeOverlay
         var hdc = GetDC(window);
         try
         {
-            var layout = OverlayLayout.Measure(hdc, _ink, _view, _close != null, _keptWidth);
+            var layout = OverlayLayout.Measure(hdc, _ink, _view, _close != null);
             _layout = layout;
-            _keptWidth = layout.Width;
             int width = layout.Width, height = layout.Height;
 
             GetWindowRect(window, out var now);

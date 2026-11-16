@@ -14,7 +14,7 @@ namespace FCT.Overlay.Native;
 internal sealed class OverlayPainter
 {
     private static readonly Color Gold = Color.FromArgb(232, 176, 75), GoldHigh = Color.FromArgb(248, 217, 143),
-        GoldDeep = Color.FromArgb(196, 138, 44), Mint = Color.FromArgb(134, 214, 160), Faint = Color.FromArgb(90, 85, 75);
+        GoldDeep = Color.FromArgb(196, 138, 44), Faint = Color.FromArgb(90, 85, 75);
 
     private readonly IntPtr _hdc;
     private readonly RECT _client;
@@ -53,8 +53,6 @@ internal sealed class OverlayPainter
     private float ColumnLeft(int i) => _blockLeft + _at.StatWidths.Take(i).Sum() + i * Px(StatGap);
     private float ColumnWidth(int i) => i < _at.StatWidths.Length ? _at.StatWidths[i] : 0;
     private float ColumnCentre(int i) => ColumnLeft(i) + ColumnWidth(i) / 2f;
-    private int PillLeft => _at.Lock.Left - Px(6) - _at.BadgeWidth;
-    private int PillRight => _at.Lock.Left - Px(6);
     private int StatValueY => _statsY + 1 + Px(7) + _at.CaptionHeight + Px(1);
 
     private void Paint()
@@ -68,7 +66,7 @@ internal sealed class OverlayPainter
         PaintText(totalInk);
     }
 
-    /// <summary>Step 1, GDI: the card, the chip and its edge, the live pill, the separator and the column dividers.</summary>
+    /// <summary>Step 1, GDI: the card, the chip and its edge, the separator and the column dividers.</summary>
     private void PaintFlat()
     {
         var client = _client;
@@ -77,10 +75,6 @@ internal sealed class OverlayPainter
         var chip = new RECT(_chipLeft, _chipTop, _right, _chipTop + _at.ChipHeight);
         OverlayInk.FillRounded(_hdc, _ink.Chip, chip, Px(12));
         OverlayInk.FrameRounded(_hdc, _ink.Edge, chip, Px(12));
-        if (_view.Badge != null)
-        {
-            OverlayInk.FillRounded(_hdc, _ink.LivePill, new RECT(PillLeft, _headY - Px(3), PillRight, _headY + _at.HeaderHeight + Px(3)), _at.HeaderHeight + Px(6));
-        }
         if (_view.Rows.Count == 0)
         {
             return;
@@ -98,7 +92,7 @@ internal sealed class OverlayPainter
         }
     }
 
-    /// <summary>Step 2, GDI+: veil, stripe, diamond, live dot, big numbers and the gem. Returns where the total was drawn.</summary>
+    /// <summary>Step 2, GDI+: veil, stripe, diamond, big numbers and the gem. Returns where the total was drawn.</summary>
     private RectangleF PaintSmooth(Graphics g)
     {
         g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -111,10 +105,8 @@ internal sealed class OverlayPainter
             g.FillRectangle(fade, veil);
         }
 
-        // the accent stripe (the window's round region clips it): gold, or mint while a match is live
-        using (Brush stripe = _view.CurrentLive
-                   ? new SolidBrush(Mint)
-                   : new LinearGradientBrush(new PointF(0, -1), new PointF(0, _client.Bottom + 1), GoldHigh, Gold))
+        // the accent stripe (the window's round region clips it): gold
+        using (Brush stripe = new LinearGradientBrush(new PointF(0, -1), new PointF(0, _client.Bottom + 1), GoldHigh, Gold))
         {
             g.FillRectangle(stripe, new RectangleF(0, 0, Px(Stripe), _client.Bottom));
         }
@@ -130,16 +122,9 @@ internal sealed class OverlayPainter
         }
         g.Restore(saved);
 
-        if (_view.Badge != null)
-        {
-            var dot = Px(7);
-            using var mint = new SolidBrush(Mint);
-            g.FillEllipse(mint, PillLeft + Px(8), _headY + (_at.HeaderHeight - dot) / 2f, dot, dot);
-        }
-
-        // the total (deep gold) and the match (lighter gold; mint when live, faint when there is none)
+        // the total (deep gold) and the match (lighter gold; faint when there is none)
         var totalInk = BigNumber(g, _view.Total, _left - Px(1), _totalY, null, true);
-        var matchColor = _view.Current == null ? Faint : _view.CurrentLive ? Mint : (Color?)null;
+        var matchColor = _view.Current == null ? Faint : (Color?)null;
         BigNumber(g, _view.Current ?? "—", _chipLeft, _chipTop + Px(3), matchColor, false, _at.ChipWidth);
 
         for (var i = 0; i < _view.Rows.Count; i++)
@@ -157,14 +142,10 @@ internal sealed class OverlayPainter
         return totalInk;
     }
 
-    /// <summary>Step 3, GDI with ClearType: title, badge, lock and close glyphs, captions and the stats.</summary>
+    /// <summary>Step 3, GDI with ClearType: title, lock and close glyphs, captions and the stats.</summary>
     private void PaintText(RectangleF totalInk)
     {
         OverlayInk.Write(_hdc, _ink.HeaderFont, OverlayInk.Champagne, Title, new RECT(_left + Px(12), _headY, _right, _headY + _at.HeaderHeight));
-        if (_view.Badge != null)
-        {
-            OverlayInk.Write(_hdc, _ink.HeaderFont, OverlayInk.Mint, BadgeText(_view.Badge), new RECT(PillLeft + Px(19), _headY, PillRight, _headY + _at.HeaderHeight));
-        }
 
         // Segoe MDL2 Assets: E72E closed padlock, E785 open padlock, E8BB close
         const uint Glyph = DT_SINGLELINE | DT_CENTER | DT_VCENTER | DT_NOPREFIX;
@@ -186,7 +167,7 @@ internal sealed class OverlayPainter
         OverlayInk.Write(_hdc, _ink.CaptionFont, OverlayInk.Muted, TotalCaption,
             new RECT(captionLeft, _totalY + _at.BigHeight, captionLeft + captionWidth + Px(2), _totalY + _at.BigHeight + _at.CaptionHeight));
         var captionTop = _chipTop + Px(3) + _at.BigHeight;
-        OverlayInk.Write(_hdc, _ink.CaptionFont, _view.CurrentLive ? OverlayInk.Mint : OverlayInk.Muted, _view.CurrentCaption.ToUpperInvariant(),
+        OverlayInk.Write(_hdc, _ink.CaptionFont, OverlayInk.Muted, _view.CurrentCaption.ToUpperInvariant(),
             new RECT(_chipLeft, captionTop, _right, captionTop + _at.CaptionHeight), DT_CENTER);
 
         var labelY = _statsY + 1 + Px(7);

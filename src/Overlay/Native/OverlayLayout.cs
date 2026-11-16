@@ -22,7 +22,7 @@ internal sealed class OverlayLayout
     public const string TotalCaption = "TOTAL";
 
     public int HeaderHeight, BigHeight, CaptionHeight, StatHeight;
-    public int TotalWidth, ChipWidth, ChipHeight, NumbersHeight, BadgeWidth;
+    public int TotalWidth, ChipWidth, ChipHeight, NumbersHeight;
     public int[] StatWidths = Array.Empty<int>();
     public int Width, Height;
     public RECT Lock, Close;
@@ -33,32 +33,24 @@ internal sealed class OverlayLayout
 
     public static string Title => L.T("COFRES", "CHESTS");
 
-    /// <summary>The badge without its leading dot (the pill already shows the state).</summary>
-    public static string BadgeText(string badge) => badge.TrimStart('●', ' ');
-
     /// <summary>A stat's value as drawn: treasures without their emoji (the gem is drawn instead).</summary>
     public static string StatValue(OverlayRow row) => row.Treasure ? row.Value.Replace(OverlayModel.TreasureIcon, "").Trim() : row.Value;
 
-    /// <summary>
-    /// Measures <paramref name="view"/>. The width never goes under <paramref name="minWidth"/>, so the overlay keeps its
-    /// size between a match in progress and its end.
-    /// </summary>
-    public static OverlayLayout Measure(IntPtr hdc, OverlayInk ink, OverlayView view, bool withClose, int minWidth)
+    /// <summary>Measures <paramref name="view"/>.</summary>
+    public static OverlayLayout Measure(IntPtr hdc, OverlayInk ink, OverlayView view, bool withClose)
     {
         var px = ink.Px;
         var at = new OverlayLayout();
 
-        // header: ◆ CHESTS … [● LIVE] [lock] [close]
-        at.BadgeWidth = view.Badge != null ? OverlayInk.Measure(hdc, ink.HeaderFont, BadgeText(view.Badge)) + px(22) : 0;
+        // header: ◆ CHESTS [lock] [close]
         var buttons = withClose ? px(44) : px(24);
-        var headerWidth = px(12) + OverlayInk.Measure(hdc, ink.HeaderFont, Title, out at.HeaderHeight) + px(10) + at.BadgeWidth + buttons;
+        var headerWidth = px(12) + OverlayInk.Measure(hdc, ink.HeaderFont, Title, out at.HeaderHeight) + px(10) + buttons;
 
-        // the big total on the left; the current or last match in a chip on the right
+        // the big total on the left; the last match in a chip on the right
         at.TotalWidth = Math.Max(OverlayInk.Measure(hdc, ink.BigFont, view.Total, out at.BigHeight),
             OverlayInk.Measure(hdc, ink.CaptionFont, TotalCaption, out at.CaptionHeight));
         var matchWidth = Math.Max(OverlayInk.Measure(hdc, ink.BigFont, view.Current ?? "—"),
-            Math.Max(OverlayInk.Measure(hdc, ink.CaptionFont, view.CurrentCaption.ToUpperInvariant()),
-                OverlayInk.Measure(hdc, ink.CaptionFont, OverlayModel.LastMatchCaption.ToUpperInvariant())));
+            OverlayInk.Measure(hdc, ink.CaptionFont, OverlayModel.LastMatchCaption.ToUpperInvariant()));
         at.ChipWidth = matchWidth + 2 * px(12);
         at.ChipHeight = at.BigHeight + at.CaptionHeight + px(8);
         at.NumbersHeight = Math.Max(at.BigHeight + at.CaptionHeight, at.ChipHeight);
@@ -79,7 +71,7 @@ internal sealed class OverlayLayout
         }
 
         var contentWidth = Math.Max(headerWidth, Math.Max(numbersWidth, at.StatsWidth(px) + px(6)));
-        at.Width = Math.Max(minWidth, Math.Max(px(MinWidth), contentWidth + 2 * px(Pad) + px(Stripe)));
+        at.Width = Math.Max(px(MinWidth), contentWidth + 2 * px(Pad) + px(Stripe));
         at.Height = px(9) + at.HeaderHeight + px(6) + at.NumbersHeight + px(8);
         if (view.Rows.Count > 0)
         {

@@ -26,8 +26,7 @@ internal static class CommandLineTools
     }
 
     /// <summary>
-    /// --overlay-preview: draws the overlay off screen in its three states (live, in progress, waiting) and saves each as
-    /// a PNG next to <paramref name="path"/>. The three latest matches count as "this session", in memory only.
+    /// --overlay-preview: draws the overlay off screen and saves it as a PNG next to <paramref name="path"/>.
     /// </summary>
     public static int OverlayPreview(Store store, Config config, string path)
     {
@@ -37,26 +36,17 @@ internal static class CommandLineTools
         }
         store.LoadPrizeNames();
         var shown = Profiles.View(store.LoadData(), config);
-        foreach (var recent in shown.Matches.OrderByDescending(m => m.MatchStartUtc ?? m.AnalyzedAtUtc).Take(3))
-        {
-            recent.MatchStartUtc = DateTime.UtcNow;
-        }
         var initial = Profiles.InitialChests(config, shown.Matches.Select(Profiles.Key).FirstOrDefault());
-        var live = new MatchRecord { ChestsOpened = 12, TreasureFinds = { new TreasureFind { Item = "Treasure" } } };
 
-        NativeOverlay.Start(-20000, -20000, false, (_, _) => { }, _ => { }, onClose: () => { });
-        // Live first: the overlay never shrinks, so the three pictures come out the same size, as in the game.
-        var states = new (string Suffix, MatchRecord? Live, bool InProgress)[] { ("-en-vivo", live, true), ("-en-curso", null, true), ("-espera", null, false) };
+        NativeOverlay.Start(-20000, -20000, locked: true, (_, _) => { }, _ => { }, onClose: () => { });
+        NativeOverlay.Update(OverlayModel.Build(shown, initial));
+        Thread.Sleep(600);
         var folder = Path.GetDirectoryName(Path.GetFullPath(path)) ?? ".";
-        foreach (var (suffix, figures, inProgress) in states)
-        {
-            NativeOverlay.Update(OverlayModel.Build(shown, figures, inProgress, initial));
-            Thread.Sleep(600);
-            var file = Path.Combine(folder, Path.GetFileNameWithoutExtension(path) + suffix + ".png");
-            Console.WriteLine(NativeOverlay.Snapshot(file)
-                ? L.F("Vista previa: {0}", "Preview: {0}", file)
-                : L.F("Error al capturar: {0}", "Capture failed: {0}", file));
-        }
+        var file = Path.Combine(folder, Path.GetFileNameWithoutExtension(path) + ".png");
+        Console.WriteLine(NativeOverlay.Snapshot(file)
+            ? L.F("Vista previa: {0}", "Preview: {0}", file)
+            : L.F("Error al capturar: {0}", "Capture failed: {0}", file));
+        NativeOverlay.Stop();
         return 0;
     }
 

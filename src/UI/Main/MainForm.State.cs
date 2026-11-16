@@ -70,18 +70,14 @@ public sealed partial class MainForm
         var view = state.View;
         var stats = state.Stats;
         _total.Text = view.Total;
-        var live = view.CurrentLive && view.Current != "…";
         _match.Text = view.Current ?? "—";
-        _matchCaption.Text = live ? L.T("Partida actual", "Current match") : L.T("Última partida", "Last match");
-        _matchCaption.ForeColor = live ? Theme.Mint : Theme.Ink;
-        _matchNote.Text = live ? L.T("en directo", "live")
-            : view.Current == null ? ""
+        _matchCaption.Text = L.T("Última partida", "Last match");
+        _matchCaption.ForeColor = Theme.Ink;
+        _matchNote.Text = view.Current == null ? ""
             : view.Current == "1" ? L.T("cofre abierto", "chest opened") : L.T("cofres abiertos", "chests opened");
         _totalNote.Text = stats.HistorySince is { } since ? L.F("desde el {0:dd/MM/yy}", "since {0:dd/MM/yy}", since) : "";
-        _badgeText.Text = "● " + (view.Badge ?? "").TrimStart('●', ' ');
-        _badge.Visible = !string.IsNullOrEmpty(view.Badge);
-        _matchDetails.Text = live ? L.T("En directo: se confirma al acabar la partida", "Live: confirmed when the match ends")
-            : stats.LastMatch is { } last ? Details(last)
+        _badge.Visible = false;
+        _matchDetails.Text = stats.LastMatch is { } last ? Details(last)
             : L.T("Aún no hay partidas: ¡a jugar!", "No matches yet: go play!");
     }
 

@@ -19,10 +19,9 @@ public static class OverlayPage
             var value = row.Treasure ? PageIcons.Gem + Esc(row.Value.Replace(OverlayModel.TreasureIcon, "").Trim()) : Esc(row.Value);
             cells.Append($"<div class=\"ov-cell{(row.Treasure ? " ov-gems" : "")}\"><span class=\"ov-cap\">{Esc(row.Label)}</span><b>{value}</b></div>");
         }
-        var badge = view.Badge == null ? "" : $"<span class=\"ov-badge\">{Esc(view.Badge.TrimStart('●', ' '))}</span>";
-        var match = view.Current == null ? " ov-none" : view.CurrentLive ? " ov-live" : "";
-        return $"<div class=\"ov{(view.CurrentLive ? " ov-live" : "")}\">"
-               + $"<div class=\"ov-top\"><span class=\"ov-title\">{L.T("COFRES", "CHESTS")}</span>{badge}</div>"
+        var match = view.Current == null ? " ov-none" : "";
+        return "<div class=\"ov\">"
+               + $"<div class=\"ov-top\"><span class=\"ov-title\">{L.T("COFRES", "CHESTS")}</span></div>"
                + "<div class=\"ov-numbers\">"
                + $"<div class=\"ov-total\"><span class=\"ov-big\">{Esc(view.Total)}</span><span class=\"ov-cap\">total</span></div>"
                + $"<div class=\"ov-match{match}\"><span class=\"ov-big\">{Esc(view.Current ?? "—")}</span><span class=\"ov-cap\">{Esc(view.CurrentCaption)}</span></div>"

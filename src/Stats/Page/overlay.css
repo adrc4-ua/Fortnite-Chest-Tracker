@@ -1,18 +1,14 @@
-/* FCT overlay for OBS: the same card as the in-game overlay. Transparent page; gold card, mint when a match is live. */
+/* FCT overlay for OBS: the same card as the in-game overlay. Transparent page; gold card. */
 html,body{margin:0;padding:0;background:transparent;color:#f3eee3;font:500 16px/1.25 "Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 svg .f{fill:currentColor;fill-opacity:.3}
 
 .ov{position:relative;display:inline-block;box-sizing:border-box;min-width:170px;padding:9px 10px 8px 13px;border-radius:16px;overflow:hidden;
   background:linear-gradient(180deg,rgba(232,176,75,.07),rgba(232,176,75,0) 55%),#121215}
 .ov::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#f8d98f,#e8b04b)}
-.ov.ov-live::before{background:#86d6a0}
 
 .ov-top{display:flex;align-items:center;justify-content:space-between;height:15px;line-height:15px;font:700 11px "Segoe UI",sans-serif;letter-spacing:.12em;color:#d8c28f}
 .ov-title{display:inline-flex;align-items:center}
 .ov-title::before{content:"";display:inline-block;width:5px;height:5px;margin:0 6px 1px 0;background:#e8b04b;transform:rotate(45deg)}
-.ov-badge{display:inline-flex;align-items:center;gap:4px;padding:1px 6px;border-radius:99px;background:#1e2c24;border:1px solid rgba(134,214,160,.35);color:#86d6a0;letter-spacing:.06em;font-size:10px;font-weight:700}
-.ov-badge::before{content:"";width:6px;height:6px;border-radius:50%;background:#86d6a0;animation:breathe 1.6s ease-in-out infinite}
-@keyframes breathe{50%{opacity:.35}}
 
 .ov-numbers{display:flex;align-items:center;justify-content:space-between;margin:4px 0 7px;height:56px;gap:8px}
 .ov-total{text-align:center;flex:1}
@@ -22,8 +18,6 @@ svg .f{fill:currentColor;fill-opacity:.3}
 
 .ov-match{min-width:68px;height:56px;padding:2px 8px 4px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:10px;background:#272119;border:1px solid #524125;box-sizing:border-box}
 .ov-match .ov-big{background:linear-gradient(180deg,#f8d98f,#e8b04b);-webkit-background-clip:text;background-clip:text;color:transparent}
-.ov-match.ov-live .ov-big{background:none;color:#86d6a0}
-.ov-match.ov-live .ov-cap{color:#86d6a0}
 .ov-match.ov-none .ov-big{background:none;color:#5a554b}
 
 .ov-rows{display:flex;justify-content:space-between;border-top:1px solid #2c2a26;padding-top:7px}

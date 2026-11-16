@@ -8,16 +8,15 @@ namespace FCT.Overlay.Native;
 /// </summary>
 internal sealed class OverlayInk
 {
-    // card, thin gold edge, separator line, the soft gold chip, and the dark mint pill behind "live"
+    // card, thin gold edge, separator line and the soft gold chip
     public readonly IntPtr Card = CreateSolidBrush(Rgb(18, 18, 21));
     public readonly IntPtr Edge = CreateSolidBrush(Rgb(82, 65, 37));
     public readonly IntPtr Line = CreateSolidBrush(Rgb(44, 42, 38));
     public readonly IntPtr Chip = CreateSolidBrush(Rgb(39, 33, 25));
-    public readonly IntPtr LivePill = CreateSolidBrush(Rgb(30, 44, 36));
 
     // text colours
     public static readonly uint Text = Rgb(243, 238, 227), Muted = Rgb(150, 143, 128), Champagne = Rgb(216, 194, 143),
-        Faint = Rgb(90, 85, 75), Mint = Rgb(134, 214, 160), Gold = Rgb(232, 176, 75);
+        Faint = Rgb(90, 85, 75), Gold = Rgb(232, 176, 75);
 
     public IntPtr BigFont { get; private set; }
     public IntPtr HeaderFont { get; private set; }
