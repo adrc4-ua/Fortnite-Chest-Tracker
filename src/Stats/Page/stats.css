@@ -157,6 +157,7 @@ h2::before{content:"";display:inline-block;width:6px;height:6px;border-radius:2p
 .tre-list td{overflow:hidden;text-overflow:ellipsis}
 .tre-list td:nth-child(3){overflow:visible}
 .tre-list>.sheet{max-height:60vh;overflow:auto}
+.pair.pair-wide .fit>.sheet{max-height:510px;overflow:auto}
 .list-void{display:grid;place-items:center;min-height:var(--two-rows);padding:16px;text-align:center}
 .list-void .note{margin:0}
 /* the tab's key numbers, small, at the right of its title */
