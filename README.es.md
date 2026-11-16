@@ -59,7 +59,7 @@ El botón **Estadísticas** las abre en tu navegador, y se actualizan solas mien
 
 <img src="docs/images/stats-summary-es.png" alt="Resumen de estadísticas" width="100%">
 
-**Tesoros** · los que has conseguido, los que consiguen tus rivales cerca de ti y los premios de esta semana.
+**Tesoros** · los que has conseguido, de dónde salieron y los premios de esta semana.
 
 <img src="docs/images/stats-treasures-es.png" alt="Tesoros" width="100%">
 
@@ -79,7 +79,6 @@ Los cambios se guardan al momento.
 - **Todo se comparte con las estadísticas:** lo que cambies en la app cambia en la web, y al revés.
 - **Cofres antes de FCT:** calcula los que abriste antes de usarlo.
 - **Actualizaciones** automáticas, o que te pregunte.
-- **Copia de seguridad:** restaura copias guardadas de tu historial si cambias de PC o reinicias las estadísticas.
 - **Idioma**, **overlay para OBS** y **desinstalar**.
 
 <br clear="right">
@@ -120,7 +119,7 @@ Fortnite solo graba lo que pasa cerca de ti. Si un compañero se aleja mucho, su
 <details>
 <summary><b>¿Pierdo mi historial si Fortnite borra las repeticiones?</b></summary>
 
-No. Cada partida se guarda en cuanto se lee, en `%APPDATA%\FCT`. Si cambias de PC, copia esa carpeta o restaura una copia de seguridad desde *Configuración*.
+No. Cada partida se guarda en cuanto se lee, en `%APPDATA%\FCT`. Si cambias de PC, copia esa carpeta.
 </details>
 
 <details>
