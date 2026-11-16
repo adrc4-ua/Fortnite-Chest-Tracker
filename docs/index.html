@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fortnite Chest Tracker (FCT) — Rastreador de Cofres y Tesoros para Fortnite</title>
+  <meta name="description" content="Rastrea cada cofre que abres en Fortnite en tiempo real. Descubre qué tesoros abrieron tus rivales, calcula tus cofres de la temporada y mejora tus récords. 100% gratis y seguro.">
+  <link rel="icon" type="image/png" href="images/icon-chest-open.png">
+
+  <!-- Open Graph / Meta para compartir en redes -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Fortnite Chest Tracker (FCT) — Rastreador de Cofres y Tesoros">
+  <meta property="og:description" content="Cuenta tus cofres en vivo mientras juegas, espía qué tesoros consiguen tus rivales y calcula tu historial sin empezar de cero.">
+  <meta property="og:image" content="images/banner-es.png">
+  <meta name="theme-color" content="#e8b04b">
+
+  <style>
+    :root {
+      --bg: #08080a;
+      --bg2: #111114;
+      --card: #121215;
+      --card-hover: #17171d;
+      --ink: #f3eee3;
+      --muted: #968f80;
+      --faint: #5a554b;
+      --line: #1f1e1d;
+      --line2: #2c2a26;
+      --gold: #e8b04b;
+      --gold-hi: #f8d98f;
+      --gold-lo: #8a6524;
+      --gold-soft: rgba(232, 176, 75, 0.10);
+      --gold-line: rgba(232, 176, 75, 0.30);
+      --radius: 18px;
+      --shadow: 0 1px 0 rgba(255, 255, 255, 0.03) inset, 0 18px 40px -18px rgba(0, 0, 0, 0.7);
+      --gold-fill: linear-gradient(180deg, var(--gold-hi), var(--gold));
+      --gold-glow: 0 10px 30px -8px rgba(232, 176, 75, 0.65);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--bg);
+      color-scheme: dark;
+    }
+
+    body {
+      background: 
+        radial-gradient(900px 480px at 50% -120px, rgba(232, 176, 75, 0.20), transparent 70%),
+        radial-gradient(700px 520px at 95% 80%, rgba(232, 176, 75, 0.08), transparent 70%),
+        var(--bg);
+      background-attachment: fixed;
+      color: var(--ink);
+      font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .container {
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ---- Header / Nav ---------------------------------------------------- */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      background: rgba(8, 8, 10, 0.80);
+      border-bottom: 1px solid var(--line);
+      transition: background 0.2s;
+    }
+
+    .nav-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .logo-chest {
+      position: relative;
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+    }
+
+    .logo-chest img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      filter: drop-shadow(0 4px 12px rgba(232, 176, 75, 0.35));
+    }
+
+    .logo-chest .img-open {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+
+    .logo:hover .logo-chest .img-closed {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+
+    .logo:hover .logo-chest .img-open {
+      opacity: 1;
+      transform: scale(1.08);
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.15;
+    }
+
+    .logo-text span {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .logo-text b {
+      font-size: 17px;
+      letter-spacing: -0.01em;
+      background: linear-gradient(90deg, var(--gold-hi), var(--gold));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .nav-links a:hover {
+      color: var(--ink);
+    }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 18px;
+      border-radius: 99px;
+      font-size: 13.5px;
+      font-weight: 700;
+      background: var(--gold-fill);
+      color: #1a1206;
+      box-shadow: 0 4px 16px -4px rgba(232, 176, 75, 0.5);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .nav-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px -4px rgba(232, 176, 75, 0.7);
+    }
+
+    /* ---- Hero Section ---------------------------------------------------- */
+    .hero {
+      padding: 70px 0 50px;
+      text-align: center;
+      position: relative;
+    }
+
+    .badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 14px;
+      border-radius: 99px;
+      font-size: 13px;
+      font-weight: 600;
+      background: var(--gold-soft);
+      border: 1px solid var(--gold-line);
+      color: var(--gold-hi);
+      margin-bottom: 24px;
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 8px var(--gold);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    .hero h1 {
+      font-size: clamp(32px, 5.5vw, 56px);
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: -0.03em;
+      max-width: 860px;
+      margin: 0 auto 20px;
+    }
+
+    .hero h1 .highlight {
+      background: linear-gradient(180deg, #ffffff 10%, var(--gold-hi) 55%, var(--gold) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      display: inline-block;
+    }
+
+    .hero-sub {
+      font-size: clamp(16px, 2vw, 19px);
+      color: var(--muted);
+      max-width: 700px;
+      margin: 0 auto 36px;
+      line-height: 1.55;
+    }
+
+    /* ---- Big Download CTA Button ----------------------------------------- */
+    .cta-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .btn-main-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 36px;
+      border-radius: 99px;
+      background: var(--gold-fill);
+      color: #181105;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: var(--gold-glow);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .btn-main-download:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 16px 38px -8px rgba(232, 176, 75, 0.85);
+    }
+
+    .btn-main-download:active {
+      transform: translateY(0) scale(0.99);
+    }
+
+    .btn-icon {
+      width: 32px;
+      height: 32px;
+      background: #181105;
+      color: var(--gold);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .btn-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      stroke-width: 2.4;
+      fill: none;
+    }
+
+    .btn-content {
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+      line-height: 1.2;
+    }
+
+    .btn-content strong {
+      font-size: 18px;
+      letter-spacing: -0.01em;
+    }
+
+    .btn-content small {
+      font-size: 12px;
+      opacity: 0.85;
+      font-weight: 600;
+    }
+
+    .trust-badges {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px 28px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .trust-item svg {
+      color: var(--gold);
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Mobile Helper Box (For TikTok traffic) */
+    .mobile-helper {
+      display: none;
+      margin: 24px auto 0;
+      max-width: 520px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      background: var(--card);
+      border: 1px solid var(--gold-line);
+      font-size: 13.5px;
+      color: var(--ink);
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      text-align: left;
+    }
+
+    .mobile-helper-btn {
+      appearance: none;
+      border: 1px solid var(--gold-line);
+      background: var(--gold-soft);
+      color: var(--gold-hi);
+      font-weight: 700;
+      font-size: 12.5px;
+      padding: 7px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s;
+    }
+
+    .mobile-helper-btn:hover {
+      background: rgba(232, 176, 75, 0.22);
+    }
+
+    /* ---- Hero Showcase Banner -------------------------------------------- */
+    .hero-preview {
+      margin-top: 48px;
+      position: relative;
+    }
+
+    .preview-window {
+      position: relative;
+      border-radius: var(--radius);
+      border: 1px solid var(--line2);
+      box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.9), 0 0 40px -10px rgba(232, 176, 75, 0.2);
+      overflow: hidden;
+      background: var(--card);
+    }
+
+    .preview-window img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Floating Overlay Badge */
+    .floating-overlay-card {
+      position: absolute;
+      bottom: -24px;
+      right: 28px;
+      max-width: 380px;
+      background: rgba(18, 18, 21, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--gold-line);
+      border-radius: 14px;
+      padding: 14px 16px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-align: left;
+    }
+
+    .floating-overlay-card img {
+      width: 100px;
+      border-radius: 8px;
+      border: 1px solid var(--line2);
+    }
+
+    .floating-overlay-text b {
+      display: block;
+      font-size: 13.5px;
+      color: var(--gold-hi);
+    }
+
+    .floating-overlay-text span {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.35;
+      display: block;
+    }
+
+    /* ---- Features / Hooks Section ---------------------------------------- */
+    .section-title {
+      text-align: center;
+      margin: 100px 0 50px;
+    }
+
+    .section-title span {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .section-title h2 {
+      font-size: clamp(26px, 4vw, 38px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 70px;
+    }
+
+    .feature-card {
+      background: linear-gradient(180deg, rgba(232, 176, 75, 0.05), rgba(232, 176, 75, 0) 45%), var(--card);
+      border: 1px solid rgba(232, 176, 75, 0.15);
+      border-radius: var(--radius);
+      padding: 28px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--gold-line);
+      background: var(--card-hover);
+    }
+
+    .feature-icon-wrap {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--gold-soft);
+      border: 1px solid var(--gold-line);
+      display: grid;
+      place-items: center;
+      margin-bottom: 18px;
+    }
+
+    .feature-icon-wrap img {
+      width: 26px;
+      height: 26px;
+      object-fit: contain;
+    }
+
+    .feature-card h3 {
+      font-size: 19px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--ink);
+    }
+
+    .feature-card p {
+      font-size: 14.5px;
+      color: var(--muted);
+      line-height: 1.55;
+      margin-bottom: 20px;
+      flex-grow: 1;
+    }
+
+    .feature-card .card-img {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--line2);
+      object-fit: cover;
+      margin-top: auto;
+    }
+
+    /* ---- Deep Dive Rival Treasures --------------------------------------- */
+    .spotlight {
+      background: linear-gradient(180deg, #101014, #0b0b0e);
+      border: 1px solid var(--gold-line);
+      border-radius: var(--radius);
+      padding: 44px;
+      margin: 80px 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .spotlight-text h3 {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.25;
+      margin-bottom: 16px;
+    }
+
+    .spotlight-text h3 .gold {
+      color: var(--gold-hi);
+    }
+
+    .spotlight-text p {
+      font-size: 15px;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    .spotlight-bullets {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .spotlight-bullet {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    .spotlight-bullet svg {
+      width: 18px;
+      height: 18px;
+      color: var(--gold);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .spotlight-img {
+      width: 100%;
+      border-radius: 14px;
+      border: 1px solid var(--line2);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7);
+    }
+
+    /* ---- FAQ Section ----------------------------------------------------- */
+    .faq-section {
+      max-width: 820px;
+      margin: 80px auto;
+    }
+
+    .faq-item {
+      background: var(--card);
+      border: 1px solid var(--line2);
+      border-radius: 14px;
+      margin-bottom: 14px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .faq-item:hover {
+      border-color: var(--gold-line);
+    }
+
+    .faq-question {
+      padding: 20px 24px;
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .faq-question svg {
+      width: 20px;
+      height: 20px;
+      color: var(--gold);
+      transition: transform 0.2s ease;
+    }
+
+    .faq-item.open .faq-question svg {
+      transform: rotate(180deg);
+    }
+
+    .faq-answer {
+      display: none;
+      padding: 0 24px 22px;
+      font-size: 14.5px;
+      color: var(--muted);
+      line-height: 1.6;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      padding-top: 14px;
+    }
+
+    .faq-item.open .faq-answer {
+      display: block;
+    }
+
+    /* ---- Bottom Banner CTA ----------------------------------------------- */
+    .bottom-cta {
+      text-align: center;
+      padding: 70px 24px;
+      border-radius: var(--radius);
+      background: radial-gradient(600px 300px at 50% 50%, rgba(232, 176, 75, 0.15), transparent 75%), var(--card);
+      border: 1px solid var(--gold-line);
+      margin: 90px 0 60px;
+      position: relative;
+    }
+
+    .bottom-chest {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 18px;
+      filter: drop-shadow(0 6px 20px rgba(232, 176, 75, 0.5));
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .bottom-cta h2 {
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .bottom-cta p {
+      font-size: 16px;
+      color: var(--muted);
+      max-width: 580px;
+      margin: 0 auto 30px;
+    }
+
+    /* ---- Download Toast Modal -------------------------------------------- */
+    .toast-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .toast-card {
+      background: var(--card);
+      border: 1px solid var(--gold-line);
+      border-radius: 20px;
+      max-width: 480px;
+      width: 100%;
+      padding: 32px 28px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9);
+      text-align: center;
+      animation: popIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .toast-close {
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      background: transparent;
+      border: 0;
+      color: var(--muted);
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .toast-card h3 {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: var(--gold-hi);
+    }
+
+    .toast-card p {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    .toast-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-align: left;
+      background: var(--bg2);
+      border: 1px solid var(--line2);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 22px;
+    }
+
+    .toast-step {
+      display: flex;
+      gap: 12px;
+      font-size: 13.5px;
+    }
+
+    .toast-step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--gold-fill);
+      color: #1a1206;
+      font-weight: 800;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    /* ---- Footer ---------------------------------------------------------- */
+    footer {
+      border-top: 1px solid var(--line);
+      padding: 40px 0 60px;
+      font-size: 13px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+
+    .footer-links a:hover {
+      color: var(--gold);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .mobile-helper { display: flex; }
+      .spotlight { grid-template-columns: 1fr; padding: 28px; }
+      .floating-overlay-card { position: static; margin-top: 16px; width: 100%; max-width: none; }
+      .btn-main-download { width: 100%; justify-content: center; padding: 14px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="container nav-wrap">
+      <a href="#" class="logo">
+        <div class="logo-chest">
+          <img src="images/icon-chest-closed.png" alt="Cofre cerrado" class="img-closed">
+          <img src="images/icon-chest-open.png" alt="Cofre con token pirata" class="img-open">
+        </div>
+        <div class="logo-text">
+          <span>Fortnite Chest Tracker</span>
+          <b>FCT</b>
+        </div>
+      </a>
+
+      <nav class="nav-links">
+        <a href="#funciones">Funciones</a>
+        <a href="#tesoros-rivales">Tesoros y Rivales</a>
+        <a href="#overlay">Overlay</a>
+        <a href="#faq">Preguntas frecuentes</a>
+      </nav>
+
+      <a href="https://github.com/adrc4-ua/Fortnite-Chest-Tracker/releases/latest/download/FCT.exe" class="nav-cta direct-download-trigger">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Descargar Gratis
+      </a>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="container">
+    <section class="hero">
+      <div class="badge-pill">
+        <span class="badge-dot"></span>
+        Temporada Cazadores de Tesoros · Capítulo 7
+      </div>
+
+      <h1>
+        Sabe cuántos cofres llevas y <br>
+        <span class="highlight">qué tesoros abren tus rivales</span>
+      </h1>
+
+      <p class="hero-sub">
+        ¿Buscando el <strong>Token Pirata</strong> o los cosméticos semanales? FCT cuenta tus cofres en vivo mientras juegas, estima tu historial de la temporada sin empezar de cero y te revela qué premios sacaron tus oponentes en tu cara.
+      </p>
+
+      <!-- Main CTA Group -->
+      <div class="cta-group">
+        <a href="https://github.com/adrc4-ua/Fortnite-Chest-Tracker/releases/latest/download/FCT.exe" class="btn-main-download direct-download-trigger" id="hero-download-btn">
+          <div class="btn-icon">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </div>
+          <div class="btn-content">
+            <strong>Descargar FCT Gratis</strong>
+            <small>Para Windows 10 y 11 · Un solo archivo ejecutable (.exe)</small>
+          </div>
+        </a>
+
+        <div class="trust-badges">
+          <div class="trust-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            100% Seguro (No da ban)
+          </div>
+          <div class="trust-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
+            Sin instalación (Portátil)
+          </div>
+          <div class="trust-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+            Código Abierto en GitHub
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile User Helper (TikTok conversion) -->
+      <div class="mobile-helper" id="mobile-helper">
+        <span>📱 <strong>¿Estás en el móvil?</strong> Cópia el enlace para descargarlo al encender tu PC.</span>
+        <button class="mobile-helper-btn" id="copy-link-btn" onclick="copyLink()">Copiar Enlace</button>
+      </div>
+
+      <!-- Main Showcase Preview -->
+      <div class="hero-preview">
+        <div class="preview-window">
+          <img src="images/main-es.png" alt="Ventana principal de Fortnite Chest Tracker">
+        </div>
+
+        <div class="floating-overlay-card">
+          <img src="images/overlay-live-es.png" alt="Overlay durante la partida">
+          <div class="floating-overlay-text">
+            <b>Overlay en Directo</b>
+            <span>Invisible para el anticheat. Solo aparece mientras juegas y suma cofres al instante.</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features / Key Hooks -->
+    <section id="funciones">
+      <div class="section-title">
+        <span>Diseñado para jugadores de Fortnite</span>
+        <h2>Todo lo que Fortnite no te cuenta</h2>
+      </div>
+
+      <div class="features-grid">
+        <!-- Card 1 -->
+        <div class="feature-card">
+          <div class="feature-icon-wrap">
+            <img src="images/icon-treasures.png" alt="Tesoros">
+          </div>
+          <h3>Tesoros y Token Pirata</h3>
+          <p>
+            Lleva el seguimiento de los cosméticos semanales que vas desbloqueando y descubre de inmediato si has obtenido el cotizado <strong>Acceso a la Tienda Pirata</strong>.
+          </p>
+          <img src="images/stats-treasures-es.png" alt="Lista de tesoros conseguidos" class="card-img">
+        </div>
+
+        <!-- Card 2 -->
+        <div class="feature-card">
+          <div class="feature-icon-wrap">
+            <img src="images/icon-chests.png" alt="Cofres">
+          </div>
+          <h3>Estimación: No empiezas de cero</h3>
+          <p>
+            Al instalar la app, FCT analiza tus partidas guardadas y tus estadísticas para calcular cuántos cientos de cofres llevas abiertos en toda la temporada actual.
+          </p>
+          <img src="images/stats-summary-es.png" alt="Resumen de estadísticas y estimación" class="card-img">
+        </div>
+
+        <!-- Card 3 -->
+        <div class="feature-card">
+          <div class="feature-icon-wrap">
+            <img src="images/icon-teammates.png" alt="Compañeros">
+          </div>
+          <h3>Piques en Escuadrón</h3>
+          <p>
+            Descubre quién lootea más en tu grupo. FCT desglosa los cofres abiertos por cada compañero de tu squad en cada una de vuestras partidas juntos.
+          </p>
+          <img src="images/stats-teammates-es.png" alt="Estadísticas de compañeros de escuadrón" class="card-img">
+        </div>
+      </div>
+    </section>
+
+    <!-- Deep Dive: Rival Treasures -->
+    <section id="tesoros-rivales" class="spotlight">
+      <div class="spotlight-text">
+        <div class="badge-pill" style="margin-bottom:14px">Exclusivo de FCT</div>
+        <h3>¿Quién se llevó el tesoro en tu lobby? <span class="gold">Ahora lo sabes.</span></h3>
+        <p>
+          En el evento Cazadores de Tesoros, los cofres tienen una probabilidad de soltar premios para todo el escuadrón. Al acabar tu partida, FCT te muestra qué rivales abrieron cofres destacados en tus inmediaciones.
+        </p>
+
+        <div class="spotlight-bullets">
+          <div class="spotlight-bullet">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>Qué premio consiguieron:</strong> El token pirata, skins doradas o coches.</span>
+          </div>
+          <div class="spotlight-bullet">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>Minuto exacto:</strong> Sabrás si lo abrieron justo mientras te enfrentabas a ellos.</span>
+          </div>
+          <div class="spotlight-bullet">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span><strong>¿Era un bot o un jugador?</strong> FCT identifica si el afortunado fue un bot de relleno.</span>
+          </div>
+        </div>
+
+        <a href="https://github.com/adrc4-ua/Fortnite-Chest-Tracker/releases/latest/download/FCT.exe" class="nav-cta direct-download-trigger">
+          Probar en mi próxima partida →
+        </a>
+      </div>
+
+      <div>
+        <img src="images/stats-treasures-es.png" alt="Tabla de tesoros de rivales" class="spotlight-img">
+      </div>
+    </section>
+
+    <!-- Overlay Spotlight -->
+    <section id="overlay" style="margin: 80px 0; text-align: center;">
+      <div class="section-title">
+        <span>Sin perder un solo FPS</span>
+        <h2>Overlay en Pantalla para OBS y tu Juego</h2>
+      </div>
+
+      <p style="color: var(--muted); max-width: 650px; margin: 0 auto 36px; font-size: 15.5px;">
+        Se activa solo cuando Fortnite está abierto. Puedes moverlo con el ratón a la esquina que prefieras, fijarlo encima del juego o capturarlo como fuente independiente en OBS Studio.
+      </p>
+
+      <div style="display:flex; justify-content:center; gap:24px; flex-wrap:wrap">
+        <img src="images/overlay-live-es.png" alt="Overlay durante la partida" style="max-width:340px; border-radius:14px; border:1px solid var(--line2); box-shadow:var(--shadow)">
+        <img src="images/overlay-between-es.png" alt="Overlay entre partidas" style="max-width:340px; border-radius:14px; border:1px solid var(--line2); box-shadow:var(--shadow)">
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="faq-section">
+      <div class="section-title">
+        <span>Dudas resueltas</span>
+        <h2>Preguntas Frecuentes</h2>
+      </div>
+
+      <div class="faq-item open">
+        <div class="faq-question">
+          ¿Me pueden banear por usar Fortnite Chest Tracker?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-answer">
+          <strong>No, es 100% seguro.</strong> FCT jamás inyecta código, no modifica la memoria del juego ni altera ningún archivo de Fortnite. Solo lee los archivos de repetición y los registros locales que el propio Fortnite escribe en tu disco duro al jugar.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          ¿Tengo que instalar algo en mi PC?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-answer">
+          No. FCT es un único archivo ejecutable portátil (<code>FCT.exe</code>). Lo descargas, haces doble clic y ya está funcionando. No añade servicios raros ni deja basura en el sistema.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          ¿Qué tengo que activar dentro de Fortnite?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-answer">
+          Solo una cosa: asegúrate de tener activada la grabación de repeticiones en <em>Ajustes → Juego → Repeticiones → Grabar repeticiones</em>. FCT utiliza los datos de estas repeticiones para contar tus cofres y detectar los tesoros.
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          ¿Por qué Windows muestra una pantalla azul al abrirlo la primera vez?
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div class="faq-answer">
+          Es el filtro SmartScreen de Windows, habitual en programas nuevos de código abierto hasta que acumulan miles de descargas. Simplemente pulsa en <strong>«Más información»</strong> y luego en <strong>«Ejecutar de todas formas»</strong>. FCT está firmado digitalmente con certificados de SignPath.
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom CTA Banner -->
+    <section class="bottom-cta">
+      <img src="images/icon-chest-open.png" alt="Cofre con Token Pirata" class="bottom-chest">
+      <h2>Empieza a contar tus cofres hoy</h2>
+      <p>Descarga la app en un segundo, calcula cuánto llevas farmeado y no vuelvas a preguntarte qué tesoro se llevaron en tu partida.</p>
+
+      <a href="https://github.com/adrc4-ua/Fortnite-Chest-Tracker/releases/latest/download/FCT.exe" class="btn-main-download direct-download-trigger" style="margin: 0 auto;">
+        <div class="btn-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <div class="btn-content">
+          <strong>Descargar FCT Gratis para Windows</strong>
+          <small>Descarga directa · Sin esperas</small>
+        </div>
+      </a>
+    </section>
+  </main>
+
+  <!-- Download Toast / Modal -->
+  <div class="toast-overlay" id="download-toast">
+    <div class="toast-card">
+      <button class="toast-close" onclick="closeToast()">&times;</button>
+      <div style="font-size: 40px; margin-bottom: 10px;">📦⚡</div>
+      <h3>¡Tu descarga ha comenzado!</h3>
+      <p>El archivo <code>FCT.exe</code> se está descargando en tu equipo.</p>
+
+      <div class="toast-steps">
+        <div class="toast-step">
+          <div class="toast-step-num">1</div>
+          <div><strong>Abre FCT.exe</strong> con doble clic cuando termine la descarga.</div>
+        </div>
+        <div class="toast-step">
+          <div class="toast-step-num">2</div>
+          <div>Si Windows SmartScreen muestra un aviso, pulsa <strong>Más información → Ejecutar de todas formas</strong>.</div>
+        </div>
+        <div class="toast-step">
+          <div class="toast-step-num">3</div>
+          <div>¡Abre Fortnite y juega! FCT contará tus cofres solo.</div>
+        </div>
+      </div>
+
+      <button class="nav-cta" style="width: 100%; justify-content: center;" onclick="closeToast()">
+        ¡Entendido!
+      </button>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-links">
+        <a href="https://github.com/adrc4-ua/Fortnite-Chest-Tracker" target="_blank" rel="noopener">Código en GitHub</a>
+        <a href="https://github.com/adrc4-ua/Fortnite-Chest-Tracker/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Historial de versiones</a>
+        <a href="https://github.com/adrc4-ua/Fortnite-Chest-Tracker/blob/main/LICENSE" target="_blank" rel="noopener">Licencia GPL-3.0</a>
+      </div>
+      <p>
+        Fortnite Chest Tracker es un proyecto independiente de código abierto y no está afiliado ni respaldado por Epic Games.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Script interactivo -->
+  <script>
+    // FAQ Acordeón
+    document.querySelectorAll('.faq-question').forEach(q => {
+      q.addEventListener('click', () => {
+        const item = q.parentElement;
+        item.classList.toggle('open');
+      });
+    });
+
+    // Modal de confirmación al hacer clic en cualquier botón de descarga
+    document.querySelectorAll('.direct-download-trigger').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setTimeout(() => {
+          document.getElementById('download-toast').style.display = 'flex';
+        }, 500);
+      });
+    });
+
+    function closeToast() {
+      document.getElementById('download-toast').style.display = 'none';
+    }
+
+    // Copiar enlace en móvil
+    function copyLink() {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        const b = document.getElementById('copy-link-btn');
+        b.textContent = '¡Enlace copiado! ✓';
+        b.style.background = 'var(--gold)';
+        b.style.color = '#1a1206';
+        setTimeout(() => {
+          b.textContent = 'Copiar Enlace';
+          b.style.background = '';
+          b.style.color = '';
+        }, 3000);
+      });
+    }
+
+    // Cerrar modal con Escape o clic fuera
+    window.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeToast();
+    });
+    document.getElementById('download-toast').addEventListener('click', e => {
+      if (e.target.id === 'download-toast') closeToast();
+    });
+  </script>
+</body>
+</html>

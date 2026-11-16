@@ -4,6 +4,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- **Página web oficial para GitHub Pages**: landing page en `docs/index.html` optimizada para conversión de descargas con la estética oscura y dorada de la app, ganchos de tesoros de rivales, estimación previa, overlay, preguntas frecuentes sobre seguridad y descarga directa de `FCT.exe`.
 - **Descarga directa en la documentación**: los botones y enlaces de descarga de `README.md` y `README.es.md` apuntan directamente a la descarga de `FCT.exe` de la última versión, y los badges informativos se mantienen como elementos estáticos.
 
 ## [5.10.2] - 2026-11-16
