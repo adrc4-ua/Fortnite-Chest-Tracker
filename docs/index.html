@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fortnite Chest Tracker (FCT) — Rastreador de Cofres y Tesoros para Fortnite</title>
-  <meta name="description" content="Rastrea cada cofre que abres en Fortnite en tiempo real. Descubre qué tesoros abrieron tus rivales, calcula tus cofres de la temporada y mejora tus récords. 100% gratis y seguro.">
+  <title id="meta-title">Fortnite Chest Tracker (FCT) — Rastreador de Cofres y Tesoros</title>
+  <meta name="description" id="meta-desc" content="Rastrea cada cofre que abres en Fortnite en tiempo real. Descubre qué tesoros abrieron tus rivales, calcula tus cofres de la temporada y mejora tus récords. 100% gratis y seguro.">
   <link rel="icon" type="image/png" href="images/icon-chest-open.png">
 
-  <!-- Open Graph / Meta para compartir en redes -->
+  <!-- Open Graph / Redes Sociales -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Fortnite Chest Tracker (FCT) — Rastreador de Cofres y Tesoros">
+  <meta property="og:title" content="Fortnite Chest Tracker (FCT)">
   <meta property="og:description" content="Cuenta tus cofres en vivo mientras juegas, espía qué tesoros consiguen tus rivales y calcula tu historial sin empezar de cero.">
   <meta property="og:image" content="images/banner-es.png">
   <meta name="theme-color" content="#e8b04b">
@@ -73,7 +73,7 @@
       z-index: 100;
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      background: rgba(8, 8, 10, 0.80);
+      background: rgba(8, 8, 10, 0.85);
       border-bottom: 1px solid var(--line);
       transition: background 0.2s;
     }
@@ -83,6 +83,7 @@
       align-items: center;
       justify-content: space-between;
       height: 72px;
+      gap: 16px;
     }
 
     .logo {
@@ -91,6 +92,7 @@
       gap: 12px;
       font-weight: 700;
       cursor: pointer;
+      flex-shrink: 0;
     }
 
     .logo-chest {
@@ -152,7 +154,7 @@
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 28px;
+      gap: 24px;
       font-size: 14.5px;
       font-weight: 600;
       color: var(--muted);
@@ -160,6 +162,50 @@
 
     .nav-links a:hover {
       color: var(--ink);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-shrink: 0;
+    }
+
+    /* Language Switcher Pill */
+    .lang-switcher {
+      display: inline-flex;
+      align-items: center;
+      background: var(--bg2);
+      border: 1px solid var(--line2);
+      border-radius: 99px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .lang-opt {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 11px;
+      border-radius: 99px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .lang-opt:hover {
+      color: var(--ink);
+    }
+
+    .lang-opt.active {
+      background: var(--gold-fill);
+      color: #1a1206;
+      box-shadow: 0 2px 8px rgba(232, 176, 75, 0.4);
     }
 
     .nav-cta {
@@ -174,6 +220,7 @@
       color: #1a1206;
       box-shadow: 0 4px 16px -4px rgba(232, 176, 75, 0.5);
       transition: transform 0.15s ease, box-shadow 0.15s ease;
+      white-space: nowrap;
     }
 
     .nav-cta:hover {
@@ -219,9 +266,9 @@
     .hero h1 {
       font-size: clamp(32px, 5.5vw, 56px);
       font-weight: 800;
-      line-height: 1.12;
+      line-height: 1.14;
       letter-spacing: -0.03em;
-      max-width: 860px;
+      max-width: 890px;
       margin: 0 auto 20px;
     }
 
@@ -236,7 +283,7 @@
     .hero-sub {
       font-size: clamp(16px, 2vw, 19px);
       color: var(--muted);
-      max-width: 700px;
+      max-width: 720px;
       margin: 0 auto 36px;
       line-height: 1.55;
     }
@@ -388,6 +435,7 @@
       width: 100%;
       height: auto;
       display: block;
+      transition: opacity 0.2s ease;
     }
 
     /* Floating Overlay Badge */
@@ -412,6 +460,7 @@
       width: 100px;
       border-radius: 8px;
       border: 1px solid var(--line2);
+      flex-shrink: 0;
     }
 
     .floating-overlay-text b {
@@ -607,6 +656,7 @@
       height: 20px;
       color: var(--gold);
       transition: transform 0.2s ease;
+      flex-shrink: 0;
     }
 
     .faq-item.open .faq-question svg {
@@ -775,7 +825,7 @@
     }
 
     /* Responsive */
-    @media (max-width: 768px) {
+    @media (max-width: 860px) {
       .nav-links { display: none; }
       .mobile-helper { display: flex; }
       .spotlight { grid-template-columns: 1fr; padding: 28px; }
@@ -791,8 +841,8 @@
     <div class="container nav-wrap">
       <a href="#" class="logo">
         <div class="logo-chest">
-          <img src="images/icon-chest-closed.png" alt="Cofre cerrado" class="img-closed">
-          <img src="images/icon-chest-open.png" alt="Cofre con token pirata" class="img-open">
+          <img src="images/icon-chest-closed.png" alt="Closed Chest" class="img-closed">
+          <img src="images/icon-chest-open.png" alt="Open Chest with Token" class="img-open">
         </div>
         <div class="logo-text">
           <span>Fortnite Chest Tracker</span>
@@ -801,16 +851,23 @@
       </a>
 
       <nav class="nav-links">
-        <a href="#funciones">Funciones</a>
-        <a href="#tesoros-rivales">Tesoros y Rivales</a>
-        <a href="#overlay">Overlay</a>
-        <a href="#faq">Preguntas frecuentes</a>
+        <a href="#funciones" data-i18n="nav_features">Funciones</a>
+        <a href="#tesoros-rivales" data-i18n="nav_rivals">Tesoros y Rivales</a>
+        <a href="#overlay" data-i18n="nav_overlay">Overlay</a>
+        <a href="#faq" data-i18n="nav_faq">Preguntas frecuentes</a>
       </nav>
 
-      <a href="https://github.com/adrc4-ua/Fortnite-Chest-Tracker/releases/latest/download/FCT.exe" class="nav-cta direct-download-trigger">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Descargar Gratis
-      </a>
+      <div class="nav-actions">
+        <!-- Aesthetic Language Switcher (Generic and extensible) -->
+        <div class="lang-switcher" id="lang-switcher">
+          <!-- Populated dynamically via JS -->
+        </div>
+
+        <a href="https://github.com/adrc4-ua/Fortnite-Chest-Tracker/releases/latest/download/FCT.exe" class="nav-cta direct-download-trigger">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span data-i18n="nav_cta">Descargar Gratis</span>
+        </a>
+      </div>
     </div>
   </header>
 
@@ -819,15 +876,15 @@
     <section class="hero">
       <div class="badge-pill">
         <span class="badge-dot"></span>
-        Temporada Cazadores de Tesoros · Capítulo 7
+        <span data-i18n="hero_badge">Temporada Cazadores de Tesoros · Capítulo 7</span>
       </div>
 
-      <h1>
+      <h1 data-i18n-html="hero_title">
         Sabe cuántos cofres llevas y <br>
         <span class="highlight">qué tesoros abren tus rivales</span>
       </h1>
 
-      <p class="hero-sub">
+      <p class="hero-sub" data-i18n-html="hero_sub">
         ¿Buscando el <strong>Token Pirata</strong> o los cosméticos semanales? FCT cuenta tus cofres en vivo mientras juegas, estima tu historial de la temporada sin empezar de cero y te revela qué premios sacaron tus oponentes en tu cara.
       </p>
 
@@ -838,44 +895,44 @@
             <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           </div>
           <div class="btn-content">
-            <strong>Descargar FCT Gratis</strong>
-            <small>Para Windows 10 y 11 · Un solo archivo ejecutable (.exe)</small>
+            <strong data-i18n="cta_main">Descargar FCT Gratis</strong>
+            <small data-i18n="cta_sub">Para Windows 10 y 11 · Un solo archivo ejecutable (.exe)</small>
           </div>
         </a>
 
         <div class="trust-badges">
           <div class="trust-item">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            100% Seguro (No da ban)
+            <span data-i18n="trust_safe">100% Seguro (No da ban)</span>
           </div>
           <div class="trust-item">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>
-            Sin instalación (Portátil)
+            <span data-i18n="trust_portable">Sin instalación (Portátil)</span>
           </div>
           <div class="trust-item">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-            Código Abierto en GitHub
+            <span data-i18n="trust_open">Código Abierto en GitHub</span>
           </div>
         </div>
       </div>
 
       <!-- Mobile User Helper (TikTok conversion) -->
       <div class="mobile-helper" id="mobile-helper">
-        <span>📱 <strong>¿Estás en el móvil?</strong> Cópia el enlace para descargarlo al encender tu PC.</span>
-        <button class="mobile-helper-btn" id="copy-link-btn" onclick="copyLink()">Copiar Enlace</button>
+        <span data-i18n-html="mobile_helper_txt">📱 <strong>¿Estás en el móvil?</strong> Cópia el enlace para descargarlo al encender tu PC.</span>
+        <button class="mobile-helper-btn" id="copy-link-btn" onclick="copyLink()" data-i18n="btn_copy">Copiar Enlace</button>
       </div>
 
       <!-- Main Showcase Preview -->
       <div class="hero-preview">
         <div class="preview-window">
-          <img src="images/main-es.png" alt="Ventana principal de Fortnite Chest Tracker">
+          <img src="images/main-es.png" data-i18n-src-es="images/main-es.png" data-i18n-src-en="images/main-en.png" alt="Ventana principal de Fortnite Chest Tracker" id="img-main">
         </div>
 
         <div class="floating-overlay-card">
-          <img src="images/overlay-live-es.png" alt="Overlay durante la partida">
+          <img src="images/overlay-live-es.png" data-i18n-src-es="images/overlay-live-es.png" data-i18n-src-en="images/overlay-live-en.png" alt="Overlay durante la partida" id="img-overlay-float">
           <div class="floating-overlay-text">
-            <b>Overlay en Directo</b>
-            <span>Invisible para el anticheat. Solo aparece mientras juegas y suma cofres al instante.</span>
+            <b data-i18n="overlay_float_title">Overlay en Directo</b>
+            <span data-i18n="overlay_float_desc">Invisible para el anticheat. Solo aparece mientras juegas y suma cofres al instante.</span>
           </div>
         </div>
       </div>
@@ -884,8 +941,8 @@
     <!-- Features / Key Hooks -->
     <section id="funciones">
       <div class="section-title">
-        <span>Diseñado para jugadores de Fortnite</span>
-        <h2>Todo lo que Fortnite no te cuenta</h2>
+        <span data-i18n="feat_header_sub">Diseñado para jugadores de Fortnite</span>
+        <h2 data-i18n="feat_header_title">Todo lo que Fortnite no te cuenta</h2>
       </div>
 
       <div class="features-grid">
@@ -894,11 +951,11 @@
           <div class="feature-icon-wrap">
             <img src="images/icon-treasures.png" alt="Tesoros">
           </div>
-          <h3>Tesoros y Token Pirata</h3>
-          <p>
+          <h3 data-i18n="card1_title">Tesoros y Token Pirata</h3>
+          <p data-i18n-html="card1_desc">
             Lleva el seguimiento de los cosméticos semanales que vas desbloqueando y descubre de inmediato si has obtenido el cotizado <strong>Acceso a la Tienda Pirata</strong>.
           </p>
-          <img src="images/stats-treasures-es.png" alt="Lista de tesoros conseguidos" class="card-img">
+          <img src="images/stats-treasures-es.png" data-i18n-src-es="images/stats-treasures-es.png" data-i18n-src-en="images/stats-treasures-en.png" alt="Lista de tesoros conseguidos" class="card-img" id="img-treasures">
         </div>
 
         <!-- Card 2 -->
@@ -906,11 +963,11 @@
           <div class="feature-icon-wrap">
             <img src="images/icon-chests.png" alt="Cofres">
           </div>
-          <h3>Estimación: No empiezas de cero</h3>
-          <p>
+          <h3 data-i18n="card2_title">Estimación: No empiezas de cero</h3>
+          <p data-i18n="card2_desc">
             Al instalar la app, FCT analiza tus partidas guardadas y tus estadísticas para calcular cuántos cientos de cofres llevas abiertos en toda la temporada actual.
           </p>
-          <img src="images/stats-summary-es.png" alt="Resumen de estadísticas y estimación" class="card-img">
+          <img src="images/stats-summary-es.png" data-i18n-src-es="images/stats-summary-es.png" data-i18n-src-en="images/stats-summary-en.png" alt="Resumen de estadísticas y estimación" class="card-img" id="img-summary">
         </div>
 
         <!-- Card 3 -->
@@ -918,11 +975,11 @@
           <div class="feature-icon-wrap">
             <img src="images/icon-teammates.png" alt="Compañeros">
           </div>
-          <h3>Piques en Escuadrón</h3>
-          <p>
+          <h3 data-i18n="card3_title">Piques en Escuadrón</h3>
+          <p data-i18n="card3_desc">
             Descubre quién lootea más en tu grupo. FCT desglosa los cofres abiertos por cada compañero de tu squad en cada una de vuestras partidas juntos.
           </p>
-          <img src="images/stats-teammates-es.png" alt="Estadísticas de compañeros de escuadrón" class="card-img">
+          <img src="images/stats-teammates-es.png" data-i18n-src-es="images/stats-teammates-es.png" data-i18n-src-en="images/stats-teammates-en.png" alt="Estadísticas de compañeros de escuadrón" class="card-img" id="img-teammates">
         </div>
       </div>
     </section>
@@ -930,97 +987,97 @@
     <!-- Deep Dive: Rival Treasures -->
     <section id="tesoros-rivales" class="spotlight">
       <div class="spotlight-text">
-        <div class="badge-pill" style="margin-bottom:14px">Exclusivo de FCT</div>
-        <h3>¿Quién se llevó el tesoro en tu lobby? <span class="gold">Ahora lo sabes.</span></h3>
-        <p>
+        <div class="badge-pill" style="margin-bottom:14px" data-i18n="spotlight_badge">Exclusivo de FCT</div>
+        <h3 data-i18n-html="spotlight_title">¿Quién se llevó el tesoro en tu lobby? <span class="gold">Ahora lo sabes.</span></h3>
+        <p data-i18n="spotlight_p">
           En el evento Cazadores de Tesoros, los cofres tienen una probabilidad de soltar premios para todo el escuadrón. Al acabar tu partida, FCT te muestra qué rivales abrieron cofres destacados en tus inmediaciones.
         </p>
 
         <div class="spotlight-bullets">
           <div class="spotlight-bullet">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            <span><strong>Qué premio consiguieron:</strong> El token pirata, skins doradas o coches.</span>
+            <span data-i18n-html="bullet_1"><strong>Qué premio consiguieron:</strong> El token pirata, skins doradas o coches.</span>
           </div>
           <div class="spotlight-bullet">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            <span><strong>Minuto exacto:</strong> Sabrás si lo abrieron justo mientras te enfrentabas a ellos.</span>
+            <span data-i18n-html="bullet_2"><strong>Minuto exacto:</strong> Sabrás si lo abrieron justo mientras te enfrentabas a ellos.</span>
           </div>
           <div class="spotlight-bullet">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            <span><strong>¿Era un bot o un jugador?</strong> FCT identifica si el afortunado fue un bot de relleno.</span>
+            <span data-i18n-html="bullet_3"><strong>¿Era un bot o un jugador?</strong> FCT identifica si el afortunado fue un bot de relleno.</span>
           </div>
         </div>
 
         <a href="https://github.com/adrc4-ua/Fortnite-Chest-Tracker/releases/latest/download/FCT.exe" class="nav-cta direct-download-trigger">
-          Probar en mi próxima partida →
+          <span data-i18n="btn_try_next">Probar en mi próxima partida →</span>
         </a>
       </div>
 
       <div>
-        <img src="images/stats-treasures-es.png" alt="Tabla de tesoros de rivales" class="spotlight-img">
+        <img src="images/stats-treasures-es.png" data-i18n-src-es="images/stats-treasures-es.png" data-i18n-src-en="images/stats-treasures-en.png" alt="Tabla de tesoros de rivales" class="spotlight-img" id="img-spotlight">
       </div>
     </section>
 
     <!-- Overlay Spotlight -->
     <section id="overlay" style="margin: 80px 0; text-align: center;">
       <div class="section-title">
-        <span>Sin perder un solo FPS</span>
-        <h2>Overlay en Pantalla para OBS y tu Juego</h2>
+        <span data-i18n="overlay_sec_sub">Sin perder un solo FPS</span>
+        <h2 data-i18n="overlay_sec_title">Overlay en Pantalla para OBS y tu Juego</h2>
       </div>
 
-      <p style="color: var(--muted); max-width: 650px; margin: 0 auto 36px; font-size: 15.5px;">
+      <p style="color: var(--muted); max-width: 650px; margin: 0 auto 36px; font-size: 15.5px;" data-i18n="overlay_sec_desc">
         Se activa solo cuando Fortnite está abierto. Puedes moverlo con el ratón a la esquina que prefieras, fijarlo encima del juego o capturarlo como fuente independiente en OBS Studio.
       </p>
 
       <div style="display:flex; justify-content:center; gap:24px; flex-wrap:wrap">
-        <img src="images/overlay-live-es.png" alt="Overlay durante la partida" style="max-width:340px; border-radius:14px; border:1px solid var(--line2); box-shadow:var(--shadow)">
-        <img src="images/overlay-between-es.png" alt="Overlay entre partidas" style="max-width:340px; border-radius:14px; border:1px solid var(--line2); box-shadow:var(--shadow)">
+        <img src="images/overlay-live-es.png" data-i18n-src-es="images/overlay-live-es.png" data-i18n-src-en="images/overlay-live-en.png" alt="Overlay durante la partida" style="max-width:340px; border-radius:14px; border:1px solid var(--line2); box-shadow:var(--shadow)" id="img-overlay-1">
+        <img src="images/overlay-between-es.png" data-i18n-src-es="images/overlay-between-es.png" data-i18n-src-en="images/overlay-between-en.png" alt="Overlay entre partidas" style="max-width:340px; border-radius:14px; border:1px solid var(--line2); box-shadow:var(--shadow)" id="img-overlay-2">
       </div>
     </section>
 
     <!-- FAQ Section -->
     <section id="faq" class="faq-section">
       <div class="section-title">
-        <span>Dudas resueltas</span>
-        <h2>Preguntas Frecuentes</h2>
+        <span data-i18n="faq_sub">Dudas resueltas</span>
+        <h2 data-i18n="faq_title">Preguntas Frecuentes</h2>
       </div>
 
       <div class="faq-item open">
         <div class="faq-question">
-          ¿Me pueden banear por usar Fortnite Chest Tracker?
+          <span data-i18n="faq_q1">¿Me pueden banear por usar Fortnite Chest Tracker?</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <div class="faq-answer">
+        <div class="faq-answer" data-i18n-html="faq_a1">
           <strong>No, es 100% seguro.</strong> FCT jamás inyecta código, no modifica la memoria del juego ni altera ningún archivo de Fortnite. Solo lee los archivos de repetición y los registros locales que el propio Fortnite escribe en tu disco duro al jugar.
         </div>
       </div>
 
       <div class="faq-item">
         <div class="faq-question">
-          ¿Tengo que instalar algo en mi PC?
+          <span data-i18n="faq_q2">¿Tengo que instalar algo en mi PC?</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <div class="faq-answer">
+        <div class="faq-answer" data-i18n-html="faq_a2">
           No. FCT es un único archivo ejecutable portátil (<code>FCT.exe</code>). Lo descargas, haces doble clic y ya está funcionando. No añade servicios raros ni deja basura en el sistema.
         </div>
       </div>
 
       <div class="faq-item">
         <div class="faq-question">
-          ¿Qué tengo que activar dentro de Fortnite?
+          <span data-i18n="faq_q3">¿Qué tengo que activar dentro de Fortnite?</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <div class="faq-answer">
+        <div class="faq-answer" data-i18n-html="faq_a3">
           Solo una cosa: asegúrate de tener activada la grabación de repeticiones en <em>Ajustes → Juego → Repeticiones → Grabar repeticiones</em>. FCT utiliza los datos de estas repeticiones para contar tus cofres y detectar los tesoros.
         </div>
       </div>
 
       <div class="faq-item">
         <div class="faq-question">
-          ¿Por qué Windows muestra una pantalla azul al abrirlo la primera vez?
+          <span data-i18n="faq_q4">¿Por qué Windows muestra una pantalla azul al abrirlo la primera vez?</span>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <div class="faq-answer">
+        <div class="faq-answer" data-i18n-html="faq_a4">
           Es el filtro SmartScreen de Windows, habitual en programas nuevos de código abierto hasta que acumulan miles de descargas. Simplemente pulsa en <strong>«Más información»</strong> y luego en <strong>«Ejecutar de todas formas»</strong>. FCT está firmado digitalmente con certificados de SignPath.
         </div>
       </div>
@@ -1029,16 +1086,16 @@
     <!-- Bottom CTA Banner -->
     <section class="bottom-cta">
       <img src="images/icon-chest-open.png" alt="Cofre con Token Pirata" class="bottom-chest">
-      <h2>Empieza a contar tus cofres hoy</h2>
-      <p>Descarga la app en un segundo, calcula cuánto llevas farmeado y no vuelvas a preguntarte qué tesoro se llevaron en tu partida.</p>
+      <h2 data-i18n="bcta_title">Empieza a contar tus cofres hoy</h2>
+      <p data-i18n="bcta_desc">Descarga la app en un segundo, calcula cuánto llevas farmeado y no vuelvas a preguntarte qué tesoro se llevaron en tu partida.</p>
 
       <a href="https://github.com/adrc4-ua/Fortnite-Chest-Tracker/releases/latest/download/FCT.exe" class="btn-main-download direct-download-trigger" style="margin: 0 auto;">
         <div class="btn-icon">
           <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         </div>
         <div class="btn-content">
-          <strong>Descargar FCT Gratis para Windows</strong>
-          <small>Descarga directa · Sin esperas</small>
+          <strong data-i18n="bcta_btn">Descargar FCT Gratis para Windows</strong>
+          <small data-i18n="bcta_sub">Descarga directa · Sin esperas</small>
         </div>
       </a>
     </section>
@@ -1049,26 +1106,26 @@
     <div class="toast-card">
       <button class="toast-close" onclick="closeToast()">&times;</button>
       <div style="font-size: 40px; margin-bottom: 10px;">📦⚡</div>
-      <h3>¡Tu descarga ha comenzado!</h3>
-      <p>El archivo <code>FCT.exe</code> se está descargando en tu equipo.</p>
+      <h3 data-i18n="toast_title">¡Tu descarga ha comenzado!</h3>
+      <p data-i18n-html="toast_desc">El archivo <code>FCT.exe</code> se está descargando en tu equipo.</p>
 
       <div class="toast-steps">
         <div class="toast-step">
           <div class="toast-step-num">1</div>
-          <div><strong>Abre FCT.exe</strong> con doble clic cuando termine la descarga.</div>
+          <div data-i18n-html="toast_s1"><strong>Abre FCT.exe</strong> con doble clic cuando termine la descarga.</div>
         </div>
         <div class="toast-step">
           <div class="toast-step-num">2</div>
-          <div>Si Windows SmartScreen muestra un aviso, pulsa <strong>Más información → Ejecutar de todas formas</strong>.</div>
+          <div data-i18n-html="toast_s2">Si Windows SmartScreen muestra un aviso, pulsa <strong>Más información → Ejecutar de todas formas</strong>.</div>
         </div>
         <div class="toast-step">
           <div class="toast-step-num">3</div>
-          <div>¡Abre Fortnite y juega! FCT contará tus cofres solo.</div>
+          <div data-i18n="toast_s3">¡Abre Fortnite y juega! FCT contará tus cofres solo.</div>
         </div>
       </div>
 
       <button class="nav-cta" style="width: 100%; justify-content: center;" onclick="closeToast()">
-        ¡Entendido!
+        <span data-i18n="toast_btn">¡Entendido!</span>
       </button>
     </div>
   </div>
@@ -1077,18 +1134,223 @@
   <footer>
     <div class="container">
       <div class="footer-links">
-        <a href="https://github.com/adrc4-ua/Fortnite-Chest-Tracker" target="_blank" rel="noopener">Código en GitHub</a>
-        <a href="https://github.com/adrc4-ua/Fortnite-Chest-Tracker/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Historial de versiones</a>
-        <a href="https://github.com/adrc4-ua/Fortnite-Chest-Tracker/blob/main/LICENSE" target="_blank" rel="noopener">Licencia GPL-3.0</a>
+        <a href="https://github.com/adrc4-ua/Fortnite-Chest-Tracker" target="_blank" rel="noopener" data-i18n="foot_code">Código en GitHub</a>
+        <a href="https://github.com/adrc4-ua/Fortnite-Chest-Tracker/blob/main/CHANGELOG.md" target="_blank" rel="noopener" data-i18n="foot_changelog">Historial de versiones</a>
+        <a href="https://github.com/adrc4-ua/Fortnite-Chest-Tracker/blob/main/LICENSE" target="_blank" rel="noopener" data-i18n="foot_license">Licencia GPL-3.0</a>
       </div>
-      <p>
+      <p data-i18n="foot_disclaimer">
         Fortnite Chest Tracker es un proyecto independiente de código abierto y no está afiliado ni respaldado por Epic Games.
       </p>
     </div>
   </footer>
 
-  <!-- Script interactivo -->
+  <!-- Sistema de Internacionalización (i18n) Extensible -->
   <script>
+    // Diccionario i18n extensible: añadir otro idioma aquí en el futuro es inmediato
+    const i18nData = {
+      es: {
+        meta_title: "Fortnite Chest Tracker (FCT) — Rastreador de Cofres y Tesoros",
+        meta_desc: "Rastrea cada cofre que abres en Fortnite en tiempo real. Descubre qué tesoros abrieron tus rivales, calcula tus cofres de la temporada y mejora tus récords. 100% gratis y seguro.",
+        nav_features: "Funciones",
+        nav_rivals: "Tesoros y Rivales",
+        nav_overlay: "Overlay",
+        nav_faq: "Preguntas frecuentes",
+        nav_cta: "Descargar Gratis",
+        hero_badge: "Temporada Cazadores de Tesoros · Capítulo 7",
+        hero_title: 'Sabe cuántos cofres llevas y <br><span class="highlight">qué tesoros abren tus rivales</span>',
+        hero_sub: '¿Buscando el <strong>Token Pirata</strong> o los cosméticos semanales? FCT cuenta tus cofres en vivo mientras juegas, estima tu historial de la temporada sin empezar de cero y te revela qué premios sacaron tus oponentes en tu cara.',
+        cta_main: "Descargar FCT Gratis",
+        cta_sub: "Para Windows 10 y 11 · Un solo archivo ejecutable (.exe)",
+        trust_safe: "100% Seguro (No da ban)",
+        trust_portable: "Sin instalación (Portátil)",
+        trust_open: "Código Abierto en GitHub",
+        mobile_helper_txt: '📱 <strong>¿Estás en el móvil?</strong> Cópia el enlace para descargarlo al encender tu PC.',
+        btn_copy: "Copiar Enlace",
+        copied: "¡Enlace copiado! ✓",
+        overlay_float_title: "Overlay en Directo",
+        overlay_float_desc: "Invisible para el anticheat. Solo aparece mientras juegas y suma cofres al instante.",
+        feat_header_sub: "Diseñado para jugadores de Fortnite",
+        feat_header_title: "Todo lo que Fortnite no te cuenta",
+        card1_title: "Tesoros y Token Pirata",
+        card1_desc: 'Lleva el seguimiento de los cosméticos semanales que vas desbloqueando y descubre de inmediato si has obtenido el cotizado <strong>Acceso a la Tienda Pirata</strong>.',
+        card2_title: "Estimación: No empiezas de cero",
+        card2_desc: "Al instalar la app, FCT analiza tus partidas guardadas y tus estadísticas para calcular cuántos cientos de cofres llevas abiertos en toda la temporada actual.",
+        card3_title: "Piques en Escuadrón",
+        card3_desc: "Descubre quién lootea más en tu grupo. FCT desglosa los cofres abiertos por cada compañero de tu squad en cada una de vuestras partidas juntos.",
+        spotlight_badge: "Exclusivo de FCT",
+        spotlight_title: '¿Quién se llevó el tesoro en tu lobby? <span class="gold">Ahora lo sabes.</span>',
+        spotlight_p: "En el evento Cazadores de Tesoros, los cofres tienen una probabilidad de soltar premios para todo el escuadrón. Al acabar tu partida, FCT te muestra qué rivales abrieron cofres destacados en tus inmediaciones.",
+        bullet_1: '<strong>Qué premio consiguieron:</strong> El token pirata, skins doradas o coches.',
+        bullet_2: '<strong>Minuto exacto:</strong> Sabrás si lo abrieron justo mientras te enfrentabas a ellos.',
+        bullet_3: '<strong>¿Era un bot o un jugador?</strong> FCT identifica si el afortunado fue un bot de relleno.',
+        btn_try_next: "Probar en mi próxima partida →",
+        overlay_sec_sub: "Sin perder un solo FPS",
+        overlay_sec_title: "Overlay en Pantalla para OBS y tu Juego",
+        overlay_sec_desc: "Se activa solo cuando Fortnite está abierto. Puedes moverlo con el ratón a la esquina que prefieras, fijarlo encima del juego o capturarlo como fuente independiente en OBS Studio.",
+        faq_sub: "Dudas resueltas",
+        faq_title: "Preguntas Frecuentes",
+        faq_q1: "¿Me pueden banear por usar Fortnite Chest Tracker?",
+        faq_a1: "<strong>No, es 100% seguro.</strong> FCT jamás inyecta código, no modifica la memoria del juego ni altera ningún archivo de Fortnite. Solo lee los archivos de repetición y los registros locales que el propio Fortnite escribe en tu disco duro al jugar.",
+        faq_q2: "¿Tengo que instalar algo en mi PC?",
+        faq_a2: "No. FCT es un único archivo ejecutable portátil (<code>FCT.exe</code>). Lo descargas, haces doble clic y ya está funcionando. No añade servicios raros ni deja basura en el sistema.",
+        faq_q3: "¿Qué tengo que activar dentro de Fortnite?",
+        faq_a3: "Solo una cosa: asegúrate de tener activada la grabación de repeticiones en <em>Ajustes → Juego → Repeticiones → Grabar repeticiones</em>. FCT utiliza los datos de estas repeticiones para contar tus cofres y detectar los tesoros.",
+        faq_q4: "¿Por qué Windows muestra una pantalla azul al abrirlo la primera vez?",
+        faq_a4: "Es el filtro SmartScreen de Windows, habitual en programas nuevos de código abierto hasta que acumulan miles de descargas. Simplemente pulsa en <strong>«Más información»</strong> y luego en <strong>«Ejecutar de todas formas»</strong>. FCT está firmado digitalmente con certificados de SignPath.",
+        bcta_title: "Empieza a contar tus cofres hoy",
+        bcta_desc: "Descarga la app en un segundo, calcula cuánto llevas farmeado y no vuelvas a preguntarte qué tesoro se llevaron en tu partida.",
+        bcta_btn: "Descargar FCT Gratis para Windows",
+        bcta_sub: "Descarga directa · Sin esperas",
+        toast_title: "¡Tu descarga ha comenzado!",
+        toast_desc: "El archivo <code>FCT.exe</code> se está descargando en tu equipo.",
+        toast_s1: "<strong>Abre FCT.exe</strong> con doble clic cuando termine la descarga.",
+        toast_s2: "Si Windows SmartScreen muestra un aviso, pulsa <strong>Más información → Ejecutar de todas formas</strong>.",
+        toast_s3: "¡Abre Fortnite y juega! FCT contará tus cofres solo.",
+        toast_btn: "¡Entendido!",
+        foot_code: "Código en GitHub",
+        foot_changelog: "Historial de versiones",
+        foot_license: "Licencia GPL-3.0",
+        foot_disclaimer: "Fortnite Chest Tracker es un proyecto independiente de código abierto y no está afiliado ni respaldado por Epic Games."
+      },
+      en: {
+        meta_title: "Fortnite Chest Tracker (FCT) — Real-Time Chest & Treasure Tracker",
+        meta_desc: "Track every chest you open in Fortnite in real time. Discover what featured treasures opponents found, estimate your season chest count, and push your personal records. 100% free and safe.",
+        nav_features: "Features",
+        nav_rivals: "Treasures & Rivals",
+        nav_overlay: "Overlay",
+        nav_faq: "FAQ",
+        nav_cta: "Free Download",
+        hero_badge: "Treasure Hunters Season · Chapter 7",
+        hero_title: 'Know how many chests you\'ve opened and <br><span class="highlight">what treasures opponents find</span>',
+        hero_sub: 'Looking for the <strong>Pirate Token</strong> or weekly cosmetics? FCT counts your chests live as you play, estimates your season history so you don\'t start from scratch, and reveals what prizes opponents looted right next to you.',
+        cta_main: "Download FCT Free",
+        cta_sub: "For Windows 10 & 11 · Portable standalone executable (.exe)",
+        trust_safe: "100% Safe (No bans, anti-cheat safe)",
+        trust_portable: "No install needed (Portable)",
+        trust_open: "Open Source on GitHub",
+        mobile_helper_txt: '📱 <strong>On mobile?</strong> Copy the link to download it when you hop on your PC.',
+        btn_copy: "Copy Link",
+        copied: "Link copied! ✓",
+        overlay_float_title: "Live In-Game Overlay",
+        overlay_float_desc: "Undetectable by anti-cheat. Only appears while playing and counts chests live.",
+        feat_header_sub: "Built for Fortnite players",
+        feat_header_title: "Everything Fortnite never shows you",
+        card1_title: "Treasures & Pirate Token",
+        card1_desc: 'Track the weekly cosmetics you unlock and instantly know if you\'ve earned the coveted <strong>Pirate Shop Access</strong> token.',
+        card2_title: "Estimation: Don't start at zero",
+        card2_desc: "Right after opening, FCT checks your saved replays and public stats to estimate all the chests you've already opened this season.",
+        card3_title: "Squad Leaderboards",
+        card3_desc: "See who loots the most in your squad. FCT breaks down chests opened by each teammate across all your matches together.",
+        spotlight_badge: "Exclusive to FCT",
+        spotlight_title: 'Who got the featured treasure in your lobby? <span class="gold">Now you know.</span>',
+        spotlight_p: "During the Treasure Hunters event, chests have a chance to grant featured rewards to the whole squad. When your match ends, FCT reveals which opponents opened featured chests nearby.",
+        bullet_1: '<strong>What prize they got:</strong> The Pirate Token, solid gold outfits, or vehicles.',
+        bullet_2: '<strong>Exact match time:</strong> Know whether they opened it while fighting you.',
+        bullet_3: '<strong>Bot or real player:</strong> FCT identifies if the lucky finder was an AI bot.',
+        btn_try_next: "Try it on my next match →",
+        overlay_sec_sub: "Zero FPS impact",
+        overlay_sec_title: "In-Game Overlay for OBS & Gameplay",
+        overlay_sec_desc: "Only shows up while Fortnite is running. Drag it anywhere with your mouse, pin it on screen, or capture it as a clean source in OBS Studio.",
+        faq_sub: "Answers to your questions",
+        faq_title: "Frequently Asked Questions",
+        faq_q1: "Can I get banned for using Fortnite Chest Tracker?",
+        faq_a1: "<strong>No, it is 100% safe.</strong> FCT never injects code into the game, modifies memory, or touches Fortnite files. It strictly reads the local replay files and logs that Fortnite itself saves on your PC.",
+        faq_q2: "Do I need to install anything on my PC?",
+        faq_a2: "No. FCT is a single portable executable (<code>FCT.exe</code>). Just download it, double-click, and you're good to go. No background services, no junk files.",
+        faq_q3: "What do I need to turn on inside Fortnite?",
+        faq_a3: "Just one setting: make sure replay recording is turned on in <em>Settings → Game → Replays → Record Replays</em>. FCT reads these replays to count your chests and treasures.",
+        faq_q4: "Why does Windows show a blue SmartScreen warning on first launch?",
+        faq_a4: "This is Windows SmartScreen, standard for any brand-new open-source software until it accumulates thousands of downloads. Simply click <strong>\"More info\"</strong> and then <strong>\"Run anyway\"</strong>. FCT is digitally signed via SignPath.",
+        bcta_title: "Start counting your chests today",
+        bcta_desc: "Download the app in one click, estimate your season progress, and never wonder what treasures were taken in your lobby again.",
+        bcta_btn: "Download FCT Free for Windows",
+        bcta_sub: "Direct download · Instant start",
+        toast_title: "Your download has started!",
+        toast_desc: "<code>FCT.exe</code> is now downloading to your computer.",
+        toast_s1: "<strong>Open FCT.exe</strong> with a double-click when the download finishes.",
+        toast_s2: "If Windows SmartScreen shows a prompt, click <strong>More info → Run anyway</strong>.",
+        toast_s3: "Launch Fortnite and play! FCT will count your chests automatically.",
+        toast_btn: "Got it!",
+        foot_code: "Source Code on GitHub",
+        foot_changelog: "Changelog",
+        foot_license: "GPL-3.0 License",
+        foot_disclaimer: "Fortnite Chest Tracker is an independent open-source project and is not affiliated with or endorsed by Epic Games."
+      }
+    };
+
+    // Lista de idiomas soportados (fácilmente ampliable en el futuro)
+    const languages = [
+      { code: 'es', label: 'ES', flag: '🇪🇸', title: 'Español' },
+      { code: 'en', label: 'EN', flag: '🇬🇧', title: 'English' }
+    ];
+
+    let currentLang = 'es';
+
+    // Inicializar selector de idioma
+    function initLanguageSwitcher() {
+      const switcher = document.getElementById('lang-switcher');
+      switcher.innerHTML = '';
+      languages.forEach(l => {
+        const btn = document.createElement('button');
+        btn.className = `lang-opt ${l.code === currentLang ? 'active' : ''}`;
+        btn.id = `lang-opt-${l.code}`;
+        btn.innerHTML = `<span>${l.flag}</span> <span>${l.label}</span>`;
+        btn.title = l.title;
+        btn.addEventListener('click', () => setLanguage(l.code));
+        switcher.appendChild(btn);
+      });
+    }
+
+    // Aplicar idioma
+    function setLanguage(lang) {
+      if (!i18nData[lang]) lang = 'es';
+      currentLang = lang;
+      localStorage.setItem('fct-lang', lang);
+      document.documentElement.lang = lang;
+
+      // Actualizar botones de selector
+      languages.forEach(l => {
+        const btn = document.getElementById(`lang-opt-${l.code}`);
+        if (btn) btn.classList.toggle('active', l.code === lang);
+      });
+
+      // Actualizar textos
+      const dict = i18nData[lang];
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) el.textContent = dict[key];
+      });
+
+      document.querySelectorAll('[data-i18n-html]').forEach(el => {
+        const key = el.getAttribute('data-i18n-html');
+        if (dict[key]) el.innerHTML = dict[key];
+      });
+
+      // Actualizar imágenes según idioma (data-i18n-src-es / data-i18n-src-en)
+      document.querySelectorAll(`[data-i18n-src-${lang}]`).forEach(img => {
+        img.src = img.getAttribute(`data-i18n-src-${lang}`);
+      });
+
+      // Meta títulos
+      if (dict.meta_title) document.title = dict.meta_title;
+      if (dict.meta_desc) {
+        const m = document.getElementById('meta-desc');
+        if (m) m.setAttribute('content', dict.meta_desc);
+      }
+    }
+
+    // Detectar idioma inicial (localStorage o navegador)
+    function detectInitialLang() {
+      const saved = localStorage.getItem('fct-lang');
+      if (saved && i18nData[saved]) return saved;
+      const navLang = (navigator.language || 'es').toLowerCase();
+      return navLang.startsWith('es') ? 'es' : 'en';
+    }
+
+    currentLang = detectInitialLang();
+    initLanguageSwitcher();
+    setLanguage(currentLang);
+
     // FAQ Acordeón
     document.querySelectorAll('.faq-question').forEach(q => {
       q.addEventListener('click', () => {
@@ -1114,11 +1376,12 @@
     function copyLink() {
       navigator.clipboard.writeText(window.location.href).then(() => {
         const b = document.getElementById('copy-link-btn');
-        b.textContent = '¡Enlace copiado! ✓';
+        const originalText = i18nData[currentLang].btn_copy || 'Copiar Enlace';
+        b.textContent = i18nData[currentLang].copied || '¡Enlace copiado! ✓';
         b.style.background = 'var(--gold)';
         b.style.color = '#1a1206';
         setTimeout(() => {
-          b.textContent = 'Copiar Enlace';
+          b.textContent = originalText;
           b.style.background = '';
           b.style.color = '';
         }, 3000);
