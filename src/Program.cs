@@ -18,6 +18,7 @@ internal static class Program
         }
 
         Application.SetHighDpiMode(HighDpiMode.PerMonitorV2); // before the first window (message boxes included)
+        Application.SetColorMode(SystemColorMode.Dark);
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
 

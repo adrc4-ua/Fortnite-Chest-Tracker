@@ -22,7 +22,14 @@ public sealed partial class MainForm
         }
         try
         {
-            BeginInvoke(new Action(() => ShowState(state)));
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(() => ShowState(state)));
+            }
+            else
+            {
+                ShowState(state);
+            }
         }
         catch (Exception ex) when (ex is ObjectDisposedException or InvalidOperationException)
         {
@@ -33,6 +40,7 @@ public sealed partial class MainForm
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);
+        _state ??= _monitor.CurrentState;
         if (_state != null)
         {
             ShowState(_state);

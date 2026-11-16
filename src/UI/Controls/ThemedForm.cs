@@ -18,6 +18,17 @@ public class ThemedForm : Form, IBackdrop
         ForeColor = Theme.Ink;
     }
 
+    protected override void WndProc(ref Message m)
+    {
+        const int WmEraseBkgnd = 0x0014;
+        if (m.Msg == WmEraseBkgnd)
+        {
+            m.Result = (IntPtr)1;
+            return;
+        }
+        base.WndProc(ref m);
+    }
+
     protected override void OnHandleCreated(EventArgs e)
     {
         base.OnHandleCreated(e);

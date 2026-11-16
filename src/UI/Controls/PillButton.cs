@@ -32,6 +32,17 @@ public sealed class PillButton : Button
         Cursor = Cursors.Hand;
     }
 
+    protected override void WndProc(ref Message m)
+    {
+        const int WmEraseBkgnd = 0x0014;
+        if (m.Msg == WmEraseBkgnd)
+        {
+            m.Result = (IntPtr)1;
+            return;
+        }
+        base.WndProc(ref m);
+    }
+
     /// <summary>Background under the mouse.</summary>
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public Color HoverColor { get; set; } = Theme.PanelHover;

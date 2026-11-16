@@ -58,6 +58,7 @@ public sealed partial class MainForm : ThemedForm
 
     public MainForm(AppMonitor monitor, Store store)
     {
+        SuspendLayout();
         _monitor = monitor;
         _store = store;
         Text = AppInfo.Name;
@@ -66,7 +67,8 @@ public sealed partial class MainForm : ThemedForm
         Font = Theme.Text();
         FormBorderStyle = FormBorderStyle.Sizable;
         MinimumSize = new Size(440, 300);
-        StartPosition = FormStartPosition.CenterScreen;
+        StartPosition = FormStartPosition.Manual;
+        Opacity = 0;
         ClientSize = new Size(DesignWidth, PlainHeight);
         Icon = AppIcon.Load();
 
@@ -148,8 +150,15 @@ public sealed partial class MainForm : ThemedForm
 
         _layout = new ProportionalLayout(this, DesignWidth, PlainHeight);
         _layout.Capture();
+        ResumeLayout(false);
         _rescale.Tick += (_, _) => { _rescale.Stop(); _layout.Apply(); };
         monitor.Changed += OnChanged;
+        if (monitor.CurrentState is { } initial)
+        {
+            _state = initial;
+            ShowState(initial);
+        }
+        CenterToScreen();
         monitor.ExclusiveFullscreen += () => OnWindowThread(WarnAboutExclusiveFullscreen);
         Activated += (_, _) => ShowFullscreenMessageIfPending();
         // hidden in the tray = in the background: the app then closes by itself when Fortnite closes
@@ -177,6 +186,7 @@ public sealed partial class MainForm : ThemedForm
     internal void ShowFromTray()
     {
         _startHandled = true;
+        Opacity = 1;
         if (!Visible)
         {
             Show();
@@ -187,6 +197,13 @@ public sealed partial class MainForm : ThemedForm
         }
         Activate();
         BringToFront();
+    }
+
+    protected override void OnShown(EventArgs e)
+    {
+        base.OnShown(e);
+        Refresh();
+        BeginInvoke(() => Opacity = 1);
     }
 
     protected override void SetVisibleCore(bool value)

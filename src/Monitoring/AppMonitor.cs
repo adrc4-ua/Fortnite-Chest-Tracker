@@ -34,6 +34,7 @@ public sealed class AppMonitor
     private DateTime? _fortniteClosedSince;
     private bool _closeRequested, _displayTipShown;
     private volatile string? _displayWarning;
+    private readonly object _publishLock = new();
 
     public AppMonitor(Store store, Config config, TrackerData data, Tracker tracker, string dataDir)
     {
@@ -52,6 +53,7 @@ public sealed class AppMonitor
             _progress = progress;
             Publish();
         };
+        Publish();
     }
 
     // ---- What the window reads ----------------------------------------------------------------------------------------
@@ -66,6 +68,9 @@ public sealed class AppMonitor
 
     /// <summary>The window is hidden in the notification area: closing Fortnite closes FCT once the last match is counted.</summary>
     public volatile bool InBackground;
+
+    /// <summary>The most recent state computed for the window and the overlay.</summary>
+    public MonitorState? CurrentState { get; private set; }
 
     /// <summary>New state, from the monitor thread (the window must marshal it).</summary>
     public event Action<MonitorState>? Changed;
@@ -160,6 +165,11 @@ public sealed class AppMonitor
         // a test copy keeps away from the normal one's port, so OBS never ends up on the wrong one
         ObsServer.Start((Config.ObsPort > 0 ? Config.ObsPort : ObsServer.DefaultPort) + (AppInfo.Isolated ? IsolatedPortOffset : 0));
         _gameLog = new GameLogWatcher(_screens.Shown);
+        if (_tracker.UnprocessedFiles().Where(ReplayFolder.NotRecording).Count() is var pending and > 1)
+        {
+            _progress = new ScanProgress(0, pending);
+        }
+        Publish();
         new Thread(Run) { IsBackground = true, Name = "Vigilancia" }.Start();
     }
 
@@ -392,7 +402,8 @@ public sealed class AppMonitor
                 RequestPublish(); // the window's overlay button changes colour
             },
             onClose: () => CloseRequested?.Invoke(), // the overlay's ✕ closes FCT
-            isGame: FortniteWatch.IsGameProcess);    // only on screen over the game
+            isGame: FortniteWatch.IsGameProcess,    // only on screen over the game
+            initialView: CurrentState?.View);
     }
 
     // ---- The monitor thread -------------------------------------------------------------------------------------------------
@@ -405,11 +416,6 @@ public sealed class AppMonitor
         {
             changed |= _publishRequested;
             _publishRequested = false;
-            changed |= FileTreasureScreens();
-            changed |= FilePrizeLists();
-            changed |= ResetIfAsked();
-            changed |= RestoreIfAsked();
-            changed |= CountSkippedIfAsked();
             try
             {
                 changed |= ScanIfDue();
@@ -419,6 +425,11 @@ public sealed class AppMonitor
             {
                 ErrorLog.Write("Vigilancia", ex);
             }
+            changed |= FileTreasureScreens();
+            changed |= FilePrizeLists();
+            changed |= ResetIfAsked();
+            changed |= RestoreIfAsked();
+            changed |= CountSkippedIfAsked();
             changed |= FollowPlayer();
             changed |= ApplyEstimates();
             _updates.Poll();
@@ -718,32 +729,37 @@ public sealed class AppMonitor
 
     private void Publish()
     {
-        var config = Config;
-        var shown = Profiles.Current(_data, config);
-        _shownKey = shown?.Key;
-        _shownName = shown?.Name;
-        _earlier.ShownKey = _shownKey;
-        var view = Profiles.View(_data, config);
-        _earlier.ShowMatches(view.Matches);
-
-        var live = _follower.LiveOfShown();
-        var overlay = OverlayModel.Build(view, live, _tracker.IsLive && live != null, Profiles.InitialChests(_data, config));
-        StatsPage.WriteOverlay(_store, overlay);
-        ObsServer.Update(overlay);
-        if (OperatingSystem.IsWindows() && NativeOverlay.IsRunning)
+        lock (_publishLock)
         {
-            NativeOverlay.Update(overlay);
+            var config = Config;
+            var shown = Profiles.Current(_data, config);
+            _shownKey = shown?.Key;
+            _shownName = shown?.Name;
+            _earlier.ShownKey = _shownKey;
+            var view = Profiles.View(_data, config);
+            _earlier.ShowMatches(view.Matches);
+
+            var live = _follower.LiveOfShown();
+            var overlay = OverlayModel.Build(view, live, _tracker.IsLive && live != null, Profiles.InitialChests(_data, config));
+            StatsPage.WriteOverlay(_store, overlay);
+            ObsServer.Update(overlay);
+            if (OperatingSystem.IsWindows() && NativeOverlay.IsRunning)
+            {
+                NativeOverlay.Update(overlay);
+            }
+
+            var shownLive = _tracker.IsLive ? live : null;
+            var notice = _updates.Installing ? L.T("Descargando la actualización…", "Downloading the update…")
+                : _progress is { } progress ? L.F("Leyendo tus replays… {0} / {1}. Las cifras suben a medida que se leen.", "Reading your replays… {0} / {1}. The numbers grow as they are read.", progress.Done, progress.Total)
+                : _notice ?? _displayWarning;
+            var state = new MonitorState(overlay, Profiles.List(_data, config), shown?.Key, _updates.Available, notice, false,
+                SinceSeasonWithEarlier(PlayedToo(ScreenFigures.Stats(view.Matches, shownLive), view) with { EarlierMatches = _earlier.Matches(view.Matches) }))
+            {
+                Team = config.ShowTeammates ? ScreenFigures.Team(view.Matches, shownLive, config.ExtraKinds()) : null,
+            };
+            CurrentState = state;
+            Changed?.Invoke(state);
         }
-
-        var shownLive = _tracker.IsLive ? live : null;
-        var notice = _updates.Installing ? L.T("Descargando la actualización…", "Downloading the update…")
-            : _progress is { } progress ? L.F("Leyendo tus replays… {0} / {1}. Las cifras suben a medida que se leen.", "Reading your replays… {0} / {1}. The numbers grow as they are read.", progress.Done, progress.Total)
-            : _notice ?? _displayWarning;
-        Changed?.Invoke(new MonitorState(overlay, Profiles.List(_data, config), shown?.Key, _updates.Available, notice, false,
-            SinceSeasonWithEarlier(PlayedToo(ScreenFigures.Stats(view.Matches, shownLive), view) with { EarlierMatches = _earlier.Matches(view.Matches) }))
-        {
-            Team = config.ShowTeammates ? ScreenFigures.Team(view.Matches, shownLive, config.ExtraKinds()) : null,
-        });
     }
 
     /// <summary>

@@ -18,6 +18,17 @@ public sealed class Card : Panel
         BackColor = Theme.Card;
     }
 
+    protected override void WndProc(ref Message m)
+    {
+        const int WmEraseBkgnd = 0x0014;
+        if (m.Msg == WmEraseBkgnd)
+        {
+            m.Result = (IntPtr)1;
+            return;
+        }
+        base.WndProc(ref m);
+    }
+
     /// <summary>Corner radius in pixels.</summary>
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public int Radius { get; set; } = 18;

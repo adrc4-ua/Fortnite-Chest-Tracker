@@ -39,6 +39,7 @@ public sealed class Config
     /// <summary>Click-through and fixed in place (the overlay's padlock).</summary>
     public bool OverlayLocked { get; set; }
 
+    /// <summary>Position of the overlay window; null defaults to the top-left corner (0, 0).</summary>
     public int? OverlayX { get; set; }
     public int? OverlayY { get; set; }
 

@@ -42,7 +42,7 @@ public static class NativeOverlay
     private static Action? _close;
 
     // state, used on the overlay's thread (the volatile ones are read from others too)
-    private static volatile bool _visible, _locked, _gameOpen = true;
+    private static volatile bool _visible, _locked, _gameOpen;
     private static bool _offscreen, _scaleForced;
     private static OverlayInk _ink = null!;
     private static OverlayLayout _layout = new();
@@ -75,16 +75,22 @@ public static class NativeOverlay
     /// <param name="isGame">Given a process id, whether it is the game: the overlay only shows while a window of the
     /// game is open and not minimized, on any screen. Null: always (previews).</param>
     public static void Start(int? x, int? y, bool locked, Action<int, int> onMoved, Action<bool> onLockChanged,
-        bool visible = true, Action<bool>? onVisibleChanged = null, Action? onClose = null, Func<int, bool>? isGame = null)
+        bool visible = true, Action<bool>? onVisibleChanged = null, Action? onClose = null, Func<int, bool>? isGame = null,
+        OverlayView? initialView = null)
     {
         if (_thread != null)
         {
             return;
         }
+        if (initialView != null)
+        {
+            _view = initialView;
+        }
         _visible = visible;
         _locked = locked;
         _offscreen = x <= -10000;
         _game = new GameWindows(isGame);
+        _gameOpen = !_game.Watching;
         (_moved, _lockChanged, _visibleChanged, _close) = (onMoved, onLockChanged, onVisibleChanged, onClose);
 
         var ready = new ManualResetEventSlim();
@@ -202,14 +208,14 @@ public static class NativeOverlay
         // layered + transparent: the mouse goes through it to the game (an off-screen preview needs neither)
         var passThrough = _offscreen ? 0 : WS_EX_LAYERED | WS_EX_TRANSPARENT;
         _window = CreateWindowExW(WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | passThrough, windowClass.lpszClassName, L.T("Cofres", "Chests"), WS_POPUP,
-            x ?? _ink.Px(24), y ?? _ink.Px(24), _ink.Px(OverlayLayout.MinWidth), _ink.Px(90), IntPtr.Zero, IntPtr.Zero, instance, IntPtr.Zero);
+            x ?? 0, y ?? 0, _ink.Px(OverlayLayout.MinWidth), _ink.Px(90), IntPtr.Zero, IntPtr.Zero, instance, IntPtr.Zero);
         if (_window == IntPtr.Zero)
         {
             throw new InvalidOperationException("CreateWindowEx failed");
         }
         if (!_offscreen)
         {
-            SetLayeredWindowAttributes(_window, 0, 255, LWA_ALPHA); // fully opaque: layered only for the pass-through
+            SetLayeredWindowAttributes(_window, 0, 0, LWA_ALPHA); // start with alpha 0 (completely transparent until shown)
         }
 
         // the scale of the monitor it is on, not of the main one (with two screens the text took the other's size)
@@ -368,6 +374,11 @@ public static class NativeOverlay
                 PaintInto(window, wParam);
                 return 0;
             case WM_DESTROY:
+                if (_dragging && GetWindowRect(window, out var box))
+                {
+                    _dragging = false;
+                    _moved?.Invoke(box.Left, box.Top);
+                }
                 _eventHooks.ForEach(hook => UnhookWinEvent(hook));
                 _eventHooks.Clear();
                 PostQuitMessage(0);
@@ -719,12 +730,20 @@ public static class NativeOverlay
     {
         if (show)
         {
+            if (!_offscreen)
+            {
+                SetLayeredWindowAttributes(window, 0, 255, LWA_ALPHA);
+            }
             ShowWindow(window, SW_SHOWNOACTIVATE);
             SetWindowPos(window, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
         }
         else
         {
             ShowWindow(window, SW_HIDE);
+            if (!_offscreen)
+            {
+                SetLayeredWindowAttributes(window, 0, 0, LWA_ALPHA);
+            }
         }
         if (_offscreen)
         {
@@ -763,6 +782,7 @@ public static class NativeOverlay
     /// </summary>
     private static void Relayout(IntPtr window)
     {
+        var show = _visible && _gameOpen;
         var hdc = GetDC(window);
         try
         {
@@ -784,8 +804,9 @@ public static class NativeOverlay
                 left = Math.Max(screen.Left, Math.Min(left, screen.Right - width));
                 top = Math.Max(screen.Top, Math.Min(top, screen.Bottom - height));
             }
-            SetWindowPos(window, HWND_TOPMOST, left, top, width, height, SWP_NOACTIVATE);
-            SetWindowRgn(window, CreateRoundRectRgn(0, 0, width + 1, height + 1, _ink.Px(16), _ink.Px(16)), true); // the window owns the region
+            SetWindowPos(window, show ? HWND_TOPMOST : IntPtr.Zero, left, top, width, height,
+                SWP_NOACTIVATE | (show ? 0 : SWP_NOREDRAW | SWP_NOZORDER));
+            SetWindowRgn(window, CreateRoundRectRgn(0, 0, width + 1, height + 1, _ink.Px(16), _ink.Px(16)), show); // the window owns the region
             if (left != now.Left || top != now.Top)
             {
                 _moved?.Invoke(left, top);
@@ -795,8 +816,11 @@ public static class NativeOverlay
         {
             ReleaseDC(window, hdc);
         }
-        InvalidateRect(window, IntPtr.Zero, false);
-        UpdateWindow(window); // one repaint per change
+        if (show)
+        {
+            InvalidateRect(window, IntPtr.Zero, false);
+            UpdateWindow(window); // one repaint per change
+        }
     }
 
     /// <summary>A raw mouse report: its button changes, its movement (relative devices) and whether it moves at all.</summary>

@@ -18,6 +18,17 @@ public sealed class IconTile : Control
         SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.ResizeRedraw, true);
     }
 
+    protected override void WndProc(ref Message m)
+    {
+        const int WmEraseBkgnd = 0x0014;
+        if (m.Msg == WmEraseBkgnd)
+        {
+            m.Result = (IntPtr)1;
+            return;
+        }
+        base.WndProc(ref m);
+    }
+
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
     public string? IconSvg { get; set; }
 
