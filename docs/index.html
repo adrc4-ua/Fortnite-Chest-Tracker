@@ -782,6 +782,157 @@
       display: block;
     }
 
+    /* ---- Duo Section: Overlay + Stats ----------------------------------- */
+    .duo-section {
+      margin: 80px 0;
+    }
+
+    .duo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .duo-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .duo-card:hover {
+      border-color: var(--gold-line);
+      transform: translateY(-2px);
+    }
+
+    .duo-card-header {
+      margin-bottom: 22px;
+    }
+
+    .duo-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--gold);
+      background: var(--gold-soft);
+      border: 1px solid var(--gold-line);
+      border-radius: 99px;
+      padding: 3px 10px;
+      margin-bottom: 12px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .duo-card h3 {
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--ink);
+      margin-bottom: 10px;
+      line-height: 1.25;
+    }
+
+    .duo-card p {
+      font-size: 14.5px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .duo-media-overlay {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, rgba(232, 176, 75, 0.08) 0%, #0a0a0c 70%);
+      border: 1px solid var(--line2);
+      border-radius: 14px;
+      padding: 24px;
+      min-height: 250px;
+      margin-top: auto;
+    }
+
+    .duo-media-overlay img {
+      max-width: 320px;
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      border: 1px solid var(--line2);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7), 0 0 24px rgba(232, 176, 75, 0.12);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .duo-card:hover .duo-media-overlay img {
+      transform: scale(1.02);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 28px rgba(232, 176, 75, 0.22);
+    }
+
+    .duo-media-browser {
+      border: 1px solid var(--line2);
+      border-radius: 14px;
+      overflow: hidden;
+      background: #0d0c0b;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      margin-top: auto;
+    }
+
+    .browser-bar {
+      width: 100%;
+      background: #181716;
+      border-bottom: 1px solid var(--line2);
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      gap: 10px;
+      box-sizing: border-box;
+    }
+
+    .browser-dots {
+      display: flex;
+      gap: 5px;
+    }
+
+    .browser-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .browser-dots span:nth-child(1) { background: #e05b50; }
+    .browser-dots span:nth-child(2) { background: #e8a838; }
+    .browser-dots span:nth-child(3) { background: #45b95a; }
+
+    .browser-url {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      background: #100f0e;
+      padding: 2px 10px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-family: monospace;
+      letter-spacing: 0.02em;
+    }
+
+    .duo-media-browser img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.25s ease;
+    }
+
+    .duo-card:hover .duo-media-browser img {
+      transform: scale(1.01);
+    }
+
     /* ---- FAQ Section ----------------------------------------------------- */
     .faq-section {
       max-width: 820px;
@@ -1014,6 +1165,11 @@
         padding: 28px;
       }
 
+      .duo-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+
       .floating-overlay-card {
         position: static;
         margin-top: 16px;
@@ -1049,7 +1205,7 @@
       <nav class="nav-links">
         <a href="#funciones" data-i18n="nav_features">Funciones</a>
         <a href="#tesoros-rivales" data-i18n="nav_rivals">Tesoros y Rivales</a>
-        <a href="#overlay" data-i18n="nav_overlay">Overlay</a>
+        <a href="#overlay" data-i18n="nav_overlay">Overlay y Estadísticas</a>
         <a href="#faq" data-i18n="nav_faq">Preguntas frecuentes</a>
       </nav>
 
@@ -1270,24 +1426,49 @@
       </div>
     </section>
 
-    <!-- Overlay Spotlight -->
-    <section id="overlay" style="margin: 80px 0; text-align: center;">
+    <!-- Duo Showcase: Overlay en Vivo + Panel Web de Estadísticas -->
+    <section id="overlay" class="duo-section">
       <div class="section-title">
-        <span data-i18n="overlay_sec_sub">Sin perder un solo FPS</span>
-        <h2 data-i18n="overlay_sec_title">Overlay en Pantalla para OBS y tu Juego</h2>
+        <span data-i18n="duo_sec_sub">En directo y en diferido</span>
+        <h2 data-i18n="duo_sec_title">Overlay en Pantalla y Panel de Estadísticas</h2>
       </div>
 
-      <p style="color: var(--muted); max-width: 650px; margin: 0 auto 36px; font-size: 15.5px;"
-        data-i18n="overlay_sec_desc">
-        Se activa solo cuando Fortnite está abierto. Puedes moverlo con el ratón a la esquina que prefieras, fijarlo
-        encima del juego o capturarlo como fuente independiente en OBS Studio.
-      </p>
+      <div class="duo-grid">
+        <!-- Columna 1: Overlay -->
+        <div class="duo-card">
+          <div class="duo-card-header">
+            <div class="duo-pill" data-i18n="duo_overlay_pill">Overlay en Vivo</div>
+            <h3 data-i18n="duo_overlay_title">Overlay para tu Juego y OBS</h3>
+            <p data-i18n="duo_overlay_desc">
+              Se activa solo cuando Fortnite está abierto. Muévelo con el ratón a cualquier esquina, fíjalo encima de tu partida o captúralo como fuente limpia en OBS Studio sin perder un solo FPS.
+            </p>
+          </div>
+          <div class="duo-media duo-media-overlay">
+            <img src="images/overlay-es.png" data-i18n-src-es="images/overlay-es.png"
+              data-i18n-src-en="images/overlay-en.png" alt="Overlay de FCT" id="img-overlay">
+          </div>
+        </div>
 
-      <div style="display:flex; justify-content:center;">
-        <img src="images/overlay-es.png" data-i18n-src-es="images/overlay-es.png"
-          data-i18n-src-en="images/overlay-en.png" alt="Overlay de FCT"
-          style="max-width:340px; border-radius:14px; border:1px solid var(--line2); box-shadow:var(--shadow)"
-          id="img-overlay">
+        <!-- Columna 2: Panel Web de Estadísticas -->
+        <div class="duo-card">
+          <div class="duo-card-header">
+            <div class="duo-pill" data-i18n="duo_stats_pill">Botón «Estadísticas» en la app</div>
+            <h3 data-i18n="duo_stats_title">Tu Panel Web en el Navegador</h3>
+            <p data-i18n="duo_stats_desc">
+              Pulsa el botón de estadísticas dentro de FCT para abrir en tu navegador un desglose completo: tu gráfica de evolución de cofres día a día, histórico de partidas y todos tus tesoros.
+            </p>
+          </div>
+          <div class="duo-media duo-media-browser">
+            <div class="browser-bar">
+              <div class="browser-dots">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="browser-url">localhost:1087 · FCT Resumen</div>
+            </div>
+            <img src="images/stats-summary-es.png" data-i18n-src-es="images/stats-summary-es.png"
+              data-i18n-src-en="images/stats-summary-en.png" alt="Panel de Estadísticas de FCT" id="img-stats">
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1435,7 +1616,7 @@
         meta_desc: "Rastrea cada cofre que abres en Fortnite, partida tras partida. Descubre qué tesoros abrieron tus rivales, calcula tus cofres de la temporada y mejora tus récords. 100% gratis y seguro.",
         nav_features: "Funciones",
         nav_rivals: "Tesoros y Rivales",
-        nav_overlay: "Overlay",
+        nav_overlay: "Overlay y Estadísticas",
         nav_faq: "Preguntas frecuentes",
         nav_cta: "Descargar Gratis",
         hero_badge: "Temporada Cazadores de Tesoros · Capítulo 7",
@@ -1466,6 +1647,14 @@
         bullet_2: '<strong>Minuto exacto:</strong> Sabrás si lo abrieron justo mientras te enfrentabas a ellos.',
         bullet_3: '<strong>¿Era un bot o un jugador?</strong> FCT identifica si el afortunado fue un bot de relleno.',
         btn_try_next: "Probar en mi próxima partida →",
+        duo_sec_sub: "En directo y en diferido",
+        duo_sec_title: "Overlay en Pantalla y Panel de Estadísticas",
+        duo_overlay_pill: "Overlay en Vivo",
+        duo_overlay_title: "Overlay para tu Juego y OBS",
+        duo_overlay_desc: "Se activa solo cuando Fortnite está abierto. Muévelo con el ratón a cualquier esquina, fíjalo encima de tu partida o captúralo como fuente limpia en OBS Studio sin perder un solo FPS.",
+        duo_stats_pill: "Botón «Estadísticas» en la app",
+        duo_stats_title: "Tu Panel Web en el Navegador",
+        duo_stats_desc: "Pulsa el botón de estadísticas dentro de FCT para abrir en tu navegador un desglose completo: tu gráfica de evolución de cofres día a día, histórico de partidas y todos tus tesoros.",
         overlay_sec_sub: "Sin perder un solo FPS",
         overlay_sec_title: "Overlay en Pantalla para OBS y tu Juego",
         overlay_sec_desc: "Se activa solo cuando Fortnite está abierto. Puedes moverlo con el ratón a la esquina que prefieras, fijarlo encima del juego o capturarlo como fuente independiente en OBS Studio.",
@@ -1499,7 +1688,7 @@
         meta_desc: "Track every chest you open in Fortnite, match after match. Discover what featured treasures opponents found, estimate your season chest count, and push your personal records. 100% free and safe.",
         nav_features: "Features",
         nav_rivals: "Treasures & Rivals",
-        nav_overlay: "Overlay",
+        nav_overlay: "Overlay & Stats",
         nav_faq: "FAQ",
         nav_cta: "Free Download",
         hero_badge: "Treasure Hunters Season · Chapter 7",
@@ -1530,6 +1719,14 @@
         bullet_2: '<strong>Exact match time:</strong> Know whether they opened it while fighting you.',
         bullet_3: '<strong>Bot or real player:</strong> FCT identifies if the lucky finder was an AI bot.',
         btn_try_next: "Try it on my next match →",
+        duo_sec_sub: "Live in-game and post-match",
+        duo_sec_title: "In-Game Overlay & Web Stats Dashboard",
+        duo_overlay_pill: "Live Overlay",
+        duo_overlay_title: "Overlay for Gameplay & OBS Studio",
+        duo_overlay_desc: "Only appears while Fortnite is running. Drag it anywhere with your mouse, pin it on top of your game, or capture it cleanly in OBS Studio with zero FPS loss.",
+        duo_stats_pill: "«Stats» Button in the app",
+        duo_stats_title: "Web Dashboard in your Browser",
+        duo_stats_desc: "Click «Stats» inside FCT to open a detailed web dashboard in your browser: day-by-day chest progression chart, full match history, and all unlocked treasures.",
         overlay_sec_sub: "Zero FPS impact",
         overlay_sec_title: "In-Game Overlay for OBS & Gameplay",
         overlay_sec_desc: "Only shows up while Fortnite is running. Drag it anywhere with your mouse, pin it on screen, or capture it as a clean source in OBS Studio.",
