@@ -2,6 +2,10 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
+## [5.10.1] - 2026-11-16
+
+- **Tachar tesoros a mano suma a las cifras y los conseguidos en partida quedan fijados**: al tachar o destachar un premio de las semanas en la web, las cifras de tesoros en total, destacados y el contador de la pestaña Tesoros se actualizan al instante sumando las marcas manuales. Los premios conseguidos en partida quedan fijados para no poder destacharlos por error (mostrando una aclaración al pasar el cursor). Además, las barras de desplazamiento se iluminan en dorado al pasar por encima o arrastrar, y los márgenes de contenido se ajustan para pantallas panorámicas.
+
 ## [5.10.0] - 2026-11-16
 
 - **Carga inmediata de cifras y eliminación de parpadeos al abrir**: la ventana principal y el overlay muestran sus datos, gráficas y detalles desde el primer fotograma a partir de los datos ya cargados en memoria, suspendiendo el dibujado hasta completar el layout inicial. Se activa el modo oscuro global en Windows Forms (`SystemColorMode.Dark`) y se intercepta el borrado de fondo de Windows (`WM_ERASEBKGND`) en todas las tarjetas y controles, evitando que el sistema operativo use brochas blancas por defecto. La ventana principal se posiciona centrada en pantalla y permanece invisible hasta forzar y completar el dibujado sincrónico de todos sus elementos hijos, eliminando por completo cualquier destello blanco o aparición fugaz de cuadrantes. Además, el overlay se inicia con transparencia total (alfa cero) y no se dibuja ni posiciona en pantalla si Fortnite no está a la vista, eliminando cualquier destello en la esquina superior izquierda.
@@ -326,6 +330,7 @@ Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede a
 
 - Primera versión publicada.
 
+[5.10.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.10.0...v5.10.1
 [5.10.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.9.4...v5.10.0
 [5.9.4]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.9.3...v5.9.4
 [5.9.3]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.9.2...v5.9.3
