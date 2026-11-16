@@ -2,6 +2,11 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
+## [5.10.2] - 2026-11-16
+
+- **Buscar tus propias partidas ya funciona**: al buscar tu propia cuenta, FCT usaba su id con mayúsculas (como lo escriben las repeticiones) y fortnite-api.com lo daba por inexistente («No encontramos a nadie con ese nombre»). Ahora lo envía en minúsculas y, si la búsqueda por identificador no diera resultado, reintenta automáticamente por el nombre del jugador como red de seguridad.
+- **«Escríbelas tú» solo cuando la búsqueda falla**: en Estimación, el campo para escribir las partidas a mano y el botón de fortnite.gg ya no salen cuando la búsqueda está disponible solo porque el cálculo anterior se escribió a mano; aparecen si no hay búsqueda en esa versión o si la búsqueda no encuentra nada.
+
 ## [5.10.1] - 2026-11-16
 
 - **Tachar tesoros a mano suma a las cifras y los conseguidos en partida quedan fijados**: al tachar o destachar un premio de las semanas en la web, las cifras de tesoros en total, destacados y el contador de la pestaña Tesoros se actualizan al instante sumando las marcas manuales. Los premios conseguidos en partida quedan fijados para no poder destacharlos por error (mostrando una aclaración al pasar el cursor). Además, las barras de desplazamiento se iluminan en dorado al pasar por encima o arrastrar, y los márgenes de contenido se ajustan para pantallas panorámicas.
@@ -330,6 +335,7 @@ Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede a
 
 - Primera versión publicada.
 
+[5.10.2]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.10.1...v5.10.2
 [5.10.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.10.0...v5.10.1
 [5.10.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.9.4...v5.10.0
 [5.9.4]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.9.3...v5.9.4
