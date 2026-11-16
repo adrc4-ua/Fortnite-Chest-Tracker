@@ -43,8 +43,7 @@ FCT counts **every chest you open in Fortnite**, match after match. You play; it
 ## The overlay
 
 <p align="center">
-<img src="docs/images/overlay-live-en.png" alt="Overlay during a match" width="340">&nbsp;&nbsp;<img src="docs/images/overlay-between-en.png" alt="Overlay between matches" width="340">
-<br><sub>During a match, live · Between matches</sub>
+<img src="docs/images/overlay-en.png" alt="FCT overlay" width="340">
 </p>
 
 - It only shows while Fortnite is open, on the screen and spot you choose.

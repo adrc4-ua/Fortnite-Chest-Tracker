@@ -43,8 +43,7 @@ FCT cuenta **cada cofre que abres en Fortnite**, partida a partida. Tú juegas; 
 ## El overlay
 
 <p align="center">
-<img src="docs/images/overlay-live-es.png" alt="Overlay durante una partida" width="340">&nbsp;&nbsp;<img src="docs/images/overlay-between-es.png" alt="Overlay entre partidas" width="340">
-<br><sub>Durante una partida, en directo · Entre partidas</sub>
+<img src="docs/images/overlay-es.png" alt="Overlay de FCT" width="340">
 </p>
 
 - Sale solo cuando Fortnite está abierto, en la pantalla y el sitio que elijas.

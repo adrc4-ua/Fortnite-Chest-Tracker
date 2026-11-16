@@ -4,6 +4,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- **Captura del overlay unificada**: se actualizan las imágenes del overlay en los README y en la web a una única captura oficial (`overlay-es.png` / `overlay-en.png`) con el candado y botón de cierre nativos a máxima resolución y transparencia limpia en las esquinas, eliminando las imágenes obsoletas (`overlay-live` y `overlay-between`).
 - **Overlay de OBS idéntico al de la app y detección automática de uso**: el diseño y dimensiones de la tarjeta de OBS en `http://localhost:7373/` se unifican exactamente con el overlay nativo (tipografía, proporciones compactas de ~170×136 px, colores, chip de partida y separadores), sin mostrar candado ni cruz. Además, el servidor local detecta cuando OBS está mostrando la fuente del navegador (a través de las peticiones a `/view`); mientras OBS esté en uso, el overlay nativo de escritorio se oculta automáticamente para no duplicarse en pantalla, volviendo a mostrarse de forma automática en cuanto OBS se cierra o deja de usar la fuente. El botón de Overlay en la ventana principal refleja el estado mostrando «● OBS» mientras la emisión está activa.
 
 - **Web renovada**: la página (`docs/index.html`) se rediseña manteniendo su estilo: cabecera y portada centradas con la ventana real, selector de idioma desplegable y extensible, y tres bloques sobre lo que importa al jugador (cofres de antes y de ahora, tesoros que abren los rivales y tu historial de botín), con las capturas actuales a máxima calidad.
