@@ -148,7 +148,8 @@ public sealed class EstimateDialog : ThemedForm
         };
         _manual.Controls.Add(_manualText);
         _totalBox = FieldBox(_manual, 140, 40);
-        _total = FieldText(_totalBox, current is { TotalMatches: > 0 } c ? c.TotalMatches.ToString(CultureInfo.InvariantCulture) : "", Theme.Display(14f, FontStyle.Bold), Theme.GoldBase, NumericMode.Integer);
+        // With the search available, only a number that came from it is kept; a typed one is asked for again.
+        _total = FieldText(_totalBox, current is { TotalMatches: > 0 } c && (c.Source == "api" || !StatsClient.Available) ? c.TotalMatches.ToString(CultureInfo.InvariantCulture) : "", Theme.Display(14f, FontStyle.Bold), Theme.GoldBase, NumericMode.Integer);
         _total.CueBanner = L.T("Partidas", "Matches");
         _total.MaxLength = 7;
         _total.TextChanged += (_, _) =>
@@ -232,12 +233,9 @@ public sealed class EstimateDialog : ThemedForm
                 _found = true;
                 ShowStatus(true, L.F("{0} esta temporada", "{0} this season", L.Count(current.TotalMatches, "partida", "partidas", "match", "matches")));
             }
-            else
-            {
-                _manualTotal = true;
-            }
         }
-        _manualTotal |= !StatsClient.Available;
+        // Escribirlas a mano solo sin búsqueda en esta versión, o cuando la búsqueda falla (lo pone LookUp).
+        _manualTotal = !StatsClient.Available;
         _sample = current?.SampleSize is int s && HistoryEstimator.SampleChoices.Contains(s) ? s : HistoryEstimator.DefaultSample;
         SelectSample(_sample);
         SelectAverage(current?.ManualAverage != null);
