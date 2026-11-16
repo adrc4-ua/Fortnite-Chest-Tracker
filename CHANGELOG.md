@@ -2,6 +2,12 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
+## [5.10.0] - 2026-11-16
+
+- **Carga inmediata de cifras y eliminación de parpadeos al abrir**: la ventana principal y el overlay muestran sus datos, gráficas y detalles desde el primer fotograma a partir de los datos ya cargados en memoria, suspendiendo el dibujado hasta completar el layout inicial. Se activa el modo oscuro global en Windows Forms (`SystemColorMode.Dark`) y se intercepta el borrado de fondo de Windows (`WM_ERASEBKGND`) en todas las tarjetas y controles, evitando que el sistema operativo use brochas blancas por defecto. La ventana principal se posiciona centrada en pantalla y permanece invisible hasta forzar y completar el dibujado sincrónico de todos sus elementos hijos, eliminando por completo cualquier destello blanco o aparición fugaz de cuadrantes. Además, el overlay se inicia con transparencia total (alfa cero) y no se dibuja ni posiciona en pantalla si Fortnite no está a la vista, eliminando cualquier destello en la esquina superior izquierda.
+- **Posición inicial del overlay en la escuadra y persistencia**: en su primera aparición (por defecto) el overlay se sitúa completamente en la esquina superior izquierda de la pantalla ((0, 0), sin separación del borde). Si el usuario lo mueve, la nueva posición se guarda al instante y se restaura fielmente en las siguientes sesiones al cerrar y volver a abrir la aplicación.
+- **Campos de texto unificados con validación numérica y soporte completo de copiado/pegado**: todos los cuadros de texto de la aplicación usan `ThemedTextBox`. En los campos numéricos (como partidas y media en Estimación, y cofres anteriores en Configuración) solo se permiten dígitos o valores numéricos tanto al teclear como al pegar o arrastrar texto, limpiando caracteres inválidos. En los campos de texto (como el nombre de Epic) se admiten sin restricciones caracteres especiales, glifos asiáticos y nombres estilizados, con soporte total de portapapeles y menú contextual oscuro integrado con su tarjeta contenedora.
+
 ## [5.9.4] - 2026-11-15
 
 - **Pantalla de tesoros leída más rápido y sin perder cartas si sales pronto**: el registro del juego se sondea cada 200 ms (antes 500 ms) y las capturas se toman cada tercio de segundo desde los 500 ms iniciales. El voto de cada carta tiene en cuenta todas las capturas que la vieron para que salir antes de tiempo no sobreescriba una lectura clara con la interfaz posterior, y se añaden nuevas huellas para los fuegos artificiales.
@@ -320,6 +326,7 @@ Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede a
 
 - Primera versión publicada.
 
+[5.10.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.9.4...v5.10.0
 [5.9.4]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.9.3...v5.9.4
 [5.9.3]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.9.2...v5.9.3
 [5.9.2]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.9.1...v5.9.2
