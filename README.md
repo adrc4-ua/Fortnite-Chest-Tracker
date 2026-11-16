@@ -59,7 +59,7 @@ The **Stats** button opens them in your browser, and they update by themselves w
 
 <img src="docs/images/stats-summary-en.png" alt="Stats overview" width="100%">
 
-**💎 Treasures** · the ones you got, where they came from and this week's prizes.
+**💎 Treasures** · the ones you got, the featured ones opponents opened near you and this week's prizes.
 
 <img src="docs/images/stats-treasures-en.png" alt="Treasures" width="100%">
 
@@ -79,6 +79,7 @@ Changes are saved right away.
 - **Everything is shared with the stats:** what you change in the app changes on the web page, and the other way round.
 - **Chests before FCT:** works out the ones you opened before using it.
 - **Automatic updates**, or ask first.
+- **Backup:** FCT keeps a copy when you reset your stats, and you can restore it from here.
 - **Language**, **overlay for OBS** and **uninstall**.
 
 <br clear="right">
@@ -119,7 +120,7 @@ Fortnite only records what happens near you. When a teammate goes far away, thei
 <details>
 <summary><b>Do I lose my history when Fortnite deletes the replays?</b></summary>
 
-No. Each match is saved as soon as it is read, in `%APPDATA%\FCT`. If you change PC, copy that folder.
+No. Each match is saved as soon as it is read, in `%APPDATA%\FCT`. If you change PC, copy that folder or restore a backup from *Settings*.
 </details>
 
 <details>
