@@ -4,9 +4,9 @@
 
 [![English](https://img.shields.io/badge/English-e8b04b?style=for-the-badge)](README.md) [![Español](https://img.shields.io/badge/Espa%C3%B1ol-121215?style=for-the-badge)](README.es.md)
 
-[![version](https://img.shields.io/github/v/release/adrc4-ua/Fortnite-Chest-Tracker?style=for-the-badge&label=version&color=e8b04b&labelColor=121215)](../../releases/latest) ![Windows 10 and 11](https://img.shields.io/badge/Windows-10%20%7C%2011-e8b04b?style=for-the-badge&labelColor=121215)
+![version](https://img.shields.io/github/v/release/adrc4-ua/Fortnite-Chest-Tracker?style=for-the-badge&label=version&color=e8b04b&labelColor=121215) ![Windows 10 and 11](https://img.shields.io/badge/Windows-10%20%7C%2011-e8b04b?style=for-the-badge&labelColor=121215)
 
-<a href="../../releases/latest"><img src="docs/images/download-en.png" alt="Download FCT" width="260"></a>
+<a href="https://github.com/adrc4-ua/Fortnite-Chest-Tracker/releases/latest/download/FCT.exe"><img src="docs/images/download-en.png" alt="Download FCT" width="260"></a>
 
 <sub>One file · nothing to install · free · English and Spanish</sub>
 
@@ -33,7 +33,7 @@ FCT counts **every chest you open in Fortnite**, match after match. You play; it
 
 ## Getting started
 
-1. **Download [FCT](../../releases/latest)** and open it. Nothing gets installed.
+1. **Download [FCT](https://github.com/adrc4-ua/Fortnite-Chest-Tracker/releases/latest/download/FCT.exe)** and open it. Nothing gets installed.
 2. **In Fortnite, turn on replays:** *Settings → Game → Replays → Record Replays*. FCT counts from them.
 3. **Play.** FCT opens by itself with Fortnite and adds up your chests at the end of every match.
 

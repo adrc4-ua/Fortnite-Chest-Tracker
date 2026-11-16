@@ -2,6 +2,10 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
+## [Sin publicar]
+
+- **Descarga directa en la documentación**: los botones y enlaces de descarga de `README.md` y `README.es.md` apuntan directamente a la descarga de `FCT.exe` de la última versión, y los badges informativos se mantienen como elementos estáticos.
+
 ## [5.10.2] - 2026-11-16
 
 - **Buscar tus propias partidas ya funciona**: al buscar tu propia cuenta, FCT usaba su id con mayúsculas (como lo escriben las repeticiones) y fortnite-api.com lo daba por inexistente («No encontramos a nadie con ese nombre»). Ahora lo envía en minúsculas y, si la búsqueda por identificador no diera resultado, reintenta automáticamente por el nombre del jugador como red de seguridad.

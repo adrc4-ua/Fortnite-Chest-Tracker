@@ -4,9 +4,9 @@
 
 [![English](https://img.shields.io/badge/English-121215?style=for-the-badge)](README.md) [![Español](https://img.shields.io/badge/Espa%C3%B1ol-e8b04b?style=for-the-badge)](README.es.md)
 
-[![versión](https://img.shields.io/github/v/release/adrc4-ua/Fortnite-Chest-Tracker?style=for-the-badge&label=versi%C3%B3n&color=e8b04b&labelColor=121215)](../../releases/latest) ![Windows 10 y 11](https://img.shields.io/badge/Windows-10%20%7C%2011-e8b04b?style=for-the-badge&labelColor=121215)
+![versión](https://img.shields.io/github/v/release/adrc4-ua/Fortnite-Chest-Tracker?style=for-the-badge&label=versi%C3%B3n&color=e8b04b&labelColor=121215) ![Windows 10 y 11](https://img.shields.io/badge/Windows-10%20%7C%2011-e8b04b?style=for-the-badge&labelColor=121215)
 
-<a href="../../releases/latest"><img src="docs/images/download-es.png" alt="Descargar FCT" width="260"></a>
+<a href="https://github.com/adrc4-ua/Fortnite-Chest-Tracker/releases/latest/download/FCT.exe"><img src="docs/images/download-es.png" alt="Descargar FCT" width="260"></a>
 
 <sub>Un solo archivo · sin instalación · gratis · español e inglés</sub>
 
@@ -33,7 +33,7 @@ FCT cuenta **cada cofre que abres en Fortnite**, partida a partida. Tú juegas; 
 
 ## Empezar
 
-1. **Descarga [FCT](../../releases/latest)** y ábrelo. No se instala nada.
+1. **Descarga [FCT](https://github.com/adrc4-ua/Fortnite-Chest-Tracker/releases/latest/download/FCT.exe)** y ábrelo. No se instala nada.
 2. **En Fortnite, activa las repeticiones:** *Ajustes → Juego → Repeticiones → Grabar repeticiones*. FCT cuenta a partir de ellas.
 3. **Juega.** FCT se abre solo con Fortnite y suma tus cofres al acabar cada partida.
 
