@@ -65,7 +65,9 @@ internal static class TreasuresTab
         {
             var who = rival.Player == null
                 ? $"<span class=\"muted\">{L.T("Desconocido", "Unknown")}</span>"
-                : Esc(rival.Player) + (rival.Bot ? $" <span class=\"chipl\">{L.T("bot", "bot")}</span>" : "");
+                : rival.Bot
+                    ? $"<span class=\"player-bot\">{Esc(rival.Player)}<span class=\"chipl\">{L.T("bot", "bot")}</span></span>"
+                    : Esc(rival.Player);
             var find = new TreasureFind { PrizeId = rival.PrizeId, FromPrizeChest = true };
             html.Append("<tr>")
                 .Append($"<td class=\"nowrap\">{L.DateTimeShort(LocalStart(match))}<div class=\"note\">{Esc(Pretty.Playlist(match.Playlist))}</div></td>")
