@@ -418,8 +418,11 @@
 
     /* ---- Hero Showcase Banner -------------------------------------------- */
     .hero-preview {
-      margin-top: 48px;
+      margin-top: 52px;
       position: relative;
+      max-width: 660px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .preview-window {
@@ -441,42 +444,56 @@
     /* Floating Overlay Badge */
     .floating-overlay-card {
       position: absolute;
-      bottom: -28px;
-      right: 32px;
-      max-width: 440px;
+      bottom: 24px;
+      right: -140px;
+      width: 220px;
       background: rgba(18, 18, 21, 0.95);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--gold-line);
       border-radius: 16px;
-      padding: 16px 20px;
-      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.75);
+      padding: 12px 14px;
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.85);
       display: flex;
-      align-items: center;
-      gap: 16px;
+      flex-direction: column;
+      gap: 10px;
       text-align: left;
+      z-index: 2;
     }
 
     .floating-overlay-card img {
-      width: 140px;
+      width: 100%;
       height: auto;
       border: none;
-      filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.6));
-      flex-shrink: 0;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+      display: block;
     }
 
     .floating-overlay-text b {
       display: block;
-      font-size: 14.5px;
+      font-size: 13.5px;
+      font-weight: 700;
       color: var(--gold-hi);
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
 
     .floating-overlay-text span {
-      font-size: 12.5px;
+      font-size: 11.5px;
       color: var(--muted);
-      line-height: 1.42;
+      line-height: 1.38;
       display: block;
+    }
+
+    @media (max-width: 960px) {
+      .hero-preview {
+        max-width: 580px;
+      }
+      .floating-overlay-card {
+        position: static;
+        margin: 20px auto 0;
+        max-width: 260px;
+        width: 100%;
+      }
     }
 
     /* ---- Features / Hooks Section ---------------------------------------- */
@@ -885,12 +902,13 @@
       </div>
 
       <h1 data-i18n-html="hero_title">
-        Sabe cuántos cofres llevas en la temporada <br>
-        <span class="highlight">y qué tesoros abren tus rivales a tu alrededor</span>
+        Cuenta cada cofre <br>
+        que abres en Fortnite, <br>
+        <span class="highlight">y mira qué tesoros caen a tu alrededor</span>
       </h1>
 
       <p class="hero-sub" data-i18n-html="hero_sub">
-        ¿Buscando el <strong>Token Pirata</strong> o los cosméticos semanales? FCT registra cada cofre partida tras partida, calcula tus cofres de la temporada sin empezar de cero y te revela qué tesoros destacados abrieron tus rivales.
+        Juegas tú; FCT lleva la cuenta. Tus cofres de antes y de ahora, los tesoros que consigues y los que abren tus rivales cerca de ti.
       </p>
 
       <!-- Main CTA Group -->
@@ -936,8 +954,8 @@
         <div class="floating-overlay-card">
           <img src="images/overlay-es.png" data-i18n-src-es="images/overlay-es.png" data-i18n-src-en="images/overlay-en.png" alt="Overlay" id="img-overlay-float">
           <div class="floating-overlay-text">
-            <b data-i18n="overlay_float_title">Overlay en Pantalla</b>
-            <span data-i18n="overlay_float_desc">Invisible para el anticheat. Solo aparece mientras juegas y se actualiza partida tras partida.</span>
+            <b data-i18n="overlay_float_title">Overlay de cofres</b>
+            <span data-i18n="overlay_float_desc">Solo aparece mientras juegas y se actualiza al acabar cada partida.</span>
           </div>
         </div>
       </div>
@@ -1161,8 +1179,8 @@
         nav_faq: "Preguntas frecuentes",
         nav_cta: "Descargar Gratis",
         hero_badge: "Temporada Cazadores de Tesoros · Capítulo 7",
-        hero_title: 'Sabe cuántos cofres llevas en la temporada <br><span class="highlight">y qué tesoros abren tus rivales a tu alrededor</span>',
-        hero_sub: '¿Buscando el <strong>Token Pirata</strong> o los cosméticos semanales? FCT registra cada cofre partida tras partida, calcula tus cofres de la temporada sin empezar de cero y te revela qué tesoros destacados abrieron tus rivales.',
+        hero_title: 'Cuenta cada cofre <br>que abres en Fortnite, <br><span class="highlight">y mira qué tesoros caen a tu alrededor</span>',
+        hero_sub: 'Juegas tú; FCT lleva la cuenta. Tus cofres de antes y de ahora, los tesoros que consigues y los que abren tus rivales cerca de ti.',
         cta_main: "Descargar FCT Gratis",
         cta_sub: "Para Windows 10 y 11 · Un solo archivo ejecutable (.exe)",
         trust_safe: "100% Seguro (No da ban)",
@@ -1171,8 +1189,8 @@
         mobile_helper_txt: '📱 <strong>¿Estás en el móvil?</strong> Cópia el enlace para descargarlo al encender tu PC.',
         btn_copy: "Copiar Enlace",
         copied: "¡Enlace copiado! ✓",
-        overlay_float_title: "Overlay en Pantalla",
-        overlay_float_desc: "Invisible para el anticheat. Solo aparece mientras juegas y se actualiza partida tras partida.",
+        overlay_float_title: "Overlay de cofres",
+        overlay_float_desc: "Solo aparece mientras juegas y se actualiza al acabar cada partida.",
         feat_header_sub: "Diseñado para jugadores de Fortnite",
         feat_header_title: "Todo lo que Fortnite no te cuenta",
         card1_title: "Estimación: No empiezas de cero",
@@ -1225,8 +1243,8 @@
         nav_faq: "FAQ",
         nav_cta: "Free Download",
         hero_badge: "Treasure Hunters Season · Chapter 7",
-        hero_title: 'Know how many chests you\'ve opened this season <br><span class="highlight">and what treasures rivals uncover around you</span>',
-        hero_sub: 'Hunting for the <strong>Pirate Token</strong> or weekly cosmetics? FCT tracks every chest match after match, estimates your season history so you never start from zero, and reveals what featured treasures opponents opened nearby.',
+        hero_title: 'Count every chest <br>you open in Fortnite, <br><span class="highlight">and see what treasures drop around you</span>',
+        hero_sub: 'You play; FCT tracks the rest. Your chests past and present, the treasures you loot, and what nearby rivals discover around you.',
         cta_main: "Download FCT Free",
         cta_sub: "For Windows 10 & 11 · Portable standalone executable (.exe)",
         trust_safe: "100% Safe (No bans, anti-cheat safe)",
@@ -1235,8 +1253,8 @@
         mobile_helper_txt: '📱 <strong>On mobile?</strong> Copy the link to download it when you hop on your PC.',
         btn_copy: "Copy Link",
         copied: "Link copied! ✓",
-        overlay_float_title: "In-Game Overlay",
-        overlay_float_desc: "Undetectable by anti-cheat. Only appears while playing and updates match after match.",
+        overlay_float_title: "Chest Overlay",
+        overlay_float_desc: "Only appears while you play and updates after each match.",
         feat_header_sub: "Built for Fortnite players",
         feat_header_title: "Everything Fortnite never shows you",
         card1_title: "Estimation: Don't start at zero",
