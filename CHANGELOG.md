@@ -2,20 +2,14 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
-## [Sin publicar]
+## [5.11.0] - 2026-11-17
 
-- **Diseño del hero de la web y tarjeta flotante**: se ajusta el título principal a 3 líneas con extensión horizontal equilibrada («Cuenta cada cofre / que abres en Fortnite, / y mira qué tesoros caen a tu alrededor») y se reubica la tarjeta flotante del overlay a la derecha de la ventana principal, mostrando el overlay real unificado en la parte superior y su descripción debajo con esquinas redondeadas y máxima nitidez.
-- **Capturas actualizadas con datos simulados y token pirata**: todas las capturas de la web y de los README se regeneran en alta definición (2x) con el entorno simulado y jugador `Skullbra` (con actividad continuada desde el 01/11/26), compañeros con nombres ficticios de skins (`Omega_x267`, `Aura_x84`, `Havoc_x31`, `Raven_77`) y en la tabla de rivales se incluye a `Renegade_99` obteniendo el cotizado `Acceso a la Tienda Pirata` (Pirate Shop Access).
-- **Eliminación del overlay antiguo y unificación total del modelo**: se eliminan completamente del código los estados y estilos heredados del antiguo overlay en directo (modo live con badge «● LIVE», franja verde menta, fila extra de partida anterior y animaciones obsoletas). Ahora tanto el overlay de escritorio como el de OBS utilizan el mismo modelo unificado de tarjeta compacta con total, partida anterior y tres columnas (hoy, media y tesoros), diferenciándose únicamente en que la versión para OBS omite el candado y la cruz.
-- **Captura del overlay unificada**: se actualizan las imágenes del overlay en los README y en la web a una única captura oficial (`overlay-es.png` / `overlay-en.png`) con el candado y botón de cierre nativos a máxima resolución y transparencia limpia en las esquinas, eliminando las imágenes obsoletas (`overlay-live` y `overlay-between`).
 - **Overlay de OBS idéntico al de la app y detección automática de uso**: el diseño y dimensiones de la tarjeta de OBS en `http://localhost:7373/` se unifican exactamente con el overlay nativo (tipografía, proporciones compactas de ~170×136 px, colores, chip de partida y separadores), sin mostrar candado ni cruz. Además, el servidor local detecta cuando OBS está mostrando la fuente del navegador (a través de las peticiones a `/view`); mientras OBS esté en uso, el overlay nativo de escritorio se oculta automáticamente para no duplicarse en pantalla, volviendo a mostrarse de forma automática en cuanto OBS se cierra o deja de usar la fuente. El botón de Overlay en la ventana principal refleja el estado mostrando «● OBS» mientras la emisión está activa.
-
-- **Web renovada**: la página (`docs/index.html`) se rediseña manteniendo su estilo: cabecera y portada centradas con la ventana real, selector de idioma desplegable y extensible, y tres bloques sobre lo que importa al jugador (cofres de antes y de ahora, tesoros que abren los rivales y tu historial de botín), con las capturas actuales a máxima calidad.
+- **Eliminación del overlay antiguo y unificación total del modelo**: se eliminan completamente del código los estados y estilos heredados del antiguo overlay en directo (modo live con badge «● LIVE», franja verde menta, fila extra de partida anterior y animaciones obsoletas). Ahora tanto el overlay de escritorio como el de OBS utilizan el mismo modelo unificado de tarjeta compacta con total, partida anterior y tres columnas (hoy, media y tesoros). Se unifica la captura del overlay en los README y en la web a una única captura oficial (`overlay-es.png` / `overlay-en.png`) con esquinas redondeadas transparentes.
+- **Nueva herramienta oculta `--settings-preview`**: genera la vista previa de la ventana nativa de Configuración en formato PNG con soporte de escalado 2x/4x.
 - **Centrado de rivales sin desvío por la etiqueta de bot**: en la web de estadísticas (pestaña Tesoros), la columna Rival centra el nombre del jugador ignorando el ancho de la etiqueta «bot», la cual se sitúa a su derecha sin alterar el eje central y con margen visual suficiente.
-- **Documentación y capturas nativas al día**: todas las capturas de los README y de la web (ventana principal, overlay, Configuración con la copia de seguridad y las pestañas de estadísticas) se regeneran a resolución nativa con datos de ejemplo del evento (desde el 1 de noviembre, premios en su semana) y compañeros ficticios. Se documenta la copia de seguridad y los tesoros de rivales en `README.md` y `README.es.md`.
-- **Nueva herramienta oculta `--settings-preview`**: genera la vista previa de la ventana nativa de Configuración en PNG.
-- **Página web oficial bilingüe y capturas al día**: landing page en `docs/index.html` en español e inglés con selector estético y extensible de idioma, capturas oficiales regeneradas con la versión más reciente del programa (para la web y los README de GitHub) y descarga directa de `FCT.exe`.
-- **Descarga directa en la documentación**: los botones y enlaces de descarga de `README.md` y `README.es.md` apuntan directamente a la descarga de `FCT.exe` de la última versión, y los badges informativos se mantienen como elementos estáticos.
+- **Página web oficial renovada**: nueva landing page en `docs/index.html` (para GitHub Pages) en español e inglés con selector estético y extensible de idioma, descarga directa de `FCT.exe`, cabecera y hero centrados con tarjeta flotante del overlay real, y tres bloques sobre lo que importa al jugador (cofres de antes y de ahora, tesoros de rivales e historial de botín).
+- **Capturas actualizadas con datos simulados y token pirata**: todas las capturas de la web y de los README se regeneran a resolución nativa (2x) con el entorno simulado y jugador `Skullbra` (con actividad continuada desde el 01/11/26), compañeros con nombres ficticios de skins (`Omega_x267`, `Aura_x84`, `Havoc_x31`, `Raven_77`) y en la tabla de rivales se incluye a `Renegade_99` obteniendo el cotizado `Acceso a la Tienda Pirata` (Pirate Shop Access).
 
 ## [5.10.2] - 2026-11-16
 
@@ -350,6 +344,7 @@ Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede a
 
 - Primera versión publicada.
 
+[5.11.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.10.2...v5.11.0
 [5.10.2]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.10.1...v5.10.2
 [5.10.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.10.0...v5.10.1
 [5.10.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.9.4...v5.10.0
