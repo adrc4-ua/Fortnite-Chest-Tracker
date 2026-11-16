@@ -1,3 +1,10 @@
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
+using System.Windows.Forms;
+using FCT.UI;
+using FCT.Monitoring;
+
 namespace FCT.App;
 
 /// <summary>The modes that run without the window: --once, --overlay-preview and --diagnose.</summary>
@@ -88,6 +95,51 @@ internal static class CommandLineTools
                 Console.WriteLine("  " + L.T("Error: ", "Error: ") + ex.Message);
             }
         }
+        return 0;
+    }
+
+    [DllImport("user32.dll")] private static extern bool GetClientRect(IntPtr hWnd, out RECT lpRect);
+    [DllImport("user32.dll")] private static extern bool PrintWindow(IntPtr hWnd, IntPtr hdcBlt, uint nFlags);
+    [StructLayout(LayoutKind.Sequential)] private struct RECT { public int Left, Top, Right, Bottom; }
+
+    /// <summary>--settings-preview: draws the settings dialog and saves it as a PNG at <paramref name="path"/>.</summary>
+    public static int SettingsPreview(Store store, Config config, string path)
+    {
+        if (!OperatingSystem.IsWindows())
+        {
+            return 1;
+        }
+        store.LoadPrizeNames();
+        var data = store.LoadData();
+        var tracker = new Tracker(store, config, data);
+        var monitor = new AppMonitor(store, config, data, tracker, store.Folder);
+        using var form = new SettingsForm(monitor, store);
+        form.StartPosition = FormStartPosition.CenterScreen;
+        form.Show();
+        for (var i = 0; i < 15; i++)
+        {
+            Application.DoEvents();
+            Thread.Sleep(40);
+        }
+
+        if (GetClientRect(form.Handle, out var rect))
+        {
+            int w = rect.Right - rect.Left;
+            int h = rect.Bottom - rect.Top;
+            if (w > 0 && h > 0)
+            {
+                using var bmp = new Bitmap(w, h);
+                using (var g = Graphics.FromImage(bmp))
+                {
+                    IntPtr hdc = g.GetHdc();
+                    PrintWindow(form.Handle, hdc, 1); // PW_CLIENTONLY
+                    g.ReleaseHdc(hdc);
+                }
+                bmp.Save(path, ImageFormat.Png);
+                Console.WriteLine(L.F("Vista previa de configuración: {0}", "Settings preview: {0}", path));
+            }
+        }
+        form.Close();
         return 0;
     }
 }

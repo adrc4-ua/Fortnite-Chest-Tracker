@@ -6,7 +6,7 @@ internal sealed class LaunchOptions
     /// <summary>Options that print to the terminal (and so attach to it) instead of opening the window.</summary>
     private static readonly HashSet<string> TerminalOptions = new()
     {
-        "--once", "--overlay-preview", "--diagnose", "--read-treasure-screen", "--capture-window", "--licenses", "--uninstall",
+        "--once", "--overlay-preview", "--settings-preview", "--diagnose", "--read-treasure-screen", "--capture-window", "--licenses", "--uninstall",
     };
 
     public string? DataFolder { get; private set; }
@@ -24,6 +24,7 @@ internal sealed class LaunchOptions
     public bool Show { get; private set; }
 
     public string? OverlayPreview { get; private set; }
+    public string? SettingsPreview { get; private set; }
 
     /// <summary>--diagnose: the replay's signals side by side, for a file or a folder.</summary>
     public string? Diagnose { get; private set; }
@@ -52,6 +53,7 @@ internal sealed class LaunchOptions
                 case "--after-update": options.AfterUpdate = true; break;
                 case "--show": options.Show = true; break;
                 case "--overlay-preview": options.OverlayPreview = Value(); break;
+                case "--settings-preview": options.SettingsPreview = Value(); break;
                 case "--diagnose": options.Diagnose = Value(); break;
                 case "--licenses": options.RunAndExit = AppInfo.PrintLicenses; break;
                 case "--uninstall": options.RunAndExit = () => OperatingSystem.IsWindows() ? Uninstaller.RunFromCommandLine() : 1; break;

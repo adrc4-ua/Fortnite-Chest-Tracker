@@ -4,6 +4,9 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- **Centrado de rivales sin desvío por la etiqueta de bot**: en la web de estadísticas (pestaña Tesoros), la columna Rival centra el nombre del jugador ignorando el ancho de la etiqueta «bot», la cual se sitúa a su derecha sin alterar el eje central y con margen visual suficiente.
+- **Documentación y capturas nativas al día**: capturas de la ventana de Configuración (`settings-es.png` y `settings-en.png`) renovadas a doble resolución mostrando el nuevo panel de Copia de seguridad y datos consistentes con Skullbra. Se documenta la restauración de copias de seguridad en `README.md` y `README.es.md`.
+- **Nueva herramienta oculta `--settings-preview`**: genera la vista previa de la ventana nativa de Configuración en PNG.
 - **Página web oficial bilingüe y capturas al día**: landing page en `docs/index.html` en español e inglés con selector estético y extensible de idioma, capturas oficiales regeneradas con la versión más reciente del programa (para la web y los README de GitHub) y descarga directa de `FCT.exe`.
 - **Descarga directa en la documentación**: los botones y enlaces de descarga de `README.md` y `README.es.md` apuntan directamente a la descarga de `FCT.exe` de la última versión, y los badges informativos se mantienen como elementos estáticos.
 

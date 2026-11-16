@@ -38,7 +38,7 @@ internal static class Program
         ErrorLog.FilePath = store.ErrorLogPath;
 
         using var instance = new SingleInstance(dataDir);
-        var tool = options.OverlayPreview != null || options.Diagnose != null;
+        var tool = options.OverlayPreview != null || options.SettingsPreview != null || options.Diagnose != null;
         if (!tool && !instance.TryTake(options.AfterUpdate ? TimeSpan.FromSeconds(20) : TimeSpan.Zero) && !TakeOverFromOlder(instance, defaultFolder))
         {
             if (!options.Auto) // opened with Fortnite while already open: nothing to say
@@ -52,6 +52,10 @@ internal static class Program
         if (options.OverlayPreview != null)
         {
             return CommandLineTools.OverlayPreview(store, config, options.OverlayPreview);
+        }
+        if (options.SettingsPreview != null)
+        {
+            return CommandLineTools.SettingsPreview(store, config, options.SettingsPreview);
         }
         if (options.Diagnose != null)
         {

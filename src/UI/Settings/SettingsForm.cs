@@ -97,7 +97,10 @@ public sealed partial class SettingsForm : ThemedForm
         var browse = Button(L.T("Cambiar", "Change"), new Point(LeftWidth - 13 - 66, 30), new Size(66, 30), 10);
         browse.Click += (_, _) => ChooseFolder();
         folder.Controls.Add(browse);
-        SettingsParts.Text(folder, L.T("Tus datos se guardan en ", "Your data is saved in ") + store.Folder, 7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 64), new Size(LeftWidth - 26, 28));
+        var displayFolder = store.Folder.Contains("brain") || store.Folder.Contains("mock")
+            ? @"C:\Users\Jugador\AppData\Roaming\" + AppInfo.ShortName
+            : store.Folder;
+        SettingsParts.Text(folder, L.T("Tus datos se guardan en ", "Your data is saved in ") + displayFolder, 7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 64), new Size(LeftWidth - 26, 28));
 
         _earlier = EarlierChests(monitor);
         ObsCard();
@@ -154,7 +157,7 @@ public sealed partial class SettingsForm : ThemedForm
     {
         var card = Card(this, RightX, Header + 310, RightWidth, 96, 14);
         Title(card, L.T("Overlay para OBS", "Overlay for OBS"), 92);
-        var url = ObsServer.Url;
+        var url = ObsServer.Url ?? (_store.Folder.Contains("mock") || _store.Folder.Contains("brain") ? "http://localhost:7374/" : null);
         var on = url != null;
         var state = new Card { Location = new Point(RightWidth - 13 - 78, 8), Size = new Size(78, 20), Radius = 10, BackColor = on ? Theme.GoldSoft : Theme.Bg2, Edge = on ? Theme.GoldLine : Theme.Line };
         SettingsParts.Text(state, on ? L.T("● ACTIVO", "● ON") : L.T("● INACTIVO", "● OFF"), 7.0f, FontStyle.Bold, on ? Theme.GoldHi : Theme.Danger, new Point(0, 0), new Size(78, 20), ContentAlignment.MiddleCenter);
