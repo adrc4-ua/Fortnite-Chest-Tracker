@@ -2274,6 +2274,20 @@
 
     let currentLang = 'en';
 
+    function getSavedLang() {
+      try {
+        return localStorage.getItem('fct-lang');
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function setSavedLang(lang) {
+      try {
+        localStorage.setItem('fct-lang', lang);
+      } catch (e) {}
+    }
+
     function getFlagHtml(code, fallbackEmoji = '') {
       return flagSvgs[code] || `<span style="font-size:15px;line-height:1;">${fallbackEmoji}</span>`;
     }
@@ -2284,9 +2298,11 @@
       if (!menu) return;
       menu.innerHTML = '';
 
+      const isFile = window.location.protocol === 'file:';
+
       languages.forEach(l => {
         const item = document.createElement('a');
-        item.href = `?lang=${l.code}`;
+        item.href = l.code === 'es' ? (isFile ? '../index.html' : '../') : (isFile ? 'index.html' : './');
         item.className = `lang-dropdown-item ${l.code === currentLang ? 'active' : ''}`;
         item.id = `lang-item-${l.code}`;
         item.setAttribute('role', 'menuitem');
@@ -2307,8 +2323,9 @@
         item.addEventListener('click', (e) => {
           e.preventDefault();
           if (l.code === 'es') {
-            const isFile = window.location.protocol === 'file:';
-            window.location.href = (isFile ? '../index.html' : '../') + window.location.hash;
+            setSavedLang('es');
+            const cleanHash = (window.location.hash === '#en' || window.location.hash === '#es' || window.location.hash.startsWith('#lang=')) ? '' : window.location.hash;
+            window.location.href = (isFile ? '../index.html' : '../') + cleanHash;
           } else {
             setLanguage('en', true);
           }
@@ -2354,7 +2371,7 @@
     function setLanguage(lang, pushState = false) {
       if (!i18nData[lang]) lang = 'es';
       currentLang = lang;
-      localStorage.setItem('fct-lang', lang);
+      setSavedLang(lang);
       document.documentElement.lang = lang;
 
       // Actualizar botón del desplegable
@@ -2372,15 +2389,17 @@
         if (item) item.classList.toggle('active', l.code === lang);
       });
 
-      // Actualizar la URL para que siempre refleje el idioma actual (?lang=es / ?lang=en) y sea directamente compartible
+      // Si la URL vino con un parámetro explícito ?lang=, sincronizarlo si es necesario
       const url = new URL(window.location);
-      const prevLang = url.searchParams.get('lang');
-      if (prevLang !== lang) {
-        url.searchParams.set('lang', lang);
-        if (pushState) {
-          window.history.pushState({ lang }, '', url);
-        } else {
-          window.history.replaceState({ lang }, '', url);
+      if (url.searchParams.has('lang')) {
+        const prevLang = url.searchParams.get('lang');
+        if (prevLang !== lang) {
+          url.searchParams.set('lang', lang);
+          if (pushState) {
+            window.history.pushState({ lang }, '', url);
+          } else {
+            window.history.replaceState({ lang }, '', url);
+          }
         }
       }
 
@@ -2426,31 +2445,36 @@
 
     // Detectar idioma inicial con soporte para parámetros de URL (?lang=xx), hash (#xx) y localStorage
     function detectInitialLang() {
+      const isFile = window.location.protocol === 'file:';
+      const cleanHash = (window.location.hash === '#en' || window.location.hash === '#es' || window.location.hash.startsWith('#lang=')) ? '' : window.location.hash;
+
       // 1. Parámetro en URL: ?lang=es o ?lang=en
       const params = new URLSearchParams(window.location.search);
       const urlLang = params.get('lang')?.toLowerCase();
       if (urlLang === 'es') {
-        const isFile = window.location.protocol === 'file:';
-        window.location.replace((isFile ? '../index.html' : '../') + window.location.hash);
+        setSavedLang('es');
+        window.location.replace((isFile ? '../index.html' : '../') + cleanHash);
         return 'es';
       }
-      if (urlLang === 'en') return 'en';
-
-      // 2. Hash en URL: #es o #lang=es
-      const hash = window.location.hash.replace('#', '').toLowerCase();
-      if (hash.startsWith('lang=')) {
-        const hashLang = hash.split('=')[1];
-        if (hashLang && i18nData[hashLang]) return hashLang;
-      } else if (i18nData[hash]) {
-        return hash;
+      if (urlLang === 'en') {
+        setSavedLang('en');
+        return 'en';
       }
 
-      // 3. Guardado en localStorage
-      const saved = localStorage.getItem('fct-lang');
-      if (saved && i18nData[saved]) return saved;
+      // 2. Hash en URL: #es, #en o #lang=es / #lang=en
+      const hash = window.location.hash.replace('#', '').toLowerCase();
+      let hashLang = null;
+      if (hash.startsWith('lang=')) hashLang = hash.split('=')[1];
+      else if (hash === 'es' || hash === 'en') hashLang = hash;
 
-      // 4. Idioma preferido del navegador
-      const navLang = (navigator.language || 'es').toLowerCase();
+      if (hashLang === 'es') {
+        setSavedLang('es');
+        window.location.replace((isFile ? '../index.html' : '../') + cleanHash);
+        return 'es';
+      }
+
+      // 3. Estamos en /en/, por lo que el idioma canónico de esta página es siempre inglés ('en')
+      setSavedLang('en');
       return 'en';
     }
 
