@@ -20,8 +20,11 @@ public static class OverlayPage
             cells.Append($"<div class=\"ov-cell{(row.Treasure ? " ov-gems" : "")}\"><span class=\"ov-cap\">{Esc(row.Label)}</span><b>{value}</b></div>");
         }
         var match = view.Current == null ? " ov-none" : "";
+        var est = view.Estimation != null
+            ? $"<span class=\"ov-est\">{Esc(L.F("EST. {0}", "EST. {0}", view.Estimation))}</span>"
+            : "";
         return "<div class=\"ov\">"
-               + $"<div class=\"ov-top\"><span class=\"ov-title\">{L.T("COFRES", "CHESTS")}</span></div>"
+               + $"<div class=\"ov-top\"><span class=\"ov-title\">{L.T("COFRES", "CHESTS")}</span>{est}</div>"
                + "<div class=\"ov-numbers\">"
                + $"<div class=\"ov-total\"><span class=\"ov-big\">{Esc(view.Total)}</span><span class=\"ov-cap\">total</span></div>"
                + $"<div class=\"ov-match{match}\"><span class=\"ov-big\">{Esc(view.Current ?? "—")}</span><span class=\"ov-cap\">{Esc(view.CurrentCaption)}</span></div>"

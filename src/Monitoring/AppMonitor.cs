@@ -760,7 +760,8 @@ public sealed class AppMonitor
             _earlier.ShowMatches(view.Matches);
 
             var live = _follower.LiveOfShown();
-            var overlay = OverlayModel.Build(view, Profiles.InitialChests(_data, config));
+            var estimation = OverlayModel.EstimationProgress(view, config, _shownKey);
+            var overlay = OverlayModel.Build(view, Profiles.InitialChests(_data, config), estimation);
             StatsPage.WriteOverlay(_store, overlay);
             ObsServer.Update(overlay);
             if (OperatingSystem.IsWindows() && NativeOverlay.IsRunning)

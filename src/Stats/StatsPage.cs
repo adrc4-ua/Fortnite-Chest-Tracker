@@ -41,7 +41,7 @@ public static class StatsPage
                 try { File.Delete(store.LegacyStatsPath); } catch (IOException) { /* open in a browser: next time */ } catch (UnauthorizedAccessException) { }
             }
             var appView = Profiles.View(data, config);
-            SaveText(store.OverlayPath, OverlayPage.File(OverlayModel.Build(appView, Profiles.InitialChests(data, config))));
+            SaveText(store.OverlayPath, OverlayPage.File(OverlayModel.Build(appView, config)));
             SaveText(store.CsvPath, MatchesCsv.Build(data, config));
         }
         catch (Exception ex)

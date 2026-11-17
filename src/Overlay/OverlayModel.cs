@@ -13,7 +13,8 @@ public static class OverlayModel
 
     /// <param name="data">The profile's counted matches (see <see cref="Profiles.View"/>).</param>
     /// <param name="initialChests">Chests before FCT: they only add to the total.</param>
-    public static OverlayView Build(TrackerData data, int initialChests = 0)
+    /// <param name="estimation">Progress of an active estimation waiting for played matches ("2/5", or null).</param>
+    public static OverlayView Build(TrackerData data, int initialChests = 0, string? estimation = null)
     {
         var total = data.Matches.Sum(m => m.ChestsOpened) + Math.Max(0, initialChests);
         var latest = data.Matches.OrderByDescending(m => m.MatchStartUtc ?? m.AnalyzedAtUtc).FirstOrDefault();
@@ -24,7 +25,34 @@ public static class OverlayModel
         rows.Add(new OverlayRow(L.T("Tesoros", "Treasures"), $"{TreasureIcon} {L.N(treasures)}", Treasure: true));
 
         var shownTotal = L.N(total);
-        return new OverlayView(shownTotal, latest == null ? null : L.N(latest.ChestsOpened), LastMatchCaption, rows);
+        return new OverlayView(shownTotal, latest == null ? null : L.N(latest.ChestsOpened), LastMatchCaption, rows, estimation);
+    }
+
+    /// <summary>Builds the overlay view including estimation progress from config if active.</summary>
+    public static OverlayView Build(TrackerData data, Config config, string? profileKey = null)
+    {
+        var initial = Profiles.InitialChests(config, profileKey ?? Profiles.Current(data, config)?.Key);
+        var estimation = EstimationProgress(data, config, profileKey);
+        return Build(data, initial, estimation);
+    }
+
+    /// <summary>
+    /// Progress of an active estimation waiting for played matches ("2/5", or null if none is pending).
+    /// </summary>
+    public static string? EstimationProgress(TrackerData view, Config config, string? profileKey = null)
+    {
+        var key = profileKey ?? Profiles.Current(view, config)?.Key;
+        var estimate = config.Estimates.GetValueOrDefault(key ?? "") ?? config.Estimates.GetValueOrDefault("");
+        if (estimate is { Done: false, ManualAverage: null })
+        {
+            var result = HistoryEstimator.Compute(view.Matches, estimate.TotalMatches, estimate.SnapshotUtc, estimate.SampleSize, estimate.ManualAverage);
+            if (result.Chests == null && result.Waiting > 0)
+            {
+                var target = result.NewMatches + result.Waiting;
+                return $"{result.NewMatches}/{target}";
+            }
+        }
+        return null;
     }
 
     /// <summary>

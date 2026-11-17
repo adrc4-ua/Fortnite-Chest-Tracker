@@ -75,6 +75,11 @@ internal sealed class OverlayPainter
         var chip = new RECT(_chipLeft, _chipTop, _right, _chipTop + _at.ChipHeight);
         OverlayInk.FillRounded(_hdc, _ink.Chip, chip, Px(12));
         OverlayInk.FrameRounded(_hdc, _ink.Edge, chip, Px(12));
+        if (_view.Estimation != null && !_at.EstimationBadge.IsEmpty)
+        {
+            OverlayInk.FillRounded(_hdc, _ink.Chip, _at.EstimationBadge, Px(6));
+            OverlayInk.FrameRounded(_hdc, _ink.Edge, _at.EstimationBadge, Px(6));
+        }
         if (_view.Rows.Count == 0)
         {
             return;
@@ -145,7 +150,15 @@ internal sealed class OverlayPainter
     /// <summary>Step 3, GDI with ClearType: title, lock and close glyphs, captions and the stats.</summary>
     private void PaintText(RectangleF totalInk)
     {
-        OverlayInk.Write(_hdc, _ink.HeaderFont, OverlayInk.Champagne, Title, new RECT(_left + Px(12), _headY, _right, _headY + _at.HeaderHeight));
+        OverlayInk.Write(_hdc, _ink.HeaderFont, OverlayInk.Champagne, Title,
+            new RECT(_left + Px(12), _headY, _left + Px(12) + _at.TitleWidth, _headY + _at.HeaderHeight));
+
+        if (_view.Estimation != null && !_at.EstimationBadge.IsEmpty)
+        {
+            var badgeText = L.F("EST. {0}", "EST. {0}", _view.Estimation);
+            var box = _at.EstimationBadge;
+            OverlayInk.Write(_hdc, _ink.LabelFont, OverlayInk.Gold, badgeText, box, DT_CENTER | DT_VCENTER);
+        }
 
         // Segoe MDL2 Assets: E72E closed padlock, E785 open padlock, E8BB close
         const uint Glyph = DT_SINGLELINE | DT_CENTER | DT_VCENTER | DT_NOPREFIX;

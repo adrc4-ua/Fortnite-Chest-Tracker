@@ -23,9 +23,11 @@ internal sealed class OverlayLayout
 
     public int HeaderHeight, BigHeight, CaptionHeight, StatHeight;
     public int TotalWidth, ChipWidth, ChipHeight, NumbersHeight;
+    public int TitleWidth;
     public int[] StatWidths = Array.Empty<int>();
     public int Width, Height;
     public RECT Lock, Close;
+    public RECT EstimationBadge;
 
     /// <summary>The button at a point of the overlay (relative to it).</summary>
     public OverlayButton ButtonAt(int x, int y, bool withClose) =>
@@ -42,9 +44,24 @@ internal sealed class OverlayLayout
         var px = ink.Px;
         var at = new OverlayLayout();
 
-        // header: ◆ CHESTS [lock] [close]
+        // header: ◆ CHESTS [EST. 2/5] [lock] [close]
         var buttons = withClose ? px(44) : px(24);
-        var headerWidth = px(12) + OverlayInk.Measure(hdc, ink.HeaderFont, Title, out at.HeaderHeight) + px(10) + buttons;
+        var titleWidth = OverlayInk.Measure(hdc, ink.HeaderFont, Title, out at.HeaderHeight);
+        at.TitleWidth = titleWidth;
+        var badgeWidth = 0;
+        if (view.Estimation != null)
+        {
+            var badgeText = L.F("EST. {0}", "EST. {0}", view.Estimation);
+            var textWidth = OverlayInk.Measure(hdc, ink.LabelFont, badgeText, out var textHeight);
+            badgeWidth = textWidth + 2 * px(6);
+            var badgeHeight = textHeight + px(3);
+            at.HeaderHeight = Math.Max(at.HeaderHeight, badgeHeight);
+            var badgeTop = px(9) + Math.Max(0, (at.HeaderHeight - badgeHeight) / 2);
+            var badgeLeft = px(Stripe) + px(Pad) + px(12) + titleWidth + px(8);
+            at.EstimationBadge = new RECT(badgeLeft, badgeTop, badgeLeft + badgeWidth, badgeTop + badgeHeight);
+        }
+
+        var headerWidth = px(12) + titleWidth + (badgeWidth > 0 ? px(8) + badgeWidth : 0) + px(10) + buttons;
 
         // the big total on the left; the last match in a chip on the right
         at.TotalWidth = Math.Max(OverlayInk.Measure(hdc, ink.BigFont, view.Total, out at.BigHeight),

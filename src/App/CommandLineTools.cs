@@ -39,7 +39,7 @@ internal static class CommandLineTools
         var initial = Profiles.InitialChests(config, shown.Matches.Select(Profiles.Key).FirstOrDefault());
 
         NativeOverlay.Start(-20000, -20000, locked: true, (_, _) => { }, _ => { }, onClose: () => { });
-        NativeOverlay.Update(OverlayModel.Build(shown, initial));
+        NativeOverlay.Update(OverlayModel.Build(shown, config));
         Thread.Sleep(600);
         var folder = Path.GetDirectoryName(Path.GetFullPath(path)) ?? ".";
         var file = Path.Combine(folder, Path.GetFileNameWithoutExtension(path) + ".png");

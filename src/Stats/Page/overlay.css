@@ -9,6 +9,7 @@ svg .f{fill:currentColor;fill-opacity:.3}
 .ov-top{display:flex;align-items:center;justify-content:space-between;height:15px;line-height:15px;font:700 11px "Segoe UI",sans-serif;letter-spacing:.12em;color:#d8c28f}
 .ov-title{display:inline-flex;align-items:center}
 .ov-title::before{content:"";display:inline-block;width:5px;height:5px;margin:0 6px 1px 0;background:#e8b04b;transform:rotate(45deg)}
+.ov-est{display:inline-flex;align-items:center;font:700 9px/1 "Segoe UI",sans-serif;letter-spacing:.04em;color:#e8b04b;background:#272119;border:1px solid #524125;border-radius:4px;padding:1px 5px}
 
 .ov-numbers{display:flex;align-items:center;justify-content:space-between;margin:4px 0 7px;height:56px;gap:8px}
 .ov-total{text-align:center;flex:1}

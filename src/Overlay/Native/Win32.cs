@@ -51,6 +51,7 @@ internal static class Win32
 
         public readonly int Width => Right - Left;
         public readonly int Height => Bottom - Top;
+        public readonly bool IsEmpty => Width <= 0 || Height <= 0;
         public readonly bool Contains(int x, int y) => x >= Left && x < Right && y >= Top && y < Bottom;
     }
 
