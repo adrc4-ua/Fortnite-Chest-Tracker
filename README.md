@@ -58,7 +58,7 @@ The **Stats** button opens them in your browser, and they update by themselves w
 
 <img src="docs/images/stats-summary-en.png" alt="Stats overview" width="100%">
 
-**💎 Treasures** · the ones you got, the featured ones opponents opened near you and this week's prizes.
+**Treasures** · the ones you got, the featured ones opponents opened near you and this week's prizes.
 
 <img src="docs/images/stats-treasures-en.png" alt="Treasures" width="100%">
 
