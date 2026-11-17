@@ -2,6 +2,11 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
+## [Sin publicar]
+
+- **Diseño web móvil y menú de navegación responsive**: adaptación completa de `docs/index.html` para pantallas de móviles y tablets (hasta 320 px de ancho) con menú cajón desplegable con desenfoque translúcido, botón hamburguesa animado que transmuta a aspa dorada, selector de idioma compacto y ajuste proporcional de tamaños y márgenes sin alterar la versión de PC de escritorio.
+- **Legibilidad y suavizado de capturas del panel de estadísticas**: regeneración de `stats-summary-es.png` y `stats-summary-en.png` con jerarquía visual adaptada a escala de tarjeta (tipografía grande, 4 columnas de métricas clave, curva de evolución dorada con resplandor y fechas claras del 1 al 16 de noviembre). Se elimina el filtro rígido `-webkit-optimize-contrast` en la web para aplicar suavizado bicúbico limpio en navegadores Chromium. Actualización complementaria de las capturas de tesoros y compañeros en los README para reflejar el estado real del panel.
+
 ## [5.11.0] - 2026-11-17
 
 - **Overlay de OBS idéntico al de la app y detección automática de uso**: el diseño y dimensiones de la tarjeta de OBS en `http://localhost:7373/` se unifican exactamente con el overlay nativo (tipografía, proporciones compactas de ~170×136 px, colores, chip de partida y separadores), sin mostrar candado ni cruz. Además, el servidor local detecta cuando OBS está mostrando la fuente del navegador (a través de las peticiones a `/view`); mientras OBS esté en uso, el overlay nativo de escritorio se oculta automáticamente para no duplicarse en pantalla, volviendo a mostrarse de forma automática en cuanto OBS se cierra o deja de usar la fuente. El botón de Overlay en la ventana principal refleja el estado mostrando «● OBS» mientras la emisión está activa.
