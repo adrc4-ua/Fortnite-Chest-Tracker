@@ -2358,7 +2358,12 @@
 
         item.addEventListener('click', (e) => {
           e.preventDefault();
-          setLanguage(l.code, true);
+          if (l.code === 'en') {
+            const isFile = window.location.protocol === 'file:';
+            window.location.href = (isFile ? 'en/index.html' : 'en/') + window.location.hash;
+          } else {
+            setLanguage('es', true);
+          }
           closeDropdown();
         });
 
@@ -2459,6 +2464,16 @@
         const m = document.getElementById('meta-desc');
         if (m) m.setAttribute('content', dict.meta_desc);
       }
+      const isEn = lang === 'en';
+      const desc = isEn
+        ? 'Track every chest in Fortnite, analyze match treasures, discover what your rivals opened.'
+        : 'Cuenta cada cofre en Fortnite, analiza los tesoros de la partida, descubre los de tus rivales.';
+      const ogDesc = document.querySelector('meta[property="og:description"]');
+      if (ogDesc) ogDesc.setAttribute('content', desc);
+      const twDesc = document.querySelector('meta[name="twitter:description"]');
+      if (twDesc) twDesc.setAttribute('content', desc);
+      const ogLocale = document.querySelector('meta[property="og:locale"]');
+      if (ogLocale) ogLocale.setAttribute('content', isEn ? 'en_US' : 'es_ES');
     }
 
     // Detectar idioma inicial con soporte para parámetros de URL (?lang=xx), hash (#xx) y localStorage
@@ -2466,7 +2481,12 @@
       // 1. Parámetro en URL: ?lang=es o ?lang=en
       const params = new URLSearchParams(window.location.search);
       const urlLang = params.get('lang')?.toLowerCase();
-      if (urlLang && i18nData[urlLang]) return urlLang;
+      if (urlLang === 'en') {
+        const isFile = window.location.protocol === 'file:';
+        window.location.replace((isFile ? 'en/index.html' : 'en/') + window.location.hash);
+        return 'en';
+      }
+      if (urlLang === 'es') return 'es';
 
       // 2. Hash en URL: #es o #lang=es
       const hash = window.location.hash.replace('#', '').toLowerCase();
@@ -2517,11 +2537,14 @@
       document.getElementById('download-toast').style.display = 'none';
     }
 
-    // Copiar enlace en móvil (incluyendo siempre el parámetro del idioma actual)
+    // Copiar enlace en móvil o compartir
     function copyLink() {
-      const shareUrl = new URL(window.location.href);
-      shareUrl.searchParams.set('lang', currentLang);
-      navigator.clipboard.writeText(shareUrl.toString()).then(() => {
+      const isEn = currentLang === 'en';
+      const isFile = window.location.protocol === 'file:';
+      const shareUrl = isFile
+        ? window.location.href
+        : (isEn ? 'https://adrc4-ua.github.io/Fortnite-Chest-Tracker/en/' : 'https://adrc4-ua.github.io/Fortnite-Chest-Tracker/');
+      navigator.clipboard.writeText(shareUrl).then(() => {
         const b = document.getElementById('copy-link-btn');
         const originalText = i18nData[currentLang].btn_copy || 'Copiar Enlace';
         b.textContent = i18nData[currentLang].copied || '¡Enlace copiado! ✓';
