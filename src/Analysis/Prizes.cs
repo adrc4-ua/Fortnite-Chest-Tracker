@@ -188,6 +188,24 @@ public static class Prizes
         return ByName(item) is { Type: Kind.Gizmo } g ? (Shown(g), TypeName(Kind.Gizmo), false) : (L.Name(TreasureNames.UnknownGizmo), null, false);
     }
 
+    /// <summary>Stars to display: ★★★ for Pirate Shop Access and weekly skins (outfits), ★★ for other featured treasures, ★ for gizmos.</summary>
+    public static string Stars(TreasureFind find, string? name = null, string? type = null, bool? featured = null)
+    {
+        var isFeatured = featured ?? find.Featured;
+        if (!isFeatured)
+        {
+            return "★";
+        }
+        var prize = ById(find.PrizeId) ?? ByName(name ?? Describe(find).Name);
+        if (prize is { Type: Kind.ShopAccess or Kind.Outfit }
+            || type == TypeName(Kind.ShopAccess)
+            || type == TypeName(Kind.Outfit))
+        {
+            return "★★★";
+        }
+        return "★★";
+    }
+
     /// <summary>Names and IDs of prizes found in matches.</summary>
     public static HashSet<string> DetectedPrizeNames(IEnumerable<(MatchRecord m, TreasureFind f)> treasures)
     {

@@ -119,5 +119,8 @@ internal static class MatchesTab
         match.TreasureFinds.Count == 0
             ? Dash
             : "<div class=\"stars\">" + string.Concat(match.TreasureFinds.Select(f =>
-                $"<span class=\"star\">{(f.Featured ? "★★" : "★")} {Esc(Prizes.Describe(f, LocalStart(match)).Name)}</span>")) + "</div>";
+            {
+                var (name, type, featured) = Prizes.Describe(f, LocalStart(match));
+                return $"<span class=\"star\">{Prizes.Stars(f, name, type, featured)} {Esc(name)}</span>";
+            })) + "</div>";
 }
