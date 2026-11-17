@@ -4,6 +4,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
+- **Metadatos Open Graph y Twitter Cards en la web**: integración de etiquetas meta completas con rutas canónicas absolutas e imagen de alta resolución (`fct-preview.jpg`) para tarjetas de previsualización en redes sociales y aplicaciones de mensajería (Twitter/X, Discord, WhatsApp, Telegram, etc.).
 - **Diseño web móvil y menú de navegación responsive**: adaptación completa de `docs/index.html` para pantallas de móviles y tablets (hasta 320 px de ancho) con menú cajón desplegable con desenfoque translúcido, botón hamburguesa animado que transmuta a aspa dorada, selector de idioma compacto y ajuste proporcional de tamaños y márgenes sin alterar la versión de PC de escritorio.
 - **Legibilidad y suavizado de capturas del panel de estadísticas**: regeneración de `stats-summary-es.png` y `stats-summary-en.png` con jerarquía visual adaptada a escala de tarjeta (tipografía grande, 4 columnas de métricas clave, curva de evolución dorada con resplandor y fechas claras del 1 al 16 de noviembre). Se elimina el filtro rígido `-webkit-optimize-contrast` en la web para aplicar suavizado bicúbico limpio en navegadores Chromium. Actualización complementaria de las capturas de tesoros y compañeros en los README para reflejar el estado real del panel.
 
