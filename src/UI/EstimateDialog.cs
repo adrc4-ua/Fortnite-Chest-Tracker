@@ -56,9 +56,6 @@ public sealed class EstimateDialog : ThemedForm
     private readonly string? _originalName;
     private readonly int _savedMatches;
     private readonly bool _autoAverage;
-    private readonly Card _autoCard;
-    private readonly Label _autoNoteTitle;
-    private readonly Label _autoNoteText;
     private bool _estimate;
     private bool _manualAverage;
     private bool _manualTotal;   // se muestran los campos para escribir las partidas a mano
@@ -144,34 +141,6 @@ public sealed class EstimateDialog : ThemedForm
         _panel.Controls.Add(_statusIcon);
         _status = new Label { AutoSize = true, MaximumSize = new Size(Inner - 34, 0), Font = Theme.Text(8.75f, FontStyle.Bold), ForeColor = Theme.GoldHi, BackColor = Color.Transparent, UseMnemonic = false, Visible = false };
         _panel.Controls.Add(_status);
-
-        _autoCard = new Card { Size = new Size(Inner, 54), Radius = 12, BackColor = Theme.GoldSoft, Edge = Theme.GoldLine, Visible = false };
-        _autoCard.Controls.Add(new IconTile { IconSvg = Icons.Sparkle, Location = new Point(10, 11), Size = new Size(32, 32), Solid = true });
-        _autoNoteTitle = new Label
-        {
-            Text = L.T("Media calculada con tus partidas guardadas", "Average calculated from your saved matches"),
-            Font = Theme.Text(8.75f, FontStyle.Bold),
-            ForeColor = Theme.GoldHi,
-            BackColor = Color.Transparent,
-            Location = new Point(48, 9),
-            Size = new Size(Inner - 56, 16),
-            UseMnemonic = false,
-        };
-        _autoNoteText = new Label
-        {
-            Text = L.F("Tienes {0}: usamos su media para calcular tus cofres sin esperar a jugar más partidas.",
-                "You have {0}: we use their average to calculate your chests without waiting to play more matches.",
-                L.Count(_savedMatches, "partida guardada", "partidas guardadas", "saved match", "saved matches")),
-            Font = Theme.Text(8f),
-            ForeColor = Theme.Champ,
-            BackColor = Color.Transparent,
-            Location = new Point(48, 27),
-            Size = new Size(Inner - 56, 18),
-            UseMnemonic = false,
-        };
-        _autoCard.Controls.Add(_autoNoteTitle);
-        _autoCard.Controls.Add(_autoNoteText);
-        _panel.Controls.Add(_autoCard);
 
         // A mano (solo si no se pudieron buscar): el número de fortnite.gg.
         _manual = new Panel { BackColor = Color.Transparent, Size = new Size(Inner, 80), Visible = false };
@@ -337,14 +306,9 @@ public sealed class EstimateDialog : ThemedForm
         if (_autoAverage)
         {
             _step2.Visible = _calc.Visible = _typed.Visible = _calcArea.Visible = _typedArea.Visible = false;
-            _autoCard.Visible = true;
-            _autoCard.Location = new Point(x, py);
-            _autoCard.Height = 54;
-            py += _autoCard.Height + 12;
         }
         else
         {
-            _autoCard.Visible = false;
             _step2.Visible = _calc.Visible = _typed.Visible = true;
             py += 4;
             _step2.Location = new Point(x, py);
@@ -439,14 +403,6 @@ public sealed class EstimateDialog : ThemedForm
         if (_previewOf == null)
         {
             // Primer uso: aún no se han leído las partidas guardadas.
-            if (_autoAverage)
-            {
-                Show(L.T("Automático", "Automatic"),
-                    L.F("Se calculará con la media de tus {0} en cuanto se analicen.",
-                        "Will be calculated with the average of your {0} once analyzed.",
-                        L.Count(_savedMatches, "partida guardada", "partidas guardadas", "saved match", "saved matches")));
-                return;
-            }
             Show(L.T("Pendiente", "Pending"), typed != null
                 ? L.T("Lo calculamos en cuanto leamos tus partidas guardadas.", "We'll work it out as soon as we read your saved matches.")
                 : L.F("Lo calculamos tras tus próximas {0}.", "We'll work it out after your next {0}.", Matches(_sample)));
@@ -458,14 +414,6 @@ public sealed class EstimateDialog : ThemedForm
         var chestsWord = L.T("cofres de antes", "earlier chests");
         if (r.Chests is int chests)
         {
-            if (_autoAverage)
-            {
-                Show($"≈ {chests.ToString("#,0", L.Culture)} {chestsWord}",
-                    L.F("Con la media de tus {0} partidas guardadas ({1} por partida).",
-                        "With the average of your {0} saved matches ({1} per match).",
-                        r.Replays, Avg(r.Average ?? 0)));
-                return;
-            }
             Show($"≈ {chests.ToString("#,0", L.Culture)} {chestsWord}", typed != null
                 ? L.F("Con tu media de {0} por partida.", "With your average of {0} per match.", Avg(typed.Value))
                 : L.F("Con una media de {0} por partida.", "With an average of {0} per match.", Avg(r.Average ?? 0)));

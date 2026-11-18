@@ -4,7 +4,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
-- **Estimación directa automática con 15 o más partidas guardadas**: en la primera apertura (preinstalación) o al pulsar «Recalcular» en Configuración, si el usuario cuenta con 15 o más partidas guardadas (repeticiones), se suprime el paso de selección de partidas de muestra o media manual. La estimación calcula la media de cofres inmediatamente a partir de las partidas guardadas existentes, mostrando una tarjeta informativa estilizada en el diálogo y aplicando el resultado sin esperas ni fases provisionales.
+- **Estimación directa con 15 o más partidas guardadas**: en la primera apertura (preinstalación) o al pulsar «Recalcular» en Configuración, si el usuario cuenta con 15 o más partidas guardadas (repeticiones), se suprime por completo el paso de selección de partidas de muestra o media manual, pidiendo únicamente el nombre de Epic y calculando la estimación directamente a partir de las repeticiones existentes sin esperas ni fases provisionales.
 
 ## [5.12.0] - 2026-11-18
 
