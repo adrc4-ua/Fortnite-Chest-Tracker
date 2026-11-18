@@ -73,24 +73,25 @@ public sealed partial class MainForm : ThemedForm
         Icon = AppIcon.Load();
 
         // ---- header: the name like the page's side bar on the left, the profile on the right, the badge in between
-        FitLabel.Add(this, "F O R T N I T E", 6.75f, FontStyle.Bold, Theme.GoldBase, new Point(GridLeft, 13), new Size(130, 13));
-        FitLabel.Add(this, "Chest Tracker", 13.5f, FontStyle.Bold, Theme.GoldBase, new Point(GridLeft - 2, 25), new Size(190, 26), figure: true, gold: true);
+        FitLabel.Add(this, "F O R T N I T E", 6.75f, FontStyle.Bold, Theme.GoldBase, new Point(GridLeft, 13), new Size(80, 13));
+        FitLabel.Add(this, "Chest Tracker", 13.5f, FontStyle.Bold, Theme.GoldBase, new Point(GridLeft - 2, 25), new Size(132, 26), figure: true, gold: true);
         _profileIcon = new IconTile { IconSvg = Icons.Person, Location = new Point(RightEdge - 34, 15), Size = new Size(34, 34) };
         Controls.Add(_profileIcon);
-        _profileCaption = FitLabel.Add(this, L.T("P E R F I L", "P R O F I L E"), 6.75f, FontStyle.Bold, Theme.Muted, new Point(RightEdge - 44 - 150, 13), new Size(150, 13), ContentAlignment.TopRight);
-        _profileName = FitLabel.Add(this, "", 10.5f, FontStyle.Bold, Theme.Ink, new Point(RightEdge - 44 - 150, 27), new Size(150, 22), ContentAlignment.TopRight);
-        _profiles = ProfilePicker(new Point(RightEdge - 44 - 150, 26), new Size(150, 24));
+        _profileCaption = FitLabel.Add(this, L.T("P E R F I L", "P R O F I L E"), 6.75f, FontStyle.Bold, Theme.Muted, new Point(RightEdge - 44 - 130, 13), new Size(130, 13), ContentAlignment.TopRight);
+        _profileName = FitLabel.Add(this, "", 10.5f, FontStyle.Bold, Theme.Ink, new Point(RightEdge - 44 - 130, 27), new Size(130, 22), ContentAlignment.TopRight);
+        _profiles = ProfilePicker(new Point(RightEdge - 44 - 130, 26), new Size(130, 24));
         Controls.Add(_profiles);
-        _estimateCard = new Card { Location = new Point(174, 20), Size = new Size(198, 24), Radius = 12, BackColor = Theme.GoldSoft, Edge = Theme.GoldLine, Visible = false };
+        _estimateCard = new Card { Location = new Point(160, 20), Size = new Size(226, 24), Radius = 12, BackColor = Theme.GoldSoft, Edge = Theme.GoldLine, Visible = false };
         _estimateCard.Cursor = Cursors.Hand;
         _estimateCard.Click += (_, _) => OpenSettings();
-        _estimateText = FitLabel.Add(_estimateCard, "", 7.25f, FontStyle.Bold, Theme.GoldHi, new Point(0, 0), new Size(198, 24), ContentAlignment.MiddleCenter);
+        _estimateText = FitLabel.Add(_estimateCard, "", 7.25f, FontStyle.Bold, Theme.GoldHi, new Point(0, 0), new Size(226, 24), ContentAlignment.MiddleCenter);
         _estimateText.Cursor = Cursors.Hand;
         _estimateText.Click += (_, _) => OpenSettings();
         var tip = new ToolTip();
         tip.SetToolTip(_estimateCard, L.T("Partidas jugadas para estimar los cofres de antes de FCT", "Matches played to estimate chests before FCT"));
         tip.SetToolTip(_estimateText, L.T("Partidas jugadas para estimar los cofres de antes de FCT", "Matches played to estimate chests before FCT"));
         Controls.Add(_estimateCard);
+        _estimateCard.BringToFront();
         Controls.Add(new Panel { BackColor = Theme.Line, Location = new Point(GridLeft, 58), Size = new Size(ContentWidth, 1) });
 
         // ---- main card: two equal halves, each a centred title, gold figure and note
