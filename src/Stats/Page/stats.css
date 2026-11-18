@@ -165,6 +165,11 @@ h2::before{content:"";display:inline-block;width:6px;height:6px;border-radius:2p
 .hfig{display:flex;align-items:baseline;gap:6px;padding:6px 12px;border-radius:12px;background:var(--card);border:1px solid rgba(232,176,75,.14);font-size:12.5px;color:var(--muted);white-space:nowrap}
 .hfig b{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
 .hfig.is-gold b{background:linear-gradient(180deg,var(--gold-hi),var(--gold) 75%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hfig.is-estimate{align-items:center;gap:8px;padding:5px 14px 5px 10px;background:radial-gradient(160px 60px at 0% 50%,rgba(232,176,75,.16),transparent 75%),var(--card);border-color:var(--gold-line);box-shadow:0 4px 16px -6px rgba(232,176,75,.35)}
+.hfig.is-estimate .est-badge{display:inline-flex;align-items:center;gap:5px;padding:2px 7px;border-radius:6px;font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--gold-hi);background:var(--gold-soft);border:1px solid var(--gold-line);flex:none}
+.hfig.is-estimate .est-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold);display:inline-block;flex:none;animation:est-pulse 2s ease-in-out infinite}
+.hfig.is-estimate .est-txt{font-size:12px;color:var(--ink);opacity:.85}
+@keyframes est-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.85)}}
 .sec-meta .weeks-btn{margin:0 0 0 12px;padding:2px 10px;font-size:12px}
 .finds{list-style:none;margin:0;padding:0}
 .finds li{display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid var(--line)}

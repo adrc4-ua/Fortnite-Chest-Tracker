@@ -77,19 +77,19 @@ public sealed partial class MainForm : ThemedForm
         FitLabel.Add(this, "Chest Tracker", 13.5f, FontStyle.Bold, Theme.GoldBase, new Point(GridLeft - 2, 25), new Size(190, 26), figure: true, gold: true);
         _profileIcon = new IconTile { IconSvg = Icons.Person, Location = new Point(RightEdge - 34, 15), Size = new Size(34, 34) };
         Controls.Add(_profileIcon);
-        _profileCaption = FitLabel.Add(this, L.T("P E R F I L", "P R O F I L E"), 6.75f, FontStyle.Bold, Theme.Muted, new Point(RightEdge - 44 - 160, 13), new Size(160, 13), ContentAlignment.TopRight);
-        _profileName = FitLabel.Add(this, "", 10.5f, FontStyle.Bold, Theme.Ink, new Point(RightEdge - 44 - 160, 27), new Size(160, 22), ContentAlignment.TopRight);
-        _profiles = ProfilePicker(new Point(RightEdge - 44 - 160, 26), new Size(160, 24));
+        _profileCaption = FitLabel.Add(this, L.T("P E R F I L", "P R O F I L E"), 6.75f, FontStyle.Bold, Theme.Muted, new Point(RightEdge - 44 - 150, 13), new Size(150, 13), ContentAlignment.TopRight);
+        _profileName = FitLabel.Add(this, "", 10.5f, FontStyle.Bold, Theme.Ink, new Point(RightEdge - 44 - 150, 27), new Size(150, 22), ContentAlignment.TopRight);
+        _profiles = ProfilePicker(new Point(RightEdge - 44 - 150, 26), new Size(150, 24));
         Controls.Add(_profiles);
-        _estimateCard = new Card { Location = new Point(240, 20), Size = new Size(120, 24), Radius = 12, BackColor = Theme.GoldSoft, Edge = Theme.GoldLine, Visible = false };
+        _estimateCard = new Card { Location = new Point(176, 20), Size = new Size(195, 24), Radius = 12, BackColor = Theme.GoldSoft, Edge = Theme.GoldLine, Visible = false };
         _estimateCard.Cursor = Cursors.Hand;
         _estimateCard.Click += (_, _) => OpenSettings();
-        _estimateText = FitLabel.Add(_estimateCard, "", 7.75f, FontStyle.Bold, Theme.GoldHi, new Point(0, 0), new Size(120, 24), ContentAlignment.MiddleCenter);
+        _estimateText = FitLabel.Add(_estimateCard, "", 7.25f, FontStyle.Bold, Theme.GoldHi, new Point(0, 0), new Size(195, 24), ContentAlignment.MiddleCenter);
         _estimateText.Cursor = Cursors.Hand;
         _estimateText.Click += (_, _) => OpenSettings();
         var tip = new ToolTip();
-        tip.SetToolTip(_estimateCard, L.T("Partidas jugadas para calcular los cofres de antes de FCT", "Matches played to estimate chests before FCT"));
-        tip.SetToolTip(_estimateText, L.T("Partidas jugadas para calcular los cofres de antes de FCT", "Matches played to estimate chests before FCT"));
+        tip.SetToolTip(_estimateCard, L.T("Partidas jugadas para estimar los cofres de antes de FCT", "Matches played to estimate chests before FCT"));
+        tip.SetToolTip(_estimateText, L.T("Partidas jugadas para estimar los cofres de antes de FCT", "Matches played to estimate chests before FCT"));
         Controls.Add(_estimateCard);
         Controls.Add(new Panel { BackColor = Theme.Line, Location = new Point(GridLeft, 58), Size = new Size(ContentWidth, 1) });
 

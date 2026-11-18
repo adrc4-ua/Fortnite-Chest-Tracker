@@ -12,7 +12,10 @@ internal static class OverviewTab
         var counted = matches.Sum(m => m.ChestsOpened);
         var analyzed = L.Count(matches.Count + page.Unjumped, "partida analizada", "partidas analizadas", "match analyzed", "matches analyzed");
         string? figures = page.Estimation != null
-            ? $"<span class=\"hfig is-gold\" title=\"{Esc(L.T("Partidas jugadas para calcular los cofres de antes de FCT", "Matches played to estimate chests before FCT"))}\"><b>{Esc(page.Estimation.Replace("/", " / "))}</b>{Esc(L.T("estimando partidas", "estimating matches"))}</span>"
+            ? $"<span class=\"hfig is-gold is-estimate\" title=\"{Esc(L.T("Partidas jugadas para estimar los cofres de antes de FCT", "Matches played to estimate chests before FCT"))}\">"
+              + $"<span class=\"est-badge\"><i class=\"est-dot\"></i>{Esc(L.T("ESTIMANDO", "ESTIMATING"))}</span>"
+              + $"<b>{Esc(page.Estimation.Replace("/", " / "))}</b>"
+              + $"<span class=\"est-txt\">{Esc(L.T("partidas para calcular cofres previos", "matches to calculate earlier chests"))}</span></span>"
             : null;
         var html = new StringBuilder(Head("resumen", L.T("Resumen", "Overview"), page.Player.Length > 0 ? $"{Esc(page.Player)} · {analyzed}" : analyzed, figures));
         html.Append(Figures(page, counted, logo));
@@ -47,7 +50,7 @@ internal static class OverviewTab
         }
         else if (page.Estimation != null)
         {
-            notes.Add(L.F("Estimando partidas previas ({0})", "Estimating earlier matches ({0})", page.Estimation.Replace("/", " / ")));
+            notes.Add(L.F("Estimando cofres de partidas previas ({0})", "Estimating chests from earlier matches ({0})", page.Estimation.Replace("/", " / ")));
         }
         var fromMates = matches.Sum(m => m.TeammatesAdded);
         if (page.Config.CountTeammateChests && fromMates > 0)
