@@ -2,7 +2,7 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
-## [Sin publicar]
+## [5.12.1] - 2026-11-18
 
 - **Cálculo inmediato de partidas y cofres con media manual**: tanto en primera apertura como al recalcular en Configuración, si el usuario introduce una media manual («Lo sé, lo escribo»), los cofres y las partidas previas estimadas se calculan, aplican y suman de forma instantánea al total de cofres y al contador de partidas sin requerir ni esperar a partidas guardadas ni partidas de muestra.
 - **Botón «Calcular partidas previas» seleccionado por defecto**: en los menús donde se calculan las partidas previas y se presentan ambas opciones («Solo las guardadas» / «Empezar de cero» y «Calcular partidas previas»), el botón «Calcular partidas previas» aparece preseleccionado de forma activa por defecto, desplegando el panel de estimación directamente sin requerir pulsarlo de forma manual.
@@ -371,6 +371,7 @@ Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede a
 
 - Primera versión publicada.
 
+[5.12.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.12.0...v5.12.1
 [5.12.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.11.0...v5.12.0
 [5.11.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.10.2...v5.11.0
 [5.10.2]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.10.1...v5.10.2
