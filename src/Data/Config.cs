@@ -172,6 +172,9 @@ public sealed class HistoryEstimate
     /// <summary>Profile it belongs to; null means the one on screen when it is applied.</summary>
     public string? ProfileKey { get; set; }
 
+    /// <summary>Epic username entered when setting up the estimate (used before replays exist or to detect renames).</summary>
+    public string? PlayerName { get; set; }
+
     /// <summary>Already turned into <see cref="Config.InitialChests"/>.</summary>
     public bool Done { get; set; }
 }

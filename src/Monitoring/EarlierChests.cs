@@ -1,3 +1,5 @@
+using FCT.App;
+
 namespace FCT.Monitoring;
 
 /// <summary>
@@ -58,7 +60,7 @@ internal sealed class EarlierChests
     /// Null <paramref name="totalMatches"/>: only the saved replays count (estimate and number removed). Otherwise an
     /// estimate with that season total, taken now, applied once <paramref name="sample"/> matches give an average.
     /// </summary>
-    public void SetEstimate(int? totalMatches, string source, int sample, double? manualAverage)
+    public void SetEstimate(int? totalMatches, string source, int sample, double? manualAverage, string? playerName = null)
     {
         var shown = ShownKey;
         var key = shown ?? "";
@@ -70,8 +72,132 @@ internal sealed class EarlierChests
                 c.InitialChests.Remove(key);
                 return;
             }
-            c.Estimates[key] = new HistoryEstimate { TotalMatches = total, SnapshotUtc = DateTime.UtcNow, Source = source, ProfileKey = shown, SampleSize = sample, ManualAverage = manualAverage };
+            var name = !string.IsNullOrWhiteSpace(playerName) ? playerName : c.Estimates.GetValueOrDefault(key)?.PlayerName;
+            c.Estimates[key] = new HistoryEstimate
+            {
+                TotalMatches = total,
+                SnapshotUtc = DateTime.UtcNow,
+                Source = source,
+                ProfileKey = shown,
+                SampleSize = sample,
+                ManualAverage = manualAverage,
+                PlayerName = name,
+            };
+            if (!string.IsNullOrWhiteSpace(name) && string.IsNullOrEmpty(c.Profile))
+            {
+                c.Profile = name;
+            }
         });
+    }
+
+    /// <summary>
+    /// If an estimate was set up with a player name before replays (or under ""), and a replay arrives with
+    /// a different player name, updates the profile and re-estimates via StatsClient API.
+    /// If the API fails, keeps what was already estimated. True if anything was updated.
+    /// </summary>
+    public bool SyncWithPlayerIfMismatched()
+    {
+        var updated = false;
+        var estimates = _settings.Read(c => c.Estimates.ToList());
+        foreach (var (key, estimate) in estimates)
+        {
+            if (string.IsNullOrWhiteSpace(estimate.PlayerName))
+            {
+                continue;
+            }
+
+            var config = _settings.Read(c => c);
+            var eventMatches = _data.Matches.Where(m => Profiles.IsEventMatch(m, config)).ToList();
+            if (eventMatches.Count == 0)
+            {
+                continue;
+            }
+
+            // Find matching replay or newest replay if key is empty/placeholder
+            var targetMatch = eventMatches.FirstOrDefault(m => Profiles.Key(m) == (estimate.ProfileKey ?? key))
+                              ?? (string.IsNullOrEmpty(key) || key == estimate.PlayerName ? eventMatches.MaxBy(m => m.MatchStartUtc ?? m.AnalyzedAtUtc) : null);
+
+            if (targetMatch == null || string.IsNullOrWhiteSpace(targetMatch.PlayerName))
+            {
+                continue;
+            }
+
+            var actualKey = Profiles.Key(targetMatch);
+            var isMismatch = !string.Equals(estimate.PlayerName, targetMatch.PlayerName, StringComparison.OrdinalIgnoreCase);
+
+            if (isMismatch)
+            {
+                var newName = targetMatch.PlayerName;
+                estimate.PlayerName = newName;
+                estimate.ProfileKey = actualKey;
+
+                if (StatsClient.Available)
+                {
+                    try
+                    {
+                        var answer = StatsClient.TotalMatchesAsync(targetMatch.EpicId, newName).GetAwaiter().GetResult();
+                        if (answer.Outcome == StatsClient.Outcome.Ok)
+                        {
+                            estimate.TotalMatches = answer.Matches;
+                            estimate.Source = "api";
+                            estimate.SnapshotUtc = DateTime.UtcNow;
+                        }
+                    }
+                    catch
+                    {
+                        // Keep existing figures if API fails
+                    }
+                }
+
+                _settings.Edit(c =>
+                {
+                    c.Profile = actualKey;
+                    if (key != actualKey)
+                    {
+                        c.Estimates.Remove(key);
+                        if (c.InitialChests.Remove(key, out var chests))
+                        {
+                            c.InitialChests[actualKey] = chests;
+                        }
+                    }
+                    c.Estimates[actualKey] = estimate;
+
+                    if (estimate.Done || estimate.ManualAverage != null)
+                    {
+                        var playerMatches = Profiles.MatchesOf(_data, c, actualKey);
+                        var computed = HistoryEstimator.Compute(playerMatches, estimate.TotalMatches, estimate.SnapshotUtc, estimate.SampleSize, estimate.ManualAverage);
+                        if (computed.Chests is { } newChests)
+                        {
+                            if (newChests > 0)
+                            {
+                                c.InitialChests[actualKey] = newChests;
+                            }
+                            else
+                            {
+                                c.InitialChests.Remove(actualKey);
+                            }
+                        }
+                    }
+                });
+                updated = true;
+            }
+            else if (key != actualKey && (string.IsNullOrEmpty(key) || key == estimate.PlayerName))
+            {
+                estimate.ProfileKey = actualKey;
+                _settings.Edit(c =>
+                {
+                    c.Profile = actualKey;
+                    c.Estimates.Remove(key);
+                    c.Estimates[actualKey] = estimate;
+                    if (c.InitialChests.Remove(key, out var chests))
+                    {
+                        c.InitialChests[actualKey] = chests;
+                    }
+                });
+                updated = true;
+            }
+        }
+        return updated;
     }
 
     /// <summary>
@@ -80,6 +206,7 @@ internal sealed class EarlierChests
     /// </summary>
     public List<string> ApplyPending()
     {
+        SyncWithPlayerIfMismatched();
         var notices = new List<string>();
         var pending = _settings.Read(c => c.Estimates.Where(e => !e.Value.Done).Select(e => (e.Key, e.Value)).ToList());
         foreach (var (entry, estimate) in pending)

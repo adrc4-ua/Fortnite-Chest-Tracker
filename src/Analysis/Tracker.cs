@@ -302,11 +302,12 @@ public sealed class Tracker
     /// </summary>
     private void AdoptFirstProfile(MatchRecord match)
     {
-        if (!string.IsNullOrEmpty(_config.Profile))
+        var profile = Profiles.Key(match);
+        var profileHasMatches = !string.IsNullOrEmpty(_config.Profile) && Data.Matches.Any(m => Profiles.Key(m) == _config.Profile && m != match);
+        if (profileHasMatches)
         {
             return;
         }
-        var profile = Profiles.Key(match);
         _config.Profile = profile;
         if (_config.InitialChests.Remove("", out var chests))
         {

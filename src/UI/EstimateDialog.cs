@@ -21,7 +21,7 @@ namespace FCT.UI;
 public sealed class EstimateDialog : ThemedForm
 {
     /// <summary>Lo elegido: <see cref="Estimate"/> false = solo las partidas guardadas.</summary>
-    public sealed record Choice(bool Estimate, int TotalMatches, string Source, int Sample, double? ManualAverage);
+    public sealed record Choice(bool Estimate, int TotalMatches, string Source, int Sample, double? ManualAverage, string? PlayerName = null);
 
     private const int W = 480, Pad = 20, Inner = W - 2 * Pad - 28;
 
@@ -523,7 +523,8 @@ public sealed class EstimateDialog : ThemedForm
             return;
         }
         var sample = _autoAverage ? 0 : _sample;
-        Result = new Choice(_estimate, _estimate ? Total : 0, _found ? "api" : "manual", sample, typed);
+        var playerName = string.IsNullOrWhiteSpace(_name.Text) ? null : _name.Text.Trim();
+        Result = new Choice(_estimate, _estimate ? Total : 0, _found ? "api" : "manual", sample, typed, playerName);
         DialogResult = DialogResult.OK;
     }
 

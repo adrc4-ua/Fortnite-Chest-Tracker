@@ -127,8 +127,9 @@ internal sealed class OverlayPainter
         }
         g.Restore(saved);
 
-        // the total (deep gold) and the match (lighter gold; faint when there is none)
-        var totalInk = BigNumber(g, _view.Total, _left - Px(1), _totalY, null, true);
+        // the total (deep gold, centred in its quadrant) and the match (lighter gold; faint when there is none)
+        var totalBoxWidth = _chipLeft - _left;
+        var totalInk = BigNumber(g, _view.Total, _left, _totalY, null, true, totalBoxWidth);
         var matchColor = _view.Current == null ? Faint : (Color?)null;
         BigNumber(g, _view.Current ?? "—", _chipLeft, _chipTop + Px(3), matchColor, false, _at.ChipWidth);
 
@@ -173,12 +174,9 @@ internal sealed class OverlayPainter
             DrawTextW(_hdc, "", -1, ref closeBox, Glyph);
         }
 
-        // TOTAL centred under the number as drawn, never over the stripe
-        var captionWidth = OverlayInk.Measure(_hdc, _ink.CaptionFont, TotalCaption);
-        var numberCentre = totalInk.IsEmpty ? _left + _at.TotalWidth / 2f : totalInk.Left + totalInk.Width / 2f;
-        var captionLeft = Math.Max(Px(Stripe) + Px(3), (int)Math.Round(numberCentre - captionWidth / 2f));
-        OverlayInk.Write(_hdc, _ink.CaptionFont, OverlayInk.Muted, TotalCaption,
-            new RECT(captionLeft, _totalY + _at.BigHeight, captionLeft + captionWidth + Px(2), _totalY + _at.BigHeight + _at.CaptionHeight));
+        // TOTAL centred in the quadrant between left padding and the chip
+        var totalCaptionBox = new RECT(_left, _totalY + _at.BigHeight, _chipLeft, _totalY + _at.BigHeight + _at.CaptionHeight);
+        OverlayInk.Write(_hdc, _ink.CaptionFont, OverlayInk.Muted, TotalCaption, totalCaptionBox, DT_CENTER);
         var captionTop = _chipTop + Px(3) + _at.BigHeight;
         OverlayInk.Write(_hdc, _ink.CaptionFont, OverlayInk.Muted, _view.CurrentCaption.ToUpperInvariant(),
             new RECT(_chipLeft, captionTop, _right, captionTop + _at.CaptionHeight), DT_CENTER);
@@ -214,10 +212,22 @@ internal sealed class OverlayPainter
     private RectangleF BigNumber(Graphics g, string text, float left, float top, Color? solid, bool deep, int centreWidth = 0)
     {
         var scale = _ink.Scale;
+        var fontSize = 26f * scale;
         using var shape = new GraphicsPath();
         using (var family = new FontFamily("Segoe UI"))
         {
-            shape.AddString(text, family, (int)FontStyle.Bold, (float)Math.Round(26 * scale), PointF.Empty, StringFormat.GenericTypographic);
+            shape.AddString(text, family, (int)FontStyle.Bold, (float)Math.Round(fontSize), PointF.Empty, StringFormat.GenericTypographic);
+            if (centreWidth > 0)
+            {
+                var bounds = shape.GetBounds();
+                var maxWidth = centreWidth - 2 * Px(2);
+                if (text.Length >= 6 && bounds.Width > maxWidth)
+                {
+                    var reducedSize = (float)Math.Floor(fontSize * (maxWidth / bounds.Width));
+                    shape.Reset();
+                    shape.AddString(text, family, (int)FontStyle.Bold, Math.Max(10f * scale, reducedSize), PointF.Empty, StringFormat.GenericTypographic);
+                }
+            }
         }
         var ink = shape.GetBounds();
         var x = centreWidth > 0 ? left + (centreWidth - ink.Width) / 2f - ink.Left : left + Math.Max(1f, scale) - ink.Left;
@@ -227,11 +237,11 @@ internal sealed class OverlayPainter
             shift.Translate(x, y);
             shape.Transform(shift);
         }
-        var bounds = shape.GetBounds();
+        var drawnBounds = shape.GetBounds();
         using Brush fill = solid is { } color
             ? new SolidBrush(color)
-            : new LinearGradientBrush(new PointF(0, bounds.Top - 1), new PointF(0, bounds.Bottom + 1), GoldHigh, deep ? GoldDeep : Gold);
+            : new LinearGradientBrush(new PointF(0, drawnBounds.Top - 1), new PointF(0, drawnBounds.Bottom + 1), GoldHigh, deep ? GoldDeep : Gold);
         g.FillPath(fill, shape);
-        return bounds;
+        return drawnBounds;
     }
 }

@@ -95,6 +95,17 @@ public static class Profiles
             var chests = counted.Sum(m => (config == null ? m : Adjust(m, config)!).ChestsOpened);
             profiles.Add(new Profile(account.Key, name, counted.Count, chests, PlayedUtc(newestFirst[0])));
         }
+        if (profiles.Count == 0 && config != null)
+        {
+            var estimate = config.Estimates.Values.FirstOrDefault(e => !string.IsNullOrWhiteSpace(e.PlayerName));
+            if (estimate != null)
+            {
+                var key = !string.IsNullOrWhiteSpace(config.Profile) ? config.Profile
+                    : !string.IsNullOrWhiteSpace(estimate.ProfileKey) ? estimate.ProfileKey
+                    : estimate.PlayerName!;
+                profiles.Add(new Profile(key, estimate.PlayerName!, 0, 0, DateTime.UtcNow));
+            }
+        }
         return profiles.OrderByDescending(p => p.LastPlayed).ToList();
     }
 

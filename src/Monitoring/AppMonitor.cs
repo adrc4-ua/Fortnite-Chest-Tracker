@@ -367,9 +367,9 @@ public sealed class AppMonitor
         _wake.Set();
     }
 
-    public void SetEstimate(int? totalMatches, string source, int sample, double? manualAverage)
+    public void SetEstimate(int? totalMatches, string source, int sample, double? manualAverage, string? playerName = null)
     {
-        _earlier.SetEstimate(totalMatches, source, sample, manualAverage);
+        _earlier.SetEstimate(totalMatches, source, sample, manualAverage, playerName);
         ApplyEstimates();
         RequestPublish();
         _statsRequested = true;

@@ -161,7 +161,7 @@ public sealed partial class SettingsForm
         {
             return;
         }
-        _monitor.SetEstimate(choice.Estimate ? choice.TotalMatches : null, choice.Source, choice.Sample, choice.ManualAverage);
+        _monitor.SetEstimate(choice.Estimate ? choice.TotalMatches : null, choice.Source, choice.Sample, choice.ManualAverage, choice.PlayerName);
         int? shown = !choice.Estimate ? 0 : _monitor.PreviewEstimate(choice.TotalMatches, choice.Sample, choice.ManualAverage).Chests;
         if (shown is { } chests)
         {

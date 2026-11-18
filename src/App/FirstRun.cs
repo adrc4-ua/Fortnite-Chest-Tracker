@@ -59,7 +59,12 @@ internal static class FirstRun
                 Source = earlier.Source,
                 SampleSize = earlier.Sample,
                 ManualAverage = earlier.ManualAverage,
+                PlayerName = earlier.PlayerName,
             };
+            if (!string.IsNullOrWhiteSpace(earlier.PlayerName) && string.IsNullOrEmpty(config.Profile))
+            {
+                config.Profile = earlier.PlayerName;
+            }
         }
         else
         {
