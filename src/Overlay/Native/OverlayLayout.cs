@@ -92,9 +92,8 @@ internal sealed class OverlayLayout
             var badgeText = L.F("EST. {0}", "EST. {0}", view.Estimation);
             var textWidth = OverlayInk.Measure(hdc, ink.LabelFont, badgeText, out var textHeight);
             var badgeWidth = textWidth + 2 * px(4);
-            var badgeHeight = textHeight + px(2);
-            at.HeaderHeight = Math.Max(at.HeaderHeight, badgeHeight);
-            var badgeTop = px(9) + Math.Max(0, (at.HeaderHeight - badgeHeight) / 2);
+            var badgeHeight = Math.Min(at.HeaderHeight, textHeight + px(2));
+            var badgeTop = px(9) + (at.HeaderHeight - badgeHeight) / 2;
             var titleRight = px(Stripe) + px(Pad) + px(12) + titleWidth;
             var badgeLeft = titleRight + px(8);
             if (badgeLeft + badgeWidth > at.Lock.Left - px(3))
