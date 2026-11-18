@@ -144,7 +144,7 @@ public static class Profiles
     {
         // asked before the first match: still filed under "" until its average can be worked out
         var estimate = config.Estimates.GetValueOrDefault(key ?? "") ?? config.Estimates.GetValueOrDefault("");
-        return estimate is { TotalMatches: > 0 }
+        return estimate is { Done: true, TotalMatches: > 0 }
             ? HistoryEstimator.Compute(matches, estimate.TotalMatches, estimate.SnapshotUtc, estimate.SampleSize, estimate.ManualAverage).Missing
             : 0;
     }

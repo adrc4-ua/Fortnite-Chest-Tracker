@@ -61,6 +61,10 @@ internal static class FirstRun
                 ManualAverage = earlier.ManualAverage,
             };
         }
+        else
+        {
+            config.Estimates.Remove("");
+        }
         // "Open with Fortnite" starts on (Settings turns it off). Only the normal data folder sets up Windows' side; a
         // test folder (--data) just keeps the choice.
         if (defaultFolder)

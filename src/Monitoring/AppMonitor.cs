@@ -567,6 +567,7 @@ public sealed class AppMonitor
                     JsonFile.Write(Store.EarlierChestsOf(copy), new Dictionary<string, int>(c.InitialChests));
                 }
                 c.InitialChests.Clear();
+                c.Estimates.Clear();
                 c.Profile = null;
             });
             _statsRequested = true;
