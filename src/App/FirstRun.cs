@@ -25,8 +25,9 @@ internal static class FirstRun
         {
             return Outcome.Closed;
         }
+        var savedMatches = countSaved == true ? saved.Count : 0;
         // Without saved matches to count (none, or "only new ones"), the estimate's first choice is "start from zero".
-        if (EstimateDialog.Ask(null, null, null, null, null, fromScratch: saved.Count == 0 || countSaved == false) is not { } earlier)
+        if (EstimateDialog.Ask(null, null, null, null, null, fromScratch: savedMatches == 0, savedMatches: savedMatches) is not { } earlier)
         {
             return Outcome.Closed;
         }

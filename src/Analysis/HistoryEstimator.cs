@@ -19,6 +19,9 @@ namespace FCT.Analysis;
 /// </summary>
 public static class HistoryEstimator
 {
+    /// <summary>Saved matches from which the average is computed directly without waiting for sample matches.</summary>
+    public const int AutoAverageMatches = 15;
+
     /// <summary>Replays Fortnite keeps at most on PC (not documented by Epic: checked by hand).</summary>
     public const int ReplayCap = 100;
 
@@ -50,7 +53,7 @@ public static class HistoryEstimator
     public static Result Compute(IReadOnlyList<MatchRecord> matches, int totalMatches, DateTime snapshotUtc, int sample = DefaultSample, double? manualAverage = null)
     {
         static DateTime Start(MatchRecord m) => m.MatchStartUtc ?? m.AnalyzedAtUtc;
-        sample = Math.Max(1, sample);
+        sample = Math.Max(0, sample);
         var replays = matches.Where(m => Start(m) <= snapshotUtc).ToList();
         var season = replays.OrderByDescending(Start).Select(m => Profiles.ParseFortniteMajorVersion(m.GameVersion)).FirstOrDefault(v => v != null);
         var seasonReplays = replays.Count(m => season == null || Profiles.ParseFortniteMajorVersion(m.GameVersion) is not int v || v == season);
@@ -64,6 +67,11 @@ public static class HistoryEstimator
 
         var rounded = replays.Count == 0 || replays.Count >= ReplayCap;
         double Round(double a) => rounded ? Math.Floor(a) : a;
+        if (sample == 0)
+        {
+            var autoAvg = replays.Count > 0 ? Round((double)replays.Sum(m => m.OwnChests) / replays.Count) : 0;
+            return new Result(Times(autoAvg), replays.Count, seasonReplays, 0, autoAvg, rounded, 0, null) { Missing = missing };
+        }
         var fresh = matches.Where(m => Start(m) > snapshotUtc).OrderBy(Start).Take(sample).ToList();
         if (fresh.Count < sample)
         {

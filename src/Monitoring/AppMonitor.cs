@@ -370,6 +370,7 @@ public sealed class AppMonitor
     public void SetEstimate(int? totalMatches, string source, int sample, double? manualAverage)
     {
         _earlier.SetEstimate(totalMatches, source, sample, manualAverage);
+        ApplyEstimates();
         RequestPublish();
         _statsRequested = true;
         _wake.Set();

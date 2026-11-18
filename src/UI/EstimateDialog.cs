@@ -54,6 +54,11 @@ public sealed class EstimateDialog : ThemedForm
     private readonly Func<int, int, double?, HistoryEstimator.Result>? _previewOf;
     private readonly string? _accountId;
     private readonly string? _originalName;
+    private readonly int _savedMatches;
+    private readonly bool _autoAverage;
+    private readonly Card _autoCard;
+    private readonly Label _autoNoteTitle;
+    private readonly Label _autoNoteText;
     private bool _estimate;
     private bool _manualAverage;
     private bool _manualTotal;   // se muestran los campos para escribir las partidas a mano
@@ -66,12 +71,15 @@ public sealed class EstimateDialog : ThemedForm
     /// opción es «Empezar de cero» y los textos no hablan de partidas guardadas.</param>
     /// <param name="recalculating">From Settings → Recalculate: the window is "Estimate" and goes straight to the
     /// calculation (no choice between counting earlier matches or not: Cancel keeps everything as it was).</param>
+    /// <param name="savedMatches">Number of saved matches. If &gt;= 15, sample/average is not asked and computed from them directly.</param>
     private EstimateDialog(string? playerName, string? accountId, HistoryEstimate? current, Func<int, int, double?, HistoryEstimator.Result>? previewOf, bool owned,
-        bool fromScratch = false, bool recalculating = false)
+        bool fromScratch = false, bool recalculating = false, int savedMatches = 0)
     {
         _previewOf = previewOf;
         _accountId = accountId;
         _originalName = playerName;
+        _savedMatches = savedMatches > 0 ? savedMatches : (previewOf != null ? previewOf(1, 0, null).Replays : 0);
+        _autoAverage = _savedMatches >= HistoryEstimator.AutoAverageMatches;
         Text = recalculating ? L.T("Estimación", "Estimate") : L.F("Cofres antes de {0}", "Chests before {0}", AppInfo.ShortName);
         AutoScaleMode = AutoScaleMode.Dpi;
         AutoScaleDimensions = new SizeF(96, 96);
@@ -115,8 +123,8 @@ public sealed class EstimateDialog : ThemedForm
 
         // ---- 1 · Partidas de esta temporada: se buscan por el nombre de Epic --------------------------------------
         _step1 = Title(_panel, StatsClient.Available
-            ? L.T("1 · ¿Cómo te llamas en Epic?", "1 · What's your Epic name?")
-            : L.T("1 · ¿Cuántas partidas llevas esta temporada?", "1 · How many matches this season?"));
+            ? (_autoAverage ? L.T("¿Cómo te llamas en Epic?", "What's your Epic name?") : L.T("1 · ¿Cómo te llamas en Epic?", "1 · What's your Epic name?"))
+            : (_autoAverage ? L.T("¿Cuántas partidas llevas esta temporada?", "How many matches this season?") : L.T("1 · ¿Cuántas partidas llevas esta temporada?", "1 · How many matches this season?")));
         _nameBox = FieldBox(_panel, Inner - 108, 36);
         _name = FieldText(_nameBox, playerName ?? "", Theme.Text(10f), Theme.Ink, NumericMode.None);
         _name.CueBanner = L.T("Tu nombre de Epic", "Your Epic name");
@@ -136,6 +144,34 @@ public sealed class EstimateDialog : ThemedForm
         _panel.Controls.Add(_statusIcon);
         _status = new Label { AutoSize = true, MaximumSize = new Size(Inner - 34, 0), Font = Theme.Text(8.75f, FontStyle.Bold), ForeColor = Theme.GoldHi, BackColor = Color.Transparent, UseMnemonic = false, Visible = false };
         _panel.Controls.Add(_status);
+
+        _autoCard = new Card { Size = new Size(Inner, 54), Radius = 12, BackColor = Theme.GoldSoft, Edge = Theme.GoldLine, Visible = false };
+        _autoCard.Controls.Add(new IconTile { IconSvg = Icons.Sparkle, Location = new Point(10, 11), Size = new Size(32, 32), Solid = true });
+        _autoNoteTitle = new Label
+        {
+            Text = L.T("Media calculada con tus partidas guardadas", "Average calculated from your saved matches"),
+            Font = Theme.Text(8.75f, FontStyle.Bold),
+            ForeColor = Theme.GoldHi,
+            BackColor = Color.Transparent,
+            Location = new Point(48, 9),
+            Size = new Size(Inner - 56, 16),
+            UseMnemonic = false,
+        };
+        _autoNoteText = new Label
+        {
+            Text = L.F("Tienes {0}: usamos su media para calcular tus cofres sin esperar a jugar más partidas.",
+                "You have {0}: we use their average to calculate your chests without waiting to play more matches.",
+                L.Count(_savedMatches, "partida guardada", "partidas guardadas", "saved match", "saved matches")),
+            Font = Theme.Text(8f),
+            ForeColor = Theme.Champ,
+            BackColor = Color.Transparent,
+            Location = new Point(48, 27),
+            Size = new Size(Inner - 56, 18),
+            UseMnemonic = false,
+        };
+        _autoCard.Controls.Add(_autoNoteTitle);
+        _autoCard.Controls.Add(_autoNoteText);
+        _panel.Controls.Add(_autoCard);
 
         // A mano (solo si no se pudieron buscar): el número de fortnite.gg.
         _manual = new Panel { BackColor = Color.Transparent, Size = new Size(Inner, 80), Visible = false };
@@ -238,7 +274,7 @@ public sealed class EstimateDialog : ThemedForm
         _manualTotal = !StatsClient.Available;
         _sample = current?.SampleSize is int s && HistoryEstimator.SampleChoices.Contains(s) ? s : HistoryEstimator.DefaultSample;
         SelectSample(_sample);
-        SelectAverage(current?.ManualAverage != null);
+        SelectAverage(!_autoAverage && current?.ManualAverage != null);
         SelectMode(recalculating || current != null);
     }
 
@@ -246,10 +282,11 @@ public sealed class EstimateDialog : ThemedForm
     /// <param name="previewOf">Resultado con (partidas de la temporada, partidas para la media, media escrita); null en el primer uso.</param>
     /// <param name="fromScratch">Sin partidas guardadas que contar: «Empezar de cero» en vez de «Solo las guardadas».</param>
     /// <param name="recalculating">Settings → Recalculate: titled "Estimate", straight to the calculation.</param>
+    /// <param name="savedMatches">Number of saved matches. If &gt;= 15, sample/average is not asked and computed from them directly.</param>
     public static Choice? Ask(IWin32Window? owner, string? playerName, string? accountId, HistoryEstimate? current, Func<int, int, double?, HistoryEstimator.Result>? previewOf,
-        bool fromScratch = false, bool recalculating = false)
+        bool fromScratch = false, bool recalculating = false, int savedMatches = 0)
     {
-        using var dialog = new EstimateDialog(playerName, accountId, current, previewOf, owner != null, fromScratch, recalculating);
+        using var dialog = new EstimateDialog(playerName, accountId, current, previewOf, owner != null, fromScratch, recalculating, savedMatches);
         return dialog.ShowDialog(owner) == DialogResult.OK ? dialog.Result : null;
     }
 
@@ -271,7 +308,6 @@ public sealed class EstimateDialog : ThemedForm
 
         var search = StatsClient.Available;
         _nameBox.Visible = _search.Visible = search;
-        _step2.Visible = _calc.Visible = _typed.Visible = true;
         if (search)
         {
             _nameBox.Location = new Point(x, py);
@@ -298,17 +334,30 @@ public sealed class EstimateDialog : ThemedForm
             py += _manual.Height + 12;
         }
 
-        py += 4;
-        _step2.Location = new Point(x, py);
-        py += _step2.PreferredHeight + 8;
-        var halfInner = (Inner - 8) / 2;
-        _calc.Location = new Point(x, py);
-        _typed.Location = new Point(x + halfInner + 8, py);
-        py += 32 + 12;
-        _calcArea.Location = _typedArea.Location = new Point(x, py);
-        _calcArea.Height = _calcArea.Controls.Cast<Control>().Max(c => c.Bottom);
-        _typedArea.Height = 42;
-        py += (_manualAverage ? _typedArea.Height : _calcArea.Height) + 12;
+        if (_autoAverage)
+        {
+            _step2.Visible = _calc.Visible = _typed.Visible = _calcArea.Visible = _typedArea.Visible = false;
+            _autoCard.Visible = true;
+            _autoCard.Location = new Point(x, py);
+            _autoCard.Height = 54;
+            py += _autoCard.Height + 12;
+        }
+        else
+        {
+            _autoCard.Visible = false;
+            _step2.Visible = _calc.Visible = _typed.Visible = true;
+            py += 4;
+            _step2.Location = new Point(x, py);
+            py += _step2.PreferredHeight + 8;
+            var halfInner = (Inner - 8) / 2;
+            _calc.Location = new Point(x, py);
+            _typed.Location = new Point(x + halfInner + 8, py);
+            py += 32 + 12;
+            _calcArea.Location = _typedArea.Location = new Point(x, py);
+            _calcArea.Height = _calcArea.Controls.Cast<Control>().Max(c => c.Bottom);
+            _typedArea.Height = 42;
+            py += (_manualAverage ? _typedArea.Height : _calcArea.Height) + 12;
+        }
 
         _result.Location = new Point(x, py);
         py += _result.Height + 14;
@@ -362,8 +411,8 @@ public sealed class EstimateDialog : ThemedForm
             return;
         }
         var total = Total;
-        var typed = _manualAverage ? TypedAverage : null;
-        _ok.Enabled = total > 0 && (!_manualAverage || typed != null);
+        var typed = !_autoAverage && _manualAverage ? TypedAverage : null;
+        _ok.Enabled = total > 0 && (_autoAverage || !_manualAverage || typed != null);
         void Show(string value, string text)
         {
             _resultValue.Text = value;
@@ -382,7 +431,7 @@ public sealed class EstimateDialog : ThemedForm
                 : L.T("Primero escribe tus partidas de esta temporada.", "First, type your matches this season."));
             return;
         }
-        if (_manualAverage && typed == null)
+        if (!_autoAverage && _manualAverage && typed == null)
         {
             Show("—", L.T("Escribe cuántos cofres abres por partida.", "Type how many chests you open per match."));
             return;
@@ -390,16 +439,33 @@ public sealed class EstimateDialog : ThemedForm
         if (_previewOf == null)
         {
             // Primer uso: aún no se han leído las partidas guardadas.
+            if (_autoAverage)
+            {
+                Show(L.T("Automático", "Automatic"),
+                    L.F("Se calculará con la media de tus {0} en cuanto se analicen.",
+                        "Will be calculated with the average of your {0} once analyzed.",
+                        L.Count(_savedMatches, "partida guardada", "partidas guardadas", "saved match", "saved matches")));
+                return;
+            }
             Show(L.T("Pendiente", "Pending"), typed != null
                 ? L.T("Lo calculamos en cuanto leamos tus partidas guardadas.", "We'll work it out as soon as we read your saved matches.")
                 : L.F("Lo calculamos tras tus próximas {0}.", "We'll work it out after your next {0}.", Matches(_sample)));
             return;
         }
-        var r = _previewOf(total, _sample, typed);
+        var sample = _autoAverage ? 0 : _sample;
+        var r = _previewOf(total, sample, _autoAverage ? null : typed);
         string Avg(double v) => v.ToString(r.RoundedDown ? "0" : "0.#", L.Culture);
         var chestsWord = L.T("cofres de antes", "earlier chests");
         if (r.Chests is int chests)
         {
+            if (_autoAverage)
+            {
+                Show($"≈ {chests.ToString("#,0", L.Culture)} {chestsWord}",
+                    L.F("Con la media de tus {0} partidas guardadas ({1} por partida).",
+                        "With the average of your {0} saved matches ({1} per match).",
+                        r.Replays, Avg(r.Average ?? 0)));
+                return;
+            }
             Show($"≈ {chests.ToString("#,0", L.Culture)} {chestsWord}", typed != null
                 ? L.F("Con tu media de {0} por partida.", "With your average of {0} per match.", Avg(typed.Value))
                 : L.F("Con una media de {0} por partida.", "With an average of {0} per match.", Avg(r.Average ?? 0)));
@@ -481,12 +547,13 @@ public sealed class EstimateDialog : ThemedForm
 
     private void Save()
     {
-        var typed = _manualAverage ? TypedAverage : null;
-        if (_estimate && (Total <= 0 || (_manualAverage && typed == null)))
+        var typed = !_autoAverage && _manualAverage ? TypedAverage : null;
+        if (_estimate && (Total <= 0 || (!_autoAverage && _manualAverage && typed == null)))
         {
             return;
         }
-        Result = new Choice(_estimate, _estimate ? Total : 0, _found ? "api" : "manual", _sample, typed);
+        var sample = _autoAverage ? 0 : _sample;
+        Result = new Choice(_estimate, _estimate ? Total : 0, _found ? "api" : "manual", sample, typed);
         DialogResult = DialogResult.OK;
     }
 

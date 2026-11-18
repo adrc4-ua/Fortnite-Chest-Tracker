@@ -154,8 +154,9 @@ public sealed partial class SettingsForm
                 counting = true;
             }
         }
-        var noneSaved = !counting && _monitor.PreviewEstimate(1, HistoryEstimator.DefaultSample, null).Replays == 0;
-        if (EstimateDialog.Ask(this, _monitor.ShownProfileName, _monitor.ShownAccountId, _monitor.Estimate, _monitor.PreviewEstimate, noneSaved, recalculating: true) is not { } choice)
+        var replays = _monitor.PreviewEstimate(1, 0, null).Replays;
+        var noneSaved = !counting && replays == 0;
+        if (EstimateDialog.Ask(this, _monitor.ShownProfileName, _monitor.ShownAccountId, _monitor.Estimate, _monitor.PreviewEstimate, noneSaved, recalculating: true, savedMatches: replays) is not { } choice)
         {
             return;
         }
