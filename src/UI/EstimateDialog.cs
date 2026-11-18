@@ -244,7 +244,7 @@ public sealed class EstimateDialog : ThemedForm
         _sample = current?.SampleSize is int s && HistoryEstimator.SampleChoices.Contains(s) ? s : HistoryEstimator.DefaultSample;
         SelectSample(_sample);
         SelectAverage(!_autoAverage && current?.ManualAverage != null);
-        SelectMode(recalculating || current != null);
+        SelectMode(true);
     }
 
     /// <summary>Muestra el diálogo. Devuelve lo elegido, o null si se cancela o se cierra la ventana.</summary>
