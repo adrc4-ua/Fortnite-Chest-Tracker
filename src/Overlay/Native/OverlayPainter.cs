@@ -26,6 +26,7 @@ internal sealed class OverlayPainter
 
     // where things go (from the layout)
     private readonly int _left, _right, _headY, _numbersY, _totalY, _chipLeft, _chipTop, _statsY;
+    private readonly int _totalBoxLeft, _totalBoxWidth;
     private readonly float _blockLeft;
 
     private OverlayPainter(IntPtr hdc, RECT client, OverlayInk ink, OverlayLayout layout, OverlayView view, bool locked, bool withClose, OverlayButton hover)
@@ -39,6 +40,8 @@ internal sealed class OverlayPainter
         _totalY = _numbersY + (layout.NumbersHeight - layout.BigHeight - layout.CaptionHeight) / 2;
         _chipLeft = _right - layout.ChipWidth;
         _chipTop = _numbersY + (layout.NumbersHeight - layout.ChipHeight) / 2;
+        _totalBoxLeft = px(Stripe);
+        _totalBoxWidth = _chipLeft - _totalBoxLeft;
         _statsY = _numbersY + layout.NumbersHeight + px(8);
         // the stats block is centred between the stripe and the right edge
         _blockLeft = (px(Stripe) + client.Right - layout.StatsWidth(px)) / 2f;
@@ -127,9 +130,8 @@ internal sealed class OverlayPainter
         }
         g.Restore(saved);
 
-        // the total (deep gold, centred in its quadrant) and the match (lighter gold; faint when there is none)
-        var totalBoxWidth = _chipLeft - _left;
-        var totalInk = BigNumber(g, _view.Total, _left, _totalY, null, true, totalBoxWidth);
+        // the total (deep gold, centred in its quadrant between the stripe and the chip) and the match (lighter gold; faint when there is none)
+        var totalInk = BigNumber(g, _view.Total, _totalBoxLeft, _totalY, null, true, _totalBoxWidth);
         var matchColor = _view.Current == null ? Faint : (Color?)null;
         BigNumber(g, _view.Current ?? "—", _chipLeft, _chipTop + Px(3), matchColor, false, _at.ChipWidth);
 
@@ -174,8 +176,8 @@ internal sealed class OverlayPainter
             DrawTextW(_hdc, "", -1, ref closeBox, Glyph);
         }
 
-        // TOTAL centred in the quadrant between left padding and the chip
-        var totalCaptionBox = new RECT(_left, _totalY + _at.BigHeight, _chipLeft, _totalY + _at.BigHeight + _at.CaptionHeight);
+        // TOTAL centred in the quadrant between the stripe and the chip
+        var totalCaptionBox = new RECT(_totalBoxLeft, _totalY + _at.BigHeight, _chipLeft, _totalY + _at.BigHeight + _at.CaptionHeight);
         OverlayInk.Write(_hdc, _ink.CaptionFont, OverlayInk.Muted, TotalCaption, totalCaptionBox, DT_CENTER);
         var captionTop = _chipTop + Px(3) + _at.BigHeight;
         OverlayInk.Write(_hdc, _ink.CaptionFont, OverlayInk.Muted, _view.CurrentCaption.ToUpperInvariant(),
@@ -220,8 +222,8 @@ internal sealed class OverlayPainter
             if (centreWidth > 0)
             {
                 var bounds = shape.GetBounds();
-                var maxWidth = centreWidth - 2 * Px(2);
-                if (text.Length >= 6 && bounds.Width > maxWidth)
+                var maxWidth = centreWidth - 2 * Px(4);
+                if (text.Count(char.IsDigit) >= 6 && bounds.Width > maxWidth)
                 {
                     var reducedSize = (float)Math.Floor(fontSize * (maxWidth / bounds.Width));
                     shape.Reset();

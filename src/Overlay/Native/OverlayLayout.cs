@@ -47,15 +47,16 @@ internal sealed class OverlayLayout
         var titleWidth = OverlayInk.Measure(hdc, ink.HeaderFont, Title, out at.HeaderHeight);
         at.TitleWidth = titleWidth;
 
-        // the big total on the left; the last match in a chip on the right
-        at.TotalWidth = Math.Max(OverlayInk.Measure(hdc, ink.BigFont, view.Total, out at.BigHeight),
+        // the big total on the left; the last match in a chip on the right (capped at 5 digits since 6+ scales down to fit the quadrant)
+        var totalMeasureText = view.Total.Count(char.IsDigit) > 5 ? "99.999" : view.Total;
+        at.TotalWidth = Math.Max(OverlayInk.Measure(hdc, ink.BigFont, totalMeasureText, out at.BigHeight),
             OverlayInk.Measure(hdc, ink.CaptionFont, TotalCaption, out at.CaptionHeight));
         var matchWidth = Math.Max(OverlayInk.Measure(hdc, ink.BigFont, view.Current ?? "—"),
             OverlayInk.Measure(hdc, ink.CaptionFont, OverlayModel.LastMatchCaption.ToUpperInvariant()));
         at.ChipWidth = matchWidth + 2 * px(12);
         at.ChipHeight = at.BigHeight + at.CaptionHeight + px(8);
         at.NumbersHeight = Math.Max(at.BigHeight + at.CaptionHeight, at.ChipHeight);
-        var numbersWidth = at.TotalWidth + px(ColumnGap) + at.ChipWidth;
+        var numbersWidth = at.TotalWidth + at.ChipWidth;
 
         // the stats strip: a column per row, each as wide as its label or value
         at.StatWidths = new int[view.Rows.Count];
