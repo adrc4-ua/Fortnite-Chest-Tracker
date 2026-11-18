@@ -142,8 +142,22 @@ public static class Profiles
     // ---- Chests before FCT -------------------------------------------------------------------------------------------------------
 
     /// <summary>Estimated chests before FCT of an account ("" or null: before the first match). Never negative.</summary>
-    public static int InitialChests(Config config, string? key) =>
-        config.InitialChests != null && config.InitialChests.TryGetValue(key ?? "", out var chests) && chests > 0 ? chests : 0;
+    public static int InitialChests(Config config, string? key)
+    {
+        if (config.InitialChests == null)
+        {
+            return 0;
+        }
+        if (config.InitialChests.TryGetValue(key ?? "", out var chests) && chests > 0)
+        {
+            return chests;
+        }
+        if (config.InitialChests.TryGetValue("", out chests) && chests > 0)
+        {
+            return chests;
+        }
+        return 0;
+    }
 
     public static int InitialChests(TrackerData data, Config config) => InitialChests(config, Current(data, config)?.Key);
 

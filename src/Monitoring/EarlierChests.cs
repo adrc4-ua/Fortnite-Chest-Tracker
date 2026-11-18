@@ -69,11 +69,14 @@ internal sealed class EarlierChests
             if (totalMatches is not { } total)
             {
                 c.Estimates.Remove(key);
+                c.Estimates.Remove("");
                 c.InitialChests.Remove(key);
+                c.InitialChests.Remove("");
                 return;
             }
-            var name = !string.IsNullOrWhiteSpace(playerName) ? playerName : c.Estimates.GetValueOrDefault(key)?.PlayerName;
-            c.Estimates[key] = new HistoryEstimate
+            var name = !string.IsNullOrWhiteSpace(playerName) ? playerName : c.Estimates.GetValueOrDefault(key)?.PlayerName ?? c.Estimates.GetValueOrDefault("")?.PlayerName;
+            var targetKey = !string.IsNullOrWhiteSpace(key) ? key : (!string.IsNullOrWhiteSpace(name) ? name : "");
+            var estimate = new HistoryEstimate
             {
                 TotalMatches = total,
                 SnapshotUtc = DateTime.UtcNow,
@@ -83,6 +86,32 @@ internal sealed class EarlierChests
                 ManualAverage = manualAverage,
                 PlayerName = name,
             };
+
+            var matches = Profiles.MatchesOf(_data, c, targetKey);
+            var computed = HistoryEstimator.Compute(matches, total, estimate.SnapshotUtc, sample, manualAverage);
+            if (computed.Chests is { } chests)
+            {
+                estimate.Done = true;
+                if (chests > 0)
+                {
+                    c.InitialChests[targetKey] = chests;
+                    c.InitialChests[""] = chests;
+                }
+                else
+                {
+                    c.InitialChests.Remove(targetKey);
+                    c.InitialChests.Remove("");
+                }
+            }
+            else
+            {
+                estimate.Done = false;
+                c.InitialChests.Remove(targetKey);
+                c.InitialChests.Remove("");
+            }
+
+            c.Estimates[targetKey] = estimate;
+            c.Estimates[""] = estimate;
             if (!string.IsNullOrWhiteSpace(name) && string.IsNullOrEmpty(c.Profile))
             {
                 c.Profile = name;
@@ -212,13 +241,13 @@ internal sealed class EarlierChests
         foreach (var (entry, estimate) in pending)
         {
             // "" was asked before the first match: it belongs to the profile there is now (that match's).
-            var key = entry.Length > 0 ? entry : _settings.Read(c => Profiles.Current(_data, c)?.Key);
-            if (key == null)
-            {
-                continue;
-            }
+            var key = entry.Length > 0 ? entry
+                : _settings.Read(c => Profiles.Current(_data, c)?.Key)
+                ?? estimate.ProfileKey
+                ?? (!string.IsNullOrWhiteSpace(estimate.PlayerName) ? estimate.PlayerName : "");
             var matches = _settings.Read(c => Profiles.MatchesOf(_data, c, key));
-            if (HistoryEstimator.Compute(matches, estimate.TotalMatches, estimate.SnapshotUtc, estimate.SampleSize, estimate.ManualAverage).Chests is not { } chests)
+            var computed = HistoryEstimator.Compute(matches, estimate.TotalMatches, estimate.SnapshotUtc, estimate.SampleSize, estimate.ManualAverage);
+            if (computed.Chests is not { } chests)
             {
                 continue; // not enough matches for an average yet
             }
@@ -227,17 +256,20 @@ internal sealed class EarlierChests
                 if (chests > 0)
                 {
                     c.InitialChests[key] = chests;
+                    c.InitialChests[""] = chests;
                 }
                 else
                 {
                     c.InitialChests.Remove(key);
+                    c.InitialChests.Remove("");
                 }
                 estimate.ProfileKey = key;
                 estimate.Done = true;
-                if (entry != key)
+                c.Estimates[key] = estimate;
+                c.Estimates[""] = estimate;
+                if (entry != key && entry.Length > 0)
                 {
                     c.Estimates.Remove(entry);
-                    c.Estimates[key] = estimate;
                 }
             });
             notices.Add(Notice(key, chests));

@@ -51,8 +51,8 @@ internal static class FirstRun
         }
         if (earlier.Estimate)
         {
-            // No profile yet: kept under "" until the first counted match gives it one.
-            config.Estimates[""] = new HistoryEstimate
+            var key = !string.IsNullOrWhiteSpace(earlier.PlayerName) ? earlier.PlayerName : "";
+            var estimate = new HistoryEstimate
             {
                 TotalMatches = earlier.TotalMatches,
                 SnapshotUtc = DateTime.UtcNow,
@@ -65,10 +65,31 @@ internal static class FirstRun
             {
                 config.Profile = earlier.PlayerName;
             }
+            if (earlier.ManualAverage != null && (countSaved != true || saved.Count == 0))
+            {
+                var computed = HistoryEstimator.Compute(Array.Empty<MatchRecord>(), earlier.TotalMatches, estimate.SnapshotUtc, earlier.Sample, earlier.ManualAverage);
+                if (computed.Chests is { } chests)
+                {
+                    estimate.Done = true;
+                    if (chests > 0)
+                    {
+                        config.InitialChests[key] = chests;
+                        config.InitialChests[""] = chests;
+                    }
+                }
+            }
+            config.Estimates[key] = estimate;
+            config.Estimates[""] = estimate;
         }
         else
         {
             config.Estimates.Remove("");
+            config.InitialChests.Remove("");
+            if (!string.IsNullOrEmpty(config.Profile))
+            {
+                config.Estimates.Remove(config.Profile);
+                config.InitialChests.Remove(config.Profile);
+            }
         }
         // "Open with Fortnite" starts on (Settings turns it off). Only the normal data folder sets up Windows' side; a
         // test folder (--data) just keeps the choice.
