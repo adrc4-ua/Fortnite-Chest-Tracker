@@ -5,7 +5,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 ## [Sin publicar]
 
 - **Indicador de partidas de estimación en app, web y overlay**: cuando se está llevando a cabo una estimación de partidas previas jugando partidas de muestra (por ejemplo 5 o 10 partidas), el progreso se visualiza de forma intuitiva, explicativa y estilizada en todos los puntos clave sin alterar el diseño existente:
-  - **Ventana de la app**: insignia dorada (`ESTIMANDO X/Y PARTIDAS PREVIAS`, ej. `ESTIMANDO 0/5 PARTIDAS PREVIAS`) situada en la cabecera superior a la izquierda del perfil, con acceso directo a Configuración al hacer clic.
+  - **Ventana de la app**: insignia dorada (`ESTIMANDO COFRES - X/Y PARTIDAS`, ej. `ESTIMANDO COFRES - 0/5 PARTIDAS`) situada en la cabecera superior a la izquierda del perfil, con acceso directo a Configuración al hacer clic.
   - **Web local (`localhost:7373`)**: tarjeta estilizada en la cabecera de la pestaña Resumen (`<div class="head-figs">`) con etiqueta dorada animada (`[• ESTIMANDO]`), cifra en resplandor (`0 / 5`) y texto explicativo (`partidas para calcular cofres previos`), acompañada de una nota contextual bajo los cofres abiertos (`Estimando cofres de partidas previas (X / Y)`).
   - **Overlay (escritorio y OBS)**: insignia dorada en la cabecera junto al título (`EST. X/Y`).
   En todos los casos, los indicadores desaparecen automáticamente en cuanto se completan las partidas y se aplican los cofres estimados.

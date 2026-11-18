@@ -79,7 +79,7 @@ public sealed partial class MainForm
         if (state.Estimation != null)
         {
             _estimateCard.Visible = true;
-            _estimateText.Text = L.F("ESTIMANDO {0} PARTIDAS PREVIAS", "ESTIMATING {0} EARLIER MATCHES", state.Estimation);
+            _estimateText.Text = L.F("ESTIMANDO COFRES - {0} PARTIDAS", "ESTIMATING CHESTS - {0} MATCHES", state.Estimation);
         }
         else
         {

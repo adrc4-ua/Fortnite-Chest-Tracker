@@ -81,10 +81,10 @@ public sealed partial class MainForm : ThemedForm
         _profileName = FitLabel.Add(this, "", 10.5f, FontStyle.Bold, Theme.Ink, new Point(RightEdge - 44 - 150, 27), new Size(150, 22), ContentAlignment.TopRight);
         _profiles = ProfilePicker(new Point(RightEdge - 44 - 150, 26), new Size(150, 24));
         Controls.Add(_profiles);
-        _estimateCard = new Card { Location = new Point(176, 20), Size = new Size(195, 24), Radius = 12, BackColor = Theme.GoldSoft, Edge = Theme.GoldLine, Visible = false };
+        _estimateCard = new Card { Location = new Point(174, 20), Size = new Size(198, 24), Radius = 12, BackColor = Theme.GoldSoft, Edge = Theme.GoldLine, Visible = false };
         _estimateCard.Cursor = Cursors.Hand;
         _estimateCard.Click += (_, _) => OpenSettings();
-        _estimateText = FitLabel.Add(_estimateCard, "", 7.25f, FontStyle.Bold, Theme.GoldHi, new Point(0, 0), new Size(195, 24), ContentAlignment.MiddleCenter);
+        _estimateText = FitLabel.Add(_estimateCard, "", 7.25f, FontStyle.Bold, Theme.GoldHi, new Point(0, 0), new Size(198, 24), ContentAlignment.MiddleCenter);
         _estimateText.Cursor = Cursors.Hand;
         _estimateText.Click += (_, _) => OpenSettings();
         var tip = new ToolTip();
