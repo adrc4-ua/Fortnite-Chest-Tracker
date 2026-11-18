@@ -327,11 +327,33 @@ public sealed class EstimateDialog : ThemedForm
         py += _result.Height + 14;
         _panel.Height = py;
 
-        var bottom = (_estimate ? _panel.Bottom : _onlyReplays.Bottom) + 18;
+        var bottom = (_estimate ? _panel.Bottom : _onlyReplays.Bottom) + 20;
         _ok.Location = new Point(W - Pad - 130, bottom);
         _cancel.Location = new Point(W - Pad - 130 - 8 - 130, bottom);
-        ClientSize = new Size(W, bottom + 38 + Pad);
+        var targetHeight = bottom + 38 + Pad;
+        var prevHeight = ClientSize.Height;
         ResumeLayout();
+        ClientSize = new Size(W, targetHeight);
+
+        if (IsHandleCreated && Visible)
+        {
+            var diff = targetHeight - prevHeight;
+            if (diff != 0)
+            {
+                var screen = Screen.FromControl(this).WorkingArea;
+                var newTop = Top - diff / 2;
+                if (newTop + Height > screen.Bottom - 16)
+                {
+                    newTop = screen.Bottom - Height - 16;
+                }
+                if (newTop < screen.Top + 16)
+                {
+                    newTop = screen.Top + 16;
+                }
+                Top = newTop;
+            }
+        }
+
         Invalidate(true);
     }
 
