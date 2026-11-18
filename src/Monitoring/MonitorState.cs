@@ -41,6 +41,12 @@ public sealed record ChestStats(int Matches, double Average, int BestMatch, int 
     /// <summary>Matches before FCT, from the estimate of the earlier chests (added to the matches shown).</summary>
     public int EarlierMatches { get; init; }
 
+    /// <summary>Initial chests before FCT.</summary>
+    public int InitialChests { get; init; }
+
+    /// <summary>Manual average entered by user, if any.</summary>
+    public double? ManualAverage { get; init; }
+
     /// <summary>Local date of the oldest saved match (null when there is none).</summary>
     public DateTime? HistorySince { get; init; }
 

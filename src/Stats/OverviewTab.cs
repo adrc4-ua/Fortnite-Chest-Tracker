@@ -67,10 +67,33 @@ internal static class OverviewTab
                    + $"<div class=\"fig-note fig-today\">{todayLine}</div>"
                    + (notes.Count > 0 ? $"<div class=\"fig-note\">{string.Join(" · ", notes)}</div>" : "") + "</div></div>";
         var winShare = matches.Count > 0 ? 100.0 * wins / matches.Count : 0;
+        var earlierMatches = Math.Max(0, page.AllMatches - matches.Count - page.Unjumped);
+        var totalMatches = matches.Count + earlierMatches;
+        var totalChests = counted + Math.Max(0, page.InitialChests);
+        var estimate = (!string.IsNullOrEmpty(page.Config.Profile) ? page.Config.Estimates.GetValueOrDefault(page.Config.Profile) : null)
+                       ?? page.Config.Estimates.GetValueOrDefault("")
+                       ?? page.Config.Estimates.Values.FirstOrDefault(e => e.ManualAverage != null);
+        double avg;
+        if (matches.Count == 0 && estimate?.ManualAverage is { } manual && manual > 0)
+        {
+            avg = manual;
+        }
+        else if (totalMatches > 0)
+        {
+            avg = (double)totalChests / totalMatches;
+        }
+        else if (estimate?.ManualAverage is { } m && m > 0)
+        {
+            avg = m;
+        }
+        else
+        {
+            avg = 0.0;
+        }
         return "<div class=\"figures\">" + hero
                + Figure("wins", L.T("Victorias", "Wins"), Num(wins), wins > 0 ? L.F("{0} % de tus partidas", "{0} % of your matches", winShare.ToString("0", L.Culture)) : "—")
                + Figure("matches", L.T("Partidas al día", "Matches a day"), page.PerDay.ToString("0.0", L.Culture), L.T("de media por día jugado", "on average per day played"))
-               + Figure("avg", L.T("Media", "Average"), (matches.Count > 0 ? (double)counted / matches.Count : 0).ToString("0.0", L.Culture), L.T("cofres por partida", "chests per match"))
+               + Figure("avg", L.T("Media", "Average"), (totalMatches > 0 || avg > 0 ? avg.ToString("0.0", L.Culture) : "—"), L.T("cofres por partida", "chests per match"))
                + Figure("best", L.T("Récord", "Best match"), Num(best), L.T("cofres en una partida", "chests in one match"))
                + Figure("day", L.T("Mejor día", "Best day"), bestDay.Chests > 0 ? ShortDay(bestDay.Day) : "—", bestDay.Chests > 0 ? L.Count(bestDay.Chests, "cofre", "cofres", "chest", "chests") : "—")
                + "</div>";

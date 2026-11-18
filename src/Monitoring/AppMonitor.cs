@@ -761,9 +761,15 @@ public sealed class AppMonitor
             var view = Profiles.View(_data, config);
             _earlier.ShowMatches(view.Matches);
 
+            var initialChests = Profiles.InitialChests(_data, config);
+            var earlierMatches = _earlier.Matches(view.Matches);
+            var estimate = (!string.IsNullOrEmpty(_shownKey) ? config.Estimates.GetValueOrDefault(_shownKey) : null)
+                           ?? config.Estimates.GetValueOrDefault("")
+                           ?? config.Estimates.Values.FirstOrDefault(e => e.ManualAverage != null);
+
             var live = _follower.LiveOfShown();
             var estimation = OverlayModel.EstimationProgress(view, config, _shownKey);
-            var overlay = OverlayModel.Build(view, Profiles.InitialChests(_data, config), estimation);
+            var overlay = OverlayModel.Build(view, initialChests, estimation, estimate?.ManualAverage);
             StatsPage.WriteOverlay(_store, overlay);
             ObsServer.Update(overlay);
             if (OperatingSystem.IsWindows() && NativeOverlay.IsRunning)
@@ -775,8 +781,9 @@ public sealed class AppMonitor
             var notice = _updates.Installing ? L.T("Descargando la actualización…", "Downloading the update…")
                 : _progress is { } progress ? L.F("Leyendo tus replays… {0} / {1}. Las cifras suben a medida que se leen.", "Reading your replays… {0} / {1}. The numbers grow as they are read.", progress.Done, progress.Total)
                 : _notice ?? _displayWarning;
+            var stats = ScreenFigures.Stats(view.Matches, shownLive, initialChests, earlierMatches, estimate?.ManualAverage);
             var state = new MonitorState(overlay, Profiles.List(_data, config), shown?.Key, _updates.Available, notice, false,
-                SinceSeasonWithEarlier(PlayedToo(ScreenFigures.Stats(view.Matches, shownLive), view) with { EarlierMatches = _earlier.Matches(view.Matches) }))
+                SinceSeasonWithEarlier(PlayedToo(stats, view)))
             {
                 Team = config.ShowTeammates ? ScreenFigures.Team(view.Matches, shownLive, config.ExtraKinds()) : null,
             };

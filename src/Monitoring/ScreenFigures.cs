@@ -10,7 +10,10 @@ internal static class ScreenFigures
 
     /// <param name="matches">The profile's counted matches (<see cref="Profiles.View"/>).</param>
     /// <param name="live">The match in progress of this profile, or null.</param>
-    public static ChestStats Stats(List<MatchRecord> matches, MatchRecord? live)
+    /// <param name="initialChests">Chests before FCT.</param>
+    /// <param name="earlierMatches">Matches before FCT.</param>
+    /// <param name="manualAverage">Manual average entered by user, if any.</param>
+    public static ChestStats Stats(List<MatchRecord> matches, MatchRecord? live, int initialChests = 0, int earlierMatches = 0, double? manualAverage = null)
     {
         var today = DateTime.Now.Date;
         var byDay = new Dictionary<DateTime, int>();
@@ -22,9 +25,29 @@ internal static class ScreenFigures
         var withLive = live == null ? matches : matches.Append(live).ToList();
         KeyValuePair<DateTime, int>? bestDay = byDay.Count == 0 ? null : byDay.MaxBy(d => d.Value);
 
+        var totalMatches = matches.Count + earlierMatches;
+        var totalChests = matches.Sum(m => m.ChestsOpened) + Math.Max(0, initialChests);
+        double average;
+        if (matches.Count == 0 && manualAverage is { } manual && manual > 0)
+        {
+            average = manual;
+        }
+        else if (totalMatches > 0)
+        {
+            average = (double)totalChests / totalMatches;
+        }
+        else if (manualAverage is { } m && m > 0)
+        {
+            average = m;
+        }
+        else
+        {
+            average = 0;
+        }
+
         return new ChestStats(
             Matches: matches.Count,
-            Average: matches.Count == 0 ? 0 : (double)matches.Sum(m => m.ChestsOpened) / matches.Count,
+            Average: average,
             BestMatch: withLive.Count == 0 ? 0 : withLive.Max(m => m.ChestsOpened),
             Treasures: withLive.Sum(m => m.TreasureFinds.Count),
             Today: byDay.GetValueOrDefault(today),
@@ -33,6 +56,9 @@ internal static class ScreenFigures
         {
             LastDays = ThisWeek(matches, live, today),
             HistoryMatches = matches.Count,
+            EarlierMatches = earlierMatches,
+            InitialChests = initialChests,
+            ManualAverage = manualAverage,
             HistorySince = matches.Count == 0 ? null : matches.Min(Day),
             LastMatch = Latest(matches) is { } last
                 ? new LastMatchSummary(last.ChestsOpened, last.Chests.Count(c => c.Destroyed), last.TreasureFinds.Count, last.Placement, last.TotalPlayers, last.Eliminations, last.DurationSeconds)

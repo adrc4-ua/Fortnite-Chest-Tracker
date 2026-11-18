@@ -2,6 +2,10 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
+## [Sin publicar]
+
+- **Media por partida con base manual inicial y actualización dinámica**: si el usuario configura una media manual («Lo sé, lo escribo») tras una instalación nueva o un recálculo en Configuración, la media por partida muestra de forma inmediata dicha media en todos lados (tarjeta de la ventana principal, cifra del resumen web y columna de media en el overlay cuando no hay partidas jugadas en el día). Conforme se van jugando partidas con normalidad, la media se va actualizando dinámicamente sumando los cofres y partidas nuevos sobre la base manual previa ((Cofres previos + Cofres nuevos) / (Partidas previas + Partidas nuevas)).
+
 ## [5.12.1] - 2026-11-18
 
 - **Cálculo inmediato de partidas y cofres con media manual**: tanto en primera apertura como al recalcular en Configuración, si el usuario introduce una media manual («Lo sé, lo escribo»), los cofres y las partidas previas estimadas se calculan, aplican y suman de forma instantánea al total de cofres y al contador de partidas sin requerir ni esperar a partidas guardadas ni partidas de muestra.
