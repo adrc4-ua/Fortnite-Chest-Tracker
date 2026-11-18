@@ -154,9 +154,10 @@ public sealed partial class SettingsForm
                 counting = true;
             }
         }
-        var replays = _monitor.PreviewEstimate(1, 0, null).Replays;
-        var noneSaved = !counting && replays == 0;
-        if (EstimateDialog.Ask(this, _monitor.ShownProfileName, _monitor.ShownAccountId, _monitor.Estimate, _monitor.PreviewEstimate, noneSaved, recalculating: true, savedMatches: replays) is not { } choice)
+        var preview = _monitor.PreviewEstimate(1, 0, null);
+        var seasonReplays = preview.SeasonReplays;
+        var noneSaved = !counting && preview.Replays == 0;
+        if (EstimateDialog.Ask(this, _monitor.ShownProfileName, _monitor.ShownAccountId, _monitor.Estimate, _monitor.PreviewEstimate, noneSaved, recalculating: true, savedMatches: seasonReplays) is not { } choice)
         {
             return;
         }

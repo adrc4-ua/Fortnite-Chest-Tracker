@@ -4,7 +4,7 @@ Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semán
 
 ## [Sin publicar]
 
-- **Estimación directa con 15 o más partidas guardadas**: en la primera apertura (preinstalación) o al pulsar «Recalcular» en Configuración, si el usuario cuenta con 15 o más partidas guardadas (repeticiones), se suprime por completo el paso de selección de partidas de muestra o media manual, pidiendo únicamente el nombre de Epic y calculando la estimación directamente a partir de las repeticiones existentes sin esperas ni fases provisionales.
+- **Estimación directa con 15 o más partidas guardadas de la temporada actual**: tanto en la primera apertura (preinstalación) como al recalcular en Configuración, si el usuario cuenta con 15 o más repeticiones de la temporada en curso de Fortnite, se exime por completo de jugar partidas de muestra o introducir una media manual. El diálogo solicita únicamente el nombre de Epic y calcula la estimación directamente a partir de las partidas de dicha temporada. En la primera apertura, la cabecera del diálogo lee las versiones de las repeticiones sin descomprimirlas y la tarjeta de resultado indica que el cálculo se realizará en cuanto se lean las repeticiones guardadas, sin requerir partidas adicionales.
 
 ## [5.12.0] - 2026-11-18
 

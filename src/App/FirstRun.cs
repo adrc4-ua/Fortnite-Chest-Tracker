@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Windows.Forms;
+using FCT.Analysis;
 
 namespace FCT.App;
 
@@ -25,9 +26,21 @@ internal static class FirstRun
         {
             return Outcome.Closed;
         }
-        var savedMatches = countSaved == true ? saved.Count : 0;
+        var savedMatches = 0;
+        if (countSaved == true)
+        {
+            var versions = saved
+                .Select(f => Profiles.ParseFortniteMajorVersion(ReplayHeaderProbe.ReadGameVersion(f.FullName)))
+                .Where(v => v != null)
+                .Select(v => v!.Value)
+                .ToList();
+            var latestSeason = versions.Count > 0 ? versions.Max() : (int?)null;
+            savedMatches = latestSeason is int s && s >= Profiles.MinFortniteMajorVersion
+                ? versions.Count(v => v == s)
+                : 0;
+        }
         // Without saved matches to count (none, or "only new ones"), the estimate's first choice is "start from zero".
-        if (EstimateDialog.Ask(null, null, null, null, null, fromScratch: savedMatches == 0, savedMatches: savedMatches) is not { } earlier)
+        if (EstimateDialog.Ask(null, null, null, null, null, fromScratch: countSaved != true || saved.Count == 0, savedMatches: savedMatches) is not { } earlier)
         {
             return Outcome.Closed;
         }

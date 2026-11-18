@@ -75,7 +75,7 @@ public sealed class EstimateDialog : ThemedForm
         _previewOf = previewOf;
         _accountId = accountId;
         _originalName = playerName;
-        _savedMatches = savedMatches > 0 ? savedMatches : (previewOf != null ? previewOf(1, 0, null).Replays : 0);
+        _savedMatches = savedMatches > 0 ? savedMatches : (previewOf != null ? previewOf(1, 0, null).SeasonReplays : 0);
         _autoAverage = _savedMatches >= HistoryEstimator.AutoAverageMatches;
         Text = recalculating ? L.T("Estimación", "Estimate") : L.F("Cofres antes de {0}", "Chests before {0}", AppInfo.ShortName);
         AutoScaleMode = AutoScaleMode.Dpi;
@@ -403,7 +403,7 @@ public sealed class EstimateDialog : ThemedForm
         if (_previewOf == null)
         {
             // Primer uso: aún no se han leído las partidas guardadas.
-            Show(L.T("Pendiente", "Pending"), typed != null
+            Show(L.T("Pendiente", "Pending"), typed != null || _autoAverage
                 ? L.T("Lo calculamos en cuanto leamos tus partidas guardadas.", "We'll work it out as soon as we read your saved matches.")
                 : L.F("Lo calculamos tras tus próximas {0}.", "We'll work it out after your next {0}.", Matches(_sample)));
             return;

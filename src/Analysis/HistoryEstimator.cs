@@ -56,7 +56,8 @@ public static class HistoryEstimator
         sample = Math.Max(0, sample);
         var replays = matches.Where(m => Start(m) <= snapshotUtc).ToList();
         var season = replays.OrderByDescending(Start).Select(m => Profiles.ParseFortniteMajorVersion(m.GameVersion)).FirstOrDefault(v => v != null);
-        var seasonReplays = replays.Count(m => season == null || Profiles.ParseFortniteMajorVersion(m.GameVersion) is not int v || v == season);
+        var seasonMatches = replays.Where(m => season == null || Profiles.ParseFortniteMajorVersion(m.GameVersion) is not int v || v == season).ToList();
+        var seasonReplays = seasonMatches.Count;
         var missing = Math.Max(0, totalMatches - seasonReplays);
         int Times(double average) => (int)Math.Round(average * missing, MidpointRounding.AwayFromZero);
 
@@ -67,9 +68,10 @@ public static class HistoryEstimator
 
         var rounded = replays.Count == 0 || replays.Count >= ReplayCap;
         double Round(double a) => rounded ? Math.Floor(a) : a;
-        if (sample == 0)
+        if (sample == 0 || seasonMatches.Count >= AutoAverageMatches)
         {
-            var autoAvg = replays.Count > 0 ? Round((double)replays.Sum(m => m.OwnChests) / replays.Count) : 0;
+            var autoPool = seasonMatches.Count >= AutoAverageMatches ? seasonMatches : (seasonMatches.Count > 0 ? seasonMatches : replays);
+            var autoAvg = autoPool.Count > 0 ? Round((double)autoPool.Sum(m => m.OwnChests) / autoPool.Count) : 0;
             return new Result(Times(autoAvg), replays.Count, seasonReplays, 0, autoAvg, rounded, 0, null) { Missing = missing };
         }
         var fresh = matches.Where(m => Start(m) > snapshotUtc).OrderBy(Start).Take(sample).ToList();
