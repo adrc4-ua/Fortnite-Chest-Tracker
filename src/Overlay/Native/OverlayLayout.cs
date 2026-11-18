@@ -95,7 +95,8 @@ internal sealed class OverlayLayout
             var badgeHeight = textHeight + px(2);
             at.HeaderHeight = Math.Max(at.HeaderHeight, badgeHeight);
             var badgeTop = px(9) + Math.Max(0, (at.HeaderHeight - badgeHeight) / 2);
-            var badgeLeft = px(Stripe) + px(Pad) + px(11) + titleWidth + px(5);
+            var titleRight = px(Stripe) + px(Pad) + px(12) + titleWidth;
+            var badgeLeft = titleRight + px(8);
             if (badgeLeft + badgeWidth > at.Lock.Left - px(3))
             {
                 badgeLeft = at.Lock.Left - px(3) - badgeWidth;
