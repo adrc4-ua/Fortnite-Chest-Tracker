@@ -2,7 +2,7 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
-## [Sin publicar]
+## [5.12.2] - 2026-11-18
 
 - **Media por partida con base manual inicial y actualización dinámica**: si el usuario configura una media manual («Lo sé, lo escribo») tras una instalación nueva o un recálculo en Configuración, la media por partida muestra de forma inmediata dicha media en todos lados (tarjeta de la ventana principal, cifra del resumen web y columna de media en el overlay cuando no hay partidas jugadas en el día). Conforme se van jugando partidas con normalidad, la media se va actualizando dinámicamente sumando los cofres y partidas nuevos sobre la base manual previa ((Cofres previos + Cofres nuevos) / (Partidas previas + Partidas nuevas)).
 
@@ -375,6 +375,7 @@ Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede a
 
 - Primera versión publicada.
 
+[5.12.2]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.12.1...v5.12.2
 [5.12.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.12.0...v5.12.1
 [5.12.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.11.0...v5.12.0
 [5.11.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.10.2...v5.11.0

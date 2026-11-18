@@ -1,14 +1,14 @@
 name: Build FCT.exe
 # Releases are created on GitHub. FCT.exe is built and attached:
 #  - Automatically when a release is published;
-#  - Manually for any tag: Actions → "Build FCT.exe" → Run workflow → enter the tag (e.g. v5.12.1).
+#  - Manually for any tag: Actions → "Build FCT.exe" → Run workflow → enter the tag (e.g. v5.12.2).
 on:
   release:
     types: [published]
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release tag to build and attach FCT.exe to (e.g. v5.12.1). Empty: only build.'
+        description: 'Release tag to build and attach FCT.exe to (e.g. v5.12.2). Empty: only build.'
         required: false
         default: ''
 permissions:
