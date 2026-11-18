@@ -76,7 +76,15 @@ public sealed partial class MainForm
         _matchNote.Text = view.Current == null ? ""
             : view.Current == "1" ? L.T("cofre abierto", "chest opened") : L.T("cofres abiertos", "chests opened");
         _totalNote.Text = stats.HistorySince is { } since ? L.F("desde el {0:dd/MM/yy}", "since {0:dd/MM/yy}", since) : "";
-        _badge.Visible = false;
+        if (state.Estimation != null)
+        {
+            _estimateCard.Visible = true;
+            _estimateText.Text = L.F("ESTIMANDO {0}", "ESTIMATING {0}", state.Estimation);
+        }
+        else
+        {
+            _estimateCard.Visible = false;
+        }
         _matchDetails.Text = stats.LastMatch is { } last ? Details(last)
             : L.T("Aún no hay partidas: ¡a jugar!", "No matches yet: go play!");
     }

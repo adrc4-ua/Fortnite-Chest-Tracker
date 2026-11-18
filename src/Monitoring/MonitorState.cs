@@ -15,6 +15,9 @@ public sealed record MonitorState(
 {
     /// <summary>Squad of the match in progress, or of the last one; null when teammates are turned off.</summary>
     public TeamSummary? Team { get; init; }
+
+    /// <summary>Progress of an active estimation waiting for played matches ("2/5", or null).</summary>
+    public string? Estimation => View.Estimation;
 }
 
 /// <summary>Figures of the profile on screen; a match in progress already counts in today's and the best match.</summary>

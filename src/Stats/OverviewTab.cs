@@ -11,7 +11,10 @@ internal static class OverviewTab
         var matches = page.Matches;
         var counted = matches.Sum(m => m.ChestsOpened);
         var analyzed = L.Count(matches.Count + page.Unjumped, "partida analizada", "partidas analizadas", "match analyzed", "matches analyzed");
-        var html = new StringBuilder(Head("resumen", L.T("Resumen", "Overview"), page.Player.Length > 0 ? $"{Esc(page.Player)} · {analyzed}" : analyzed));
+        string? figures = page.Estimation != null
+            ? $"<span class=\"hfig is-gold\" title=\"{Esc(L.T("Partidas jugadas para calcular los cofres de antes de FCT", "Matches played to estimate chests before FCT"))}\"><b>{Esc(page.Estimation.Replace("/", " / "))}</b>{Esc(L.T("estimando partidas", "estimating matches"))}</span>"
+            : null;
+        var html = new StringBuilder(Head("resumen", L.T("Resumen", "Overview"), page.Player.Length > 0 ? $"{Esc(page.Player)} · {analyzed}" : analyzed, figures));
         html.Append(Figures(page, counted, logo));
         html.Append(Curve(matches));
 
@@ -41,6 +44,10 @@ internal static class OverviewTab
         if (page.InitialChests > 0)
         {
             notes.Add(L.F("Incluye {0} estimados de antes de usar la herramienta", "Includes {0} estimated from before the tool", Num(page.InitialChests)));
+        }
+        else if (page.Estimation != null)
+        {
+            notes.Add(L.F("Estimando partidas previas ({0})", "Estimating earlier matches ({0})", page.Estimation.Replace("/", " / ")));
         }
         var fromMates = matches.Sum(m => m.TeammatesAdded);
         if (page.Config.CountTeammateChests && fromMates > 0)
