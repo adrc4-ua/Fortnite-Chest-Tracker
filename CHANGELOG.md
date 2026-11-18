@@ -2,7 +2,7 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
-## [Sin publicar]
+## [5.12.0] - 2026-11-18
 
 - **Indicador de partidas de estimación en app, web y overlay**: cuando se está llevando a cabo una estimación de partidas previas jugando partidas de muestra (por ejemplo 5 o 10 partidas), el progreso se visualiza de forma intuitiva, explicativa y estilizada en todos los puntos clave sin alterar el diseño existente:
   - **Ventana de la app**: insignia dorada (`ESTIMANDO COFRES - X/Y PARTIDAS`, ej. `ESTIMANDO COFRES - 0/5 PARTIDAS`) situada en la cabecera superior a la izquierda del perfil, con acceso directo a Configuración al hacer clic.
@@ -358,6 +358,7 @@ Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede a
 
 - Primera versión publicada.
 
+[5.12.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.11.0...v5.12.0
 [5.11.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.10.2...v5.11.0
 [5.10.2]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.10.1...v5.10.2
 [5.10.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.10.0...v5.10.1
