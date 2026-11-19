@@ -133,6 +133,10 @@ public static class TreasureScreenReader
             }
         }
 
+        // A card is 5.2 to 5.6 % of the area wide (up to 5.8 % while it flashes in) and a little wider than tall
+        // (measured on real end screens). The screens that follow it when the player leaves (the Sprite collection,
+        // loading screens, the lobby) have yellow art that looks like a card for many captures in a row, but always
+        // narrower (at most 4.8 %) or clearly taller or flatter.
         var cards = new List<Card>();
         foreach (var (x0, y0, x1, y1, count) in pieces)
         {
@@ -140,7 +144,7 @@ public static class TreasureScreenReader
             var relative = bw * step / area;
             var aspect = bw / (double)bh;
             var fill = count / (double)(bw * bh);
-            if (count > 60 && aspect is > 0.6 and < 1.6 && relative is > 0.035 and < 0.25 && fill > 0.25)
+            if (count > 60 && aspect is > 0.9 and < 1.3 && relative is > 0.0495 and < 0.075 && fill > 0.25)
             {
                 cards.Add(new Card(x0 * step, y0 * step, bw * step, bh * step, Unknown));
             }
@@ -158,7 +162,33 @@ public static class TreasureScreenReader
                 .OrderByDescending(g => g.Key).First().Key;
             cards = cards.Where(c => cards.Count(o => Math.Abs(o.Y + o.Height / 2 - (c.Y + c.Height / 2)) < c.Height / 2) == row).ToList();
         }
-        return cards.OrderBy(c => c.X).ToList();
+        return InPanel(cards.OrderBy(c => c.X).ToList(), area, side);
+    }
+
+    /// <summary>
+    /// The cards of the panel: the first one stands at its left margin (5.8 % of the area from the area's left, or
+    /// from the screen's left edge when an ultrawide screen keeps the panel there), and each next one right after the
+    /// previous one (1.25 % of the area apart). Gold bits elsewhere (art of a loading screen or the lobby) are dropped.
+    /// </summary>
+    private static List<Card> InPanel(List<Card> row, double area, double side)
+    {
+        static bool AtMargin(double x, double area) => x >= area * 0.015 && x <= area * 0.11;
+        var first = row.FindIndex(c => AtMargin(c.X - side, area) || AtMargin(c.X, area));
+        if (first < 0)
+        {
+            return new List<Card>();
+        }
+        var panel = new List<Card> { row[first] };
+        foreach (var c in row.Skip(first + 1))
+        {
+            var previous = panel[^1];
+            if (c.X - (previous.X + previous.Width) > area * 0.04)
+            {
+                break;
+            }
+            panel.Add(c);
+        }
+        return panel;
     }
 
     private static (double H, double S, double V) Hsv(byte r, byte g, byte b)

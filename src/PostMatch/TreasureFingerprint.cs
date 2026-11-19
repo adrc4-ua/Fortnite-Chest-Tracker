@@ -23,7 +23,8 @@ internal static class TreasureFingerprint
 
     /// <summary>
     /// The closest reference must be at most this far (measured on real end screens: the same gizmo is at most 0.084
-    /// away, even from a compressed video frame; another gizmo at least 0.107)…
+    /// away, even from a compressed video frame or a card still flashing in; another gizmo at least 0.107, a featured
+    /// back bling 0.103 from the firework)…
     /// </summary>
     private const double Accept = 0.10;
 
@@ -35,9 +36,16 @@ internal static class TreasureFingerprint
 
     private static readonly Lazy<IReadOnlyList<(string Gizmo, float[] Print)>> References = new(Load);
 
-    /// <summary>The gizmo shown on this card, or null when no reference is clearly the one.</summary>
+    /// <summary>
+    /// The gizmo shown on this card, or null when no reference is clearly the one. References named
+    /// <see cref="TreasureScreenReader.Unknown"/> are featured treasures already seen on real end screens (a back bling
+    /// is a gold card with a small icon, like the firework): a card closest to one of them is not a gizmo, and a gizmo
+    /// that is nearly as close to one is not sure enough.
+    /// </summary>
     public static string? Identify(WindowCapture.Frame frame, int x, int y, int width, int height) =>
-        Match(frame, x, y, width, height) is { Best: <= Accept } m && m.Next - m.Best >= Lead ? m.Gizmo : null;
+        Match(frame, x, y, width, height) is { Best: <= Accept } m && m.Next - m.Best >= Lead && m.Gizmo != TreasureScreenReader.Unknown
+            ? m.Gizmo
+            : null;
 
     /// <summary>The closest gizmo, its distance and the distance of the closest other gizmo.</summary>
     public static (string? Gizmo, double Best, double Next) Match(WindowCapture.Frame frame, int x, int y, int width, int height)
@@ -145,7 +153,11 @@ internal static class TreasureFingerprint
 
     public static float[] Decode(string text) => Convert.FromBase64String(text).Select(v => v / 255f).ToArray();
 
-    /// <summary>The reference prints (embedded in the exe): gizmo name → one print per sample screen.</summary>
+    /// <summary>
+    /// The reference prints (embedded in the exe): gizmo name → one print per sample screen, taken only from cards of
+    /// the treasure panel (never from the screens that follow it, whose Sprite icons once made a reference that read
+    /// the Sprite collection as fireworks).
+    /// </summary>
     private static IReadOnlyList<(string, float[])> Load()
     {
         try

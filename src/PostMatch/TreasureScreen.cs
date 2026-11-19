@@ -52,17 +52,31 @@ public static class TreasureScreenMerge
             .FirstOrDefault();
     }
 
-    /// <summary>Applies the screen of this match (if any) after removing what an earlier screen added. True if changed.</summary>
-    public static bool Apply(MatchRecord m, IEnumerable<TreasureScreen> screens)
+    /// <summary>
+    /// Applies the screen of this match (if any) after removing what an earlier screen added. True if changed. With the
+    /// history (<paramref name="data"/>), featured treasures the player already owned are left out: they have no card.
+    /// </summary>
+    public static bool Apply(MatchRecord m, IEnumerable<TreasureScreen> screens, TrackerData? data = null)
     {
         var before = Signature(m);
         PrizeListMerge.Undo(m); // the prize list names treasures after the screen: undone, done again by the caller
         Reset(m);
         if (ScreenOf(m, screens) is { } screen)
         {
-            ApplyScreen(m, screen);
+            ApplyScreen(m, screen, OwnedPrizes.WithCard(data, m));
         }
         return Signature(m) != before;
+    }
+
+    /// <summary>Applies every saved screen to every match of the history. True if anything changed.</summary>
+    public static bool ApplyAll(TrackerData data)
+    {
+        var changed = false;
+        foreach (var match in data.Matches)
+        {
+            changed |= Apply(match, data.TreasureScreens, data);
+        }
+        return changed;
     }
 
     private static void Reset(MatchRecord m)
@@ -86,21 +100,22 @@ public static class TreasureScreenMerge
     /// <item>With a single gizmo card and two or more treasures over it, every treasure of the match is that kind
     /// (equal treasures share one card): all of them are named. With only one treasure over it the captures may just
     /// have missed the second card (the player left while it was still landing), so only the first is named.</item>
-    /// <item>With as many cards as treasures and none missed, every kind appeared once: each gizmo gets its card's
+    /// <item>With as many gizmo cards as gizmos and none missed, every kind appeared once: each gizmo gets its card's
     /// name, in order; when only the count matches partly, the first gizmo card still names the first gizmo.</item>
     /// <item>Cards beyond the treasures the replay saw are treasures it missed: they are always added, so they
-    /// count, with their name when it was read.</item>
+    /// count, with their name when it was read (skipping the featured cards the replay already saw).</item>
     /// </list>
     /// With cards missed and several kinds, no card can be tied to a replay find (the missed one may be the earlier
     /// one), so those stay unnamed. Two gizmo cards with the same name cannot happen (the game groups them): such a
-    /// reading is a misread, and names nothing. Nothing the replay saw is ever removed.
+    /// reading is a misread, and names nothing. Nothing the replay saw is ever removed. Only <paramref name="withCard"/>
+    /// is matched with the cards: a featured treasure the player already owned has none.
     /// </summary>
-    private static void ApplyScreen(MatchRecord m, TreasureScreen screen)
+    private static void ApplyScreen(MatchRecord m, TreasureScreen screen, List<TreasureFind> withCard)
     {
         const string unknown = TreasureScreenReader.Unknown;
         var cards = screen.Cards;
-        var seen = m.TreasureFinds.Count; // the replay's (screen ones were removed by Reset)
-        var replayGizmos = m.TreasureFinds.Where(f => !f.Featured).OrderBy(f => f.ObtainedAtSeconds ?? float.MaxValue).ToList();
+        var seen = withCard.Count; // the replay's (screen ones were removed by Reset)
+        var replayGizmos = withCard.Where(f => !f.Featured).OrderBy(f => f.ObtainedAtSeconds ?? float.MaxValue).ToList();
         var replayFeatured = seen - replayGizmos.Count;
         var missed = cards.Count - seen;
         if (missed > MaxMissed)
@@ -129,9 +144,10 @@ public static class TreasureScreenMerge
         else if (missed > 0)
         {
         }
-        // One card per treasure (as many cards as treasures, the unknown ones being exactly its featured treasures):
-        // each gizmo gets its card in order.
-        else if (head.Count == seen && head.Count(c => c == unknown) == replayFeatured && headGizmos.Count == replayGizmos.Count)
+        // One card per gizmo (as many gizmo cards as gizmos, the unknown ones being at most its featured treasures):
+        // each gizmo gets its card in order. A featured card the captures did not read (fewer cards than treasures)
+        // changes nothing: the gizmo cards are still the gizmos' kinds, in the order they were won.
+        else if (head.Count(c => c == unknown) <= replayFeatured && headGizmos.Count == replayGizmos.Count)
         {
             for (var i = 0; i < replayGizmos.Count; i++)
             {
@@ -145,11 +161,18 @@ public static class TreasureScreenMerge
             replayGizmos[0].ScreenName = first;
         }
 
-        // 2 · The ones the replay missed: the cards after those, always counted.
+        // 2 · The ones the replay missed: the cards after those, always counted. When the unknown cards are exactly the
+        // featured treasures the replay saw, the missed ones are gizmos: the gizmo cards after the replay's gizmos
+        // (with no gizmo in the replay, exactly the gizmo cards), wherever the featured cards stand among them.
+        var gizmoCards = cards.Where(c => c != unknown).ToList();
+        var missedGizmos = !contradictory && cards.Count(c => c == unknown) == replayFeatured
+                           && gizmoCards.Count - replayGizmos.Count == missed
+            ? gizmoCards.Skip(replayGizmos.Count).ToList()
+            : null;
         var localStart = m.MatchStartUtc is DateTime st ? DateTime.SpecifyKind(st, DateTimeKind.Utc).ToLocalTime() : DateTime.Now;
         for (var i = seen; i < cards.Count; i++)
         {
-            var name = !contradictory && cards[i] != unknown ? cards[i] : null;
+            var name = missedGizmos != null ? missedGizmos[i - seen] : !contradictory && cards[i] != unknown ? cards[i] : null;
             m.TreasureFinds.Add(new TreasureFind
             {
                 Item = name ?? TreasureNames.UnknownGizmo,

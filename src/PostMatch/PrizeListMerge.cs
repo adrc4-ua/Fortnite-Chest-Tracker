@@ -95,7 +95,7 @@ public static class PrizeListMerge
         // matches played in the stretch, except those whose end screen shows only gizmos for all their treasures
         var matches = data.Matches
             .Where(m => m.MatchStartUtc != null && End(m) > after && Start(m) < before)
-            .Where(m => !AllGizmos(m, data.TreasureScreens))
+            .Where(m => !AllGizmos(data, m))
             .OrderBy(Start)
             .ToList();
         if (matches.Count == 0)
@@ -113,7 +113,7 @@ public static class PrizeListMerge
             return f.ObtainedAtSeconds is not { } at || Start(m).AddSeconds(at) is var won && won > after && won < before;
         }
 
-        var withCard = matches.Where(m => HasFeaturedCard(m, data.TreasureScreens)).ToList();
+        var withCard = matches.Where(m => HasFeaturedCard(data, m)).ToList();
         var pick = withCard.SelectMany(m => m.TreasureFinds.Where(f => Unnamed(m, f)).Select(f => (m, f))).LastOrDefault();
         if (pick.f == null)
         {
@@ -148,18 +148,22 @@ public static class PrizeListMerge
         });
     }
 
-    /// <summary>The match's end screen was read and shows only gizmos, at least one per treasure: no featured prize.</summary>
-    private static bool AllGizmos(MatchRecord m, IEnumerable<TreasureScreen> screens) =>
-        TreasureScreenMerge.ScreenOf(m, screens) is { } screen && screen.Cards.Count > 0
-        && screen.Cards.All(c => c != TreasureScreenReader.Unknown) && screen.Cards.Count >= m.TreasureFinds.Count;
+    /// <summary>
+    /// The match's end screen was read and shows only gizmos, at least one per treasure with a card: no featured prize
+    /// (a featured one the player already owned has no card, and cannot be the new prize either).
+    /// </summary>
+    private static bool AllGizmos(TrackerData data, MatchRecord m) =>
+        TreasureScreenMerge.ScreenOf(m, data.TreasureScreens) is { } screen && screen.Cards.Count > 0
+        && screen.Cards.All(c => c != TreasureScreenReader.Unknown) && screen.Cards.Count >= OwnedPrizes.WithCard(data, m).Count;
 
     /// <summary>
-    /// The match's end screen shows more cards that are not gizmos than the featured treasures its replay already named
-    /// (each of those has its card too): one is a featured treasure the replay could not name.
+    /// The match's end screen shows more cards that are not gizmos than the new featured treasures its replay already
+    /// named (each of those has its card too; one the player already owned has none): one is a featured treasure the
+    /// replay could not name.
     /// </summary>
-    private static bool HasFeaturedCard(MatchRecord m, IEnumerable<TreasureScreen> screens) =>
-        TreasureScreenMerge.ScreenOf(m, screens) is { } screen
-        && screen.Cards.Count(c => c == TreasureScreenReader.Unknown) > m.TreasureFinds.Count(f => f.FromPrizeChest);
+    private static bool HasFeaturedCard(TrackerData data, MatchRecord m) =>
+        TreasureScreenMerge.ScreenOf(m, data.TreasureScreens) is { } screen
+        && screen.Cards.Count(c => c == TreasureScreenReader.Unknown) > OwnedPrizes.WithCard(data, m).Count(f => f.FromPrizeChest);
 
     private static string Signature(TrackerData data) =>
         string.Join("|", data.Matches.SelectMany(m => m.TreasureFinds.Where(f => f.FromPrizeList).Select(f => $"{m.SessionId}:{f.PrizeId}:{f.PrizeMatchLikely}")));

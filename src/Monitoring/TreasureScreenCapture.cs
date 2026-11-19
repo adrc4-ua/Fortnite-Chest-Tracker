@@ -52,8 +52,9 @@ internal sealed class TreasureScreenCapture
 
     /// <summary>
     /// One reading out of several. A capture often misses a card (caught while it was still landing, or in a frame
-    /// where it did not stand out), but a phantom card never shows up in more than one: so there are as many cards as
-    /// at least two captures saw (a single capture only counts when it is the only one). Each card's name is voted
+    /// where it did not stand out), and a stray one is rare (the reader drops the gold art of the screens that follow:
+    /// Sprite collection, loading screen, lobby): so there are as many cards as at least two captures saw (a single
+    /// capture only counts when it is the only one). Each card's name is voted
     /// among every capture that saw it (not only the later ones: the player can leave the screen early, after which
     /// later captures see a different, noisy UI and must not outvote the earlier, confident reads), and among equals
     /// the name read later wins. A card read as a gizmo only once among many unknown readings (a featured treasure)
@@ -127,10 +128,7 @@ internal sealed class TreasureScreenCapture
         }
         if (added)
         {
-            foreach (var match in data.Matches)
-            {
-                TreasureScreenMerge.Apply(match, data.TreasureScreens);
-            }
+            TreasureScreenMerge.ApplyAll(data);
             PrizeListMerge.Apply(data);
         }
         return added;
