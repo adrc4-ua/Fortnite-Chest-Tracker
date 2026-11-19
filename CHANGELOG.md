@@ -2,7 +2,7 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
-## [Sin publicar]
+## [5.13.0] - 2026-11-19
 
 - **Crear copia de seguridad desde Configuración**: la tarjeta «Copia de seguridad» de la ventana de Configuración incluye un botón «Crear copia» junto a «Restaurar…» que guarda al momento una copia del historial (partidas, cofres y tesoros), junto con los cofres de antes de FCT, igual que la que se hace al restablecer pero sin borrar nada. La copia aparece al instante en la tarjeta y se puede recuperar desde «Restaurar…». La copia más reciente se muestra debajo de los botones (fecha, hora y partidas).
 - **Distribución de Configuración más homogénea**: todas las tarjetas siguen la misma rejilla (separación de 12 px entre tarjetas, mismo margen interior, contenido a la misma altura bajo cada título, botones y campos de 32 px y la misma separación entre interruptores), sin huecos vacíos. «Copia de seguridad» pasa a la columna izquierda, junto a «Restablecer estadísticas…», y «Carpeta de replays» a la derecha, de modo que ambas columnas terminan a la misma altura.
@@ -393,6 +393,7 @@ Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede a
 
 - Primera versión publicada.
 
+[5.13.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.12.2...v5.13.0
 [5.12.2]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.12.1...v5.12.2
 [5.12.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.12.0...v5.12.1
 [5.12.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.11.0...v5.12.0
