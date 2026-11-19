@@ -68,6 +68,8 @@ The **Stats** button opens them in your browser, and they update by themselves w
 
 ## Settings
 
+<img src="docs/images/settings-en.png" alt="Settings" width="520" align="right">
+
 Changes are saved right away.
 
 - **Open with Fortnite:** FCT opens and closes with the game.
@@ -79,9 +81,7 @@ Changes are saved right away.
 - **Backup:** FCT keeps a copy when you reset your stats, and you can restore it from here.
 - **Language**, **overlay for OBS** and **uninstall**.
 
-<p align="center">
-<img src="docs/images/settings-en.png" alt="Settings" width="640">
-</p>
+<br clear="right">
 
 ## How accurate is it?
 
