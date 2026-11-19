@@ -137,7 +137,7 @@ Yes, between matches and without losing your data. Change it in *Settings → Up
 <details>
 <summary><b>How do I uninstall it?</b></summary>
 
-*Settings → Uninstall…* FCT removes itself from the PC and leaves nothing behind. Your data stays in `%APPDATA%\FCT` in case you come back; if you do not want it, delete that folder.
+*Settings → Uninstall…* FCT removes itself from the PC and leaves nothing behind. If you delete `FCT.exe` by hand instead (or send it to the Recycle Bin and empty it), it cleans up too: if it was open it closes and uninstalls just like the button, and if not, the "Open with Fortnite" task removes itself the next time it fires. Your data stays in `%APPDATA%\FCT` in case you come back; if you do not want it, delete that folder.
 </details>
 
 <details>

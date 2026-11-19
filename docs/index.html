@@ -759,14 +759,22 @@
       flex-grow: 1;
     }
 
+    /* The three captures share one box: same shape and size in every card, each one centred inside it on the
+       box's own background (they are 408 x 387-389 x 333 CSS px). */
     .feature-card .card-img {
       width: 100%;
       height: auto;
+      aspect-ratio: 408 / 389;
+      object-fit: contain;
+      object-position: center;
+      box-sizing: border-box;
+      padding: 12px;
       border-radius: 14px;
-      border: none;
+      border: 1px solid var(--line2);
+      background: radial-gradient(circle at center, rgba(232, 176, 75, 0.08) 0%, #0a0a0c 75%);
       margin-top: auto;
       display: block;
-      filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.6));
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
     }
 
     /* ---- Deep Dive Rival Treasures --------------------------------------- */
@@ -777,7 +785,7 @@
       padding: 44px;
       margin: 80px 0;
       display: grid;
-      grid-template-columns: 1fr 1.25fr;
+      grid-template-columns: 1fr 1.5fr; /* room for the table to show near its real size (600 px wide) */
       gap: 40px;
       align-items: center;
     }
@@ -918,15 +926,15 @@
       max-width: 320px;
       width: 82%;
       height: auto;
-      border-radius: 12px;
-      border: 1px solid var(--line2);
-      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.75), 0 0 24px rgba(232, 176, 75, 0.12);
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      border: none;
+      /* the capture has its own rounded, transparent corners: a shadow that follows them, no frame around them */
+      filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 18px rgba(232, 176, 75, 0.12));
+      transition: transform 0.25s ease, filter 0.25s ease;
     }
 
     .duo-card:hover .duo-media-overlay img {
       transform: scale(1.02);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8), 0 0 28px rgba(232, 176, 75, 0.22);
+      filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 22px rgba(232, 176, 75, 0.22));
     }
 
     .duo-media-stats {
@@ -937,6 +945,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: top left;
       display: block;
       transition: transform 0.25s ease;
     }
@@ -2020,8 +2029,8 @@
             </p>
           </div>
           <div class="duo-media duo-media-stats">
-            <img src="images/stats-summary-es.png" data-i18n-src-es="images/stats-summary-es.png"
-              data-i18n-src-en="images/stats-summary-en.png" alt="Panel de Estadísticas de FCT" id="img-stats">
+            <img src="images/web-dashboard-es.png" data-i18n-src-es="images/web-dashboard-es.png"
+              data-i18n-src-en="images/web-dashboard-en.png" alt="Panel de Estadísticas de FCT" id="img-stats">
           </div>
         </div>
       </div>

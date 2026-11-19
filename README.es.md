@@ -137,7 +137,7 @@ Sí, entre partida y partida y sin perder tus datos. Lo cambias en *Configuraci�
 <details>
 <summary><b>¿Cómo lo desinstalo?</b></summary>
 
-*Configuración → Desinstalar…* FCT se borra del PC sin dejar nada. Tus datos se quedan en `%APPDATA%\FCT` por si vuelves; si no los quieres, borra esa carpeta.
+*Configuración → Desinstalar…* FCT se borra del PC sin dejar nada. Si en vez de eso borras el `FCT.exe` a mano (o lo mandas a la papelera y la vacías), también se limpia solo: si estaba abierto se cierra y se desinstala igual que con el botón, y si no, la tarea de «Abrir con Fortnite» se quita sola la próxima vez que se active. Tus datos se quedan en `%APPDATA%\FCT` por si vuelves; si no los quieres, borra esa carpeta.
 </details>
 
 <details>
