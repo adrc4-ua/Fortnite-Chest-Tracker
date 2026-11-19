@@ -2,7 +2,7 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
-## [Sin publicar]
+## [5.14.0] - 2026-11-19
 
 - **Pantalla de tesoros sin cartas fantasma**: al salir de la pantalla final, la colección de Sprites, las pantallas de carga y el vestíbulo tienen dibujos amarillos que se leían como cartas durante muchas capturas seguidas, y dos huellas de fuegos artificiales sacadas por error de la colección hacían que esos Sprites se leyeran como fuegos: un acelerador podía acabar nombrado como fuegos artificiales. Ahora solo cuentan las cartas del panel de tesoros (su tamaño y su sitio, empezando en el margen del panel), en cualquier resolución y proporción.
 - **Artilugios reconocidos con más margen**: nuevas huellas de los cinco artilugios sacadas de pantallas reales (en las dos alturas del panel y en primera y segunda posición), y los tesoros destacados ya vistos (la mochila de Miku, la pista PPPP) se reconocen como «no es un artilugio», así que no se confunden con los fuegos artificiales.
@@ -404,6 +404,7 @@ Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede a
 
 - Primera versión publicada.
 
+[5.14.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.13.0...v5.14.0
 [5.13.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.12.2...v5.13.0
 [5.12.2]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.12.1...v5.12.2
 [5.12.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.12.0...v5.12.1

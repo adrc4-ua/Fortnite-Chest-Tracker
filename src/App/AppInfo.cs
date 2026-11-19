@@ -21,7 +21,7 @@ public static class AppInfo
 
     public static Version Version { get; } = typeof(AppInfo).Assembly.GetName().Version ?? new Version(1, 0, 0);
 
-    /// <summary>"5.13.0".</summary>
+    /// <summary>"5.14.0".</summary>
     public static string VersionText => $"{Version.Major}.{Version.Minor}.{(Version.Build < 0 ? 0 : Version.Build)}";
 
     /// <summary>The running .exe, whatever its file name; null when run through "dotnet" (tests, development).</summary>
