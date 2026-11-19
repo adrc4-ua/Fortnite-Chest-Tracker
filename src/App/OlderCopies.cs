@@ -101,9 +101,48 @@ internal static class OlderCopies
     {
         if (IsOlder(exe))
         {
-            TryDelete(exe);
+            TryDeleteWithBinRecord(exe);
         }
         DeleteUpdateLeftovers(exe);
+    }
+
+    /// <summary>
+    /// Ends the FCT processes, of any version but never this one, still running from an exe sent to the Recycle Bin
+    /// (versions before the bin was watched kept running from there, unseen), and deletes that exe from the bin.
+    /// </summary>
+    public static void EndThrownAway()
+    {
+        foreach (var process in Process.GetProcesses())
+        {
+            using (process)
+            {
+                if (process.Id == Environment.ProcessId || !NamedLikeFct(process.ProcessName) || ImageOf(process) is not { } exe
+                    || !ExeLocation.IsInRecycleBin(exe) || SameFile(exe, ExeLocation.Current) || VersionOf(exe) == null)
+                {
+                    continue;
+                }
+                try
+                {
+                    process.Kill();
+                    process.WaitForExit(5000);
+                    TryDeleteWithBinRecord(exe);
+                }
+                catch (Exception ex) when (ex is System.ComponentModel.Win32Exception or InvalidOperationException or NotSupportedException)
+                {
+                    // already gone, or not ours to end
+                }
+            }
+        }
+    }
+
+    /// <summary>Deletes a file and, inside the Recycle Bin, its record ("$I…"), so the bin does not list a file that is gone.</summary>
+    private static void TryDeleteWithBinRecord(string path)
+    {
+        TryDelete(path);
+        if (!File.Exists(path) && ExeLocation.RecycleBinRecord(path) is { } record)
+        {
+            TryDelete(record);
+        }
     }
 
     /// <summary>"FCT.exe.old", "FCT.exe.20261112093000123.old" (older exes) and "FCT.exe.download" beside an exe.</summary>

@@ -63,6 +63,13 @@ internal static class StandbyWatcher
         bool StopAsked(TimeSpan wait) => stopRequest.WaitOne(wait);
         while (!StopAsked(LookEvery))
         {
+            if (ExeLocation.InRecycleBin)
+            {
+                // thrown away by hand: as Settings → Uninstall (the data stays)
+                Uninstaller.RemoveTraces();
+                Uninstaller.DeleteSelfAfterExit();
+                return 0;
+            }
             if (!GameProcess.IsRunning())
             {
                 continue;
@@ -73,7 +80,7 @@ internal static class StandbyWatcher
             }
             openFct(exe, dataDir);
             // the same game session: never open FCT twice
-            while (GameProcess.IsRunning())
+            while (GameProcess.IsRunning() && !ExeLocation.InRecycleBin)
             {
                 if (StopAsked(CheckGameGoneEvery))
                 {
