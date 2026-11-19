@@ -6,7 +6,7 @@ namespace FCT.Overlay;
 /// <summary>
 /// FCT's web server, on this PC only (loopback) and only while FCT runs:
 /// <list type="bullet">
-/// <item>"/" (or "/overlay"): the overlay page for OBS, which refreshes its figures from "/view" every 2 s.</item>
+/// <item>"/" (or "/overlay"): the overlay page for OBS, which refreshes its figures from "/view" every 2 s ("/view/obs" inside OBS, which hides the overlay over the game).</item>
 /// <item>"/estadisticas": the stats page, so its own settings tab can change settings with "POST /api/ajuste".</item>
 /// </list>
 /// Safety: a request whose Host is not localhost/127.0.0.1 is refused (a website pointing its own name at 127.0.0.1
@@ -23,7 +23,7 @@ public static class ObsServer
     private static volatile string _overlayBox = "";
     private static long _lastObsPollTicks;
 
-    /// <summary>Whether an OBS browser source (or browser) is currently polling the overlay.</summary>
+    /// <summary>An OBS browser source is showing the overlay (it asked for it in the last few seconds).</summary>
     public static bool IsObsActive
     {
         get
@@ -124,14 +124,14 @@ public static class ObsServer
         {
             return LocalResponse.Text("403 Forbidden", "forbidden");
         }
-        if (request.Method == "GET" && request.Path is "/" or "/overlay" or "/view")
+        if (request.Method == "GET" && IsObsSource(request))
         {
             RecordObsActivity();
         }
         return (request.Method, request.Path) switch
         {
             ("GET", "/" or "/overlay") => LocalResponse.Html(OverlayPage.LivePage(_overlayBox)),
-            ("GET", "/view") => LocalResponse.Html(_overlayBox),
+            ("GET", "/view" or "/view/obs") => LocalResponse.Html(_overlayBox),
             ("GET", "/estadisticas") => StatsFile != null && File.Exists(StatsFile)
                 ? LocalResponse.Html(File.ReadAllText(StatsFile))
                 : LocalResponse.Text("404 Not Found", "stats page not ready"),
@@ -140,6 +140,16 @@ public static class ObsServer
             _ => LocalResponse.Text("404 Not Found", "not found"), // OPTIONS too: no preflight is ever accepted
         };
     }
+
+    /// <summary>
+    /// A request of the overlay from inside OBS: the page asks for /view/obs when it runs in a browser source (it has
+    /// window.obsstudio). A page OBS loaded from an older version asks for /view: OBS's browser names itself in its
+    /// user agent ("OBS/30.2.3"). A normal browser opening the address does not count.
+    /// </summary>
+    private static bool IsObsSource(LocalRequest request) =>
+        request.Path == "/view/obs"
+        || (request.Path is "/" or "/overlay" or "/view"
+            && request.Headers.TryGetValue("User-Agent", out var agent) && agent.Contains(" OBS/", StringComparison.Ordinal));
 
     private static void RecordObsActivity()
     {

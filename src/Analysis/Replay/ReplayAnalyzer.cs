@@ -9,10 +9,11 @@ public sealed class ReplayAnalyzer
 {
     /// <summary>
     /// Raise it whenever the analysis changes, so saved matches whose replay still exists are read again.
+    /// 22: a golden chest seen twice (out of range and back) counts once, one already open when seen has no exact time, and a teammate outside the squad (bot) is no opponent.
     /// 21: a treasure's source is a chest, never an ammo box or another container. 20: the container of opponents' featured treasures. 19: featured treasures seen won by opponents. 18: the Pirate Shop Access's prize id (a GUID) and golden chests with an unreadable id. 17: whether the player left the battle bus. 16: final elimination recorded. 15: every treasure grant read, squad treasures with their finder.
     /// 14: chests behind instance names, refilled chests.
     /// </summary>
-    public const int CurrentVersion = 21;
+    public const int CurrentVersion = 22;
 
     /// <summary>Set to an empty list before <see cref="Analyze"/> to receive the cross-check of the match (--diagnose).</summary>
     public List<string>? Diagnosis { get; set; }

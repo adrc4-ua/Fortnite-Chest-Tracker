@@ -398,6 +398,11 @@
       box-shadow: 0 6px 20px -4px rgba(232, 176, 75, 0.7);
     }
 
+    /* Las secciones enlazadas desde el menú no quedan tapadas por la cabecera fija */
+    section[id] {
+      scroll-margin-top: 88px;
+    }
+
     /* ---- Hero Section ---------------------------------------------------- */
     .hero {
       padding: 70px 0 50px;
@@ -1166,7 +1171,7 @@
     }
 
     /* ---- Responsive Design (Mobile & Tablets) ---- */
-    @media (max-width: 1040px) {
+    @media (max-width: 1260px) {
       .nav-links {
         display: none !important;
       }
@@ -1420,6 +1425,10 @@
         max-height: calc(100vh - 64px);
       }
 
+      section[id] {
+        scroll-margin-top: 76px;
+      }
+
       .logo-chest {
         width: 38px;
         height: 38px;
@@ -1500,10 +1509,7 @@
       }
 
       .floating-overlay-card {
-        position: static;
-        margin-top: 16px;
-        width: 100%;
-        max-width: none;
+        display: none;
       }
 
       .btn-main-download {
@@ -1632,7 +1638,7 @@
       }
 
       .faq-answer {
-        padding: 0 18px 16px;
+        padding: 14px 18px 16px;
         font-size: 13.5px;
       }
 
@@ -1768,12 +1774,12 @@
           </svg>
           <span data-i18n="nav_cta">Descargar Gratis</span>
         </a>
-        <button class="mobile-nav-copy-btn" id="mobile-nav-copy-btn" type="button" onclick="copyLink()">
+        <button class="mobile-nav-copy-btn" id="mobile-nav-copy-btn" type="button" onclick="copyLink(this)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
           </svg>
-          <span data-i18n="mobile_helper_btn">Copiar enlace</span>
+          <span data-i18n="btn_copy">Copiar Enlace</span>
         </button>
       </div>
       <div class="mobile-nav-footer">
@@ -1851,9 +1857,9 @@
 
       <!-- Mobile User Helper (TikTok conversion) -->
       <div class="mobile-helper" id="mobile-helper">
-        <span data-i18n-html="mobile_helper_txt">📱 <strong>¿Estás en el móvil?</strong> Cópia el enlace para
+        <span data-i18n-html="mobile_helper_txt">📱 <strong>¿Estás en el móvil?</strong> Copia el enlace para
           descargarlo al encender tu PC.</span>
-        <button class="mobile-helper-btn" id="copy-link-btn" onclick="copyLink()" data-i18n="btn_copy">Copiar
+        <button class="mobile-helper-btn" id="copy-link-btn" onclick="copyLink(this)" data-i18n="btn_copy">Copiar
           Enlace</button>
       </div>
 
@@ -2177,7 +2183,7 @@
         trust_safe: "100% Seguro",
         trust_portable: "Sin instalación (Portátil)",
         trust_open: "Código Abierto en GitHub",
-        mobile_helper_txt: '📱 <strong>¿Estás en el móvil?</strong> Cópia el enlace para descargarlo al encender tu PC.',
+        mobile_helper_txt: '📱 <strong>¿Estás en el móvil?</strong> Copia el enlace para descargarlo al encender tu PC.',
         btn_copy: "Copiar Enlace",
         copied: "¡Enlace copiado! ✓",
         overlay_float_title: "Overlay de cofres",
@@ -2581,24 +2587,27 @@
     }
 
     // Copiar enlace en móvil o compartir
-    function copyLink() {
+    function copyLink(btn) {
       const isEn = currentLang === 'en';
       const isFile = window.location.protocol === 'file:';
       const shareUrl = isFile
         ? window.location.href
         : (isEn ? 'https://adrc4-ua.github.io/Fortnite-Chest-Tracker/en/' : 'https://adrc4-ua.github.io/Fortnite-Chest-Tracker/');
+      if (!navigator.clipboard || !navigator.clipboard.writeText) return;
       navigator.clipboard.writeText(shareUrl).then(() => {
-        const b = document.getElementById('copy-link-btn');
-        const originalText = i18nData[currentLang].btn_copy || 'Copiar Enlace';
-        b.textContent = i18nData[currentLang].copied || '¡Enlace copiado! ✓';
+        const b = btn || document.getElementById('copy-link-btn');
+        const label = b.querySelector('[data-i18n]') || b;
+        const dict = i18nData[currentLang] || i18nData.es;
+        const originalText = dict.btn_copy;
+        label.textContent = dict.copied;
         b.style.background = 'var(--gold)';
         b.style.color = '#1a1206';
         setTimeout(() => {
-          b.textContent = originalText;
+          label.textContent = originalText;
           b.style.background = '';
           b.style.color = '';
         }, 3000);
-      });
+      }).catch(() => {});
     }
 
     // Cerrar modal con Escape o clic fuera
@@ -2654,6 +2663,10 @@
 
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeMobileMenu();
+    });
+
+    window.addEventListener('resize', () => {
+      if (mobileMenuBtn && getComputedStyle(mobileMenuBtn).display === 'none') closeMobileMenu();
     });
   </script>
 </body>

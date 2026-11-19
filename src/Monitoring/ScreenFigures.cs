@@ -12,8 +12,9 @@ internal static class ScreenFigures
     /// <param name="live">The match in progress of this profile, or null.</param>
     /// <param name="initialChests">Chests before FCT.</param>
     /// <param name="earlierMatches">Matches before FCT.</param>
-    /// <param name="manualAverage">Manual average entered by user, if any.</param>
-    public static ChestStats Stats(List<MatchRecord> matches, MatchRecord? live, int initialChests = 0, int earlierMatches = 0, double? manualAverage = null)
+    /// <param name="estimate">The profile's estimate: a typed average in it is the base of the average shown
+    /// (<see cref="Profiles.ShownAverage"/>).</param>
+    public static ChestStats Stats(List<MatchRecord> matches, MatchRecord? live, int initialChests = 0, int earlierMatches = 0, HistoryEstimate? estimate = null)
     {
         var today = DateTime.Now.Date;
         var byDay = new Dictionary<DateTime, int>();
@@ -27,23 +28,7 @@ internal static class ScreenFigures
 
         var totalMatches = matches.Count + earlierMatches;
         var totalChests = matches.Sum(m => m.ChestsOpened) + Math.Max(0, initialChests);
-        double average;
-        if (matches.Count == 0 && manualAverage is { } manual && manual > 0)
-        {
-            average = manual;
-        }
-        else if (totalMatches > 0)
-        {
-            average = (double)totalChests / totalMatches;
-        }
-        else if (manualAverage is { } m && m > 0)
-        {
-            average = m;
-        }
-        else
-        {
-            average = 0;
-        }
+        var average = Profiles.ShownAverage(matches, estimate, totalChests, totalMatches) ?? 0;
 
         return new ChestStats(
             Matches: matches.Count,
@@ -58,7 +43,7 @@ internal static class ScreenFigures
             HistoryMatches = matches.Count,
             EarlierMatches = earlierMatches,
             InitialChests = initialChests,
-            ManualAverage = manualAverage,
+            ManualAverage = estimate?.ManualAverage,
             HistorySince = matches.Count == 0 ? null : matches.Min(Day),
             LastMatch = Latest(matches) is { } last
                 ? new LastMatchSummary(last.ChestsOpened, last.Chests.Count(c => c.Destroyed), last.TreasureFinds.Count, last.Placement, last.TotalPlayers, last.Eliminations, last.DurationSeconds)

@@ -79,7 +79,12 @@ internal static class MatchDiagnosis
             var opener = payout.Pawn is { } pawn && pawn != 0
                 ? match.TargetPawns.Contains(pawn) ? me : match.MatePawns.TryGetValue(pawn, out var mate) ? mate : L.T("rival", "opponent")
                 : L.T("desconocido", "unknown");
-            lines.Add($"  ◆ {Pretty.Clock(payout.Time)}  {L.T("cofre de premio destacado", "featured treasure chest")}: {payout.PrizeId} → "
+            // its source container's search (how its time is checked): seen opened in range, or already open when seen
+            var search = signals.Searches.Where(s => s.Key == payout.Container).OrderBy(s => Math.Abs(s.Time - payout.Time)).FirstOrDefault();
+            var late = signals.SeenLate(payout) ? " " + L.T("(ya abierto al verlo)", "(already open when seen)")
+                : search != null ? " " + L.F("(cofre abierto a {0:+0.0;-0.0} s)", "(chest opened at {0:+0.0;-0.0} s)", search.Time - payout.Time)
+                : " " + L.T("(sin su cofre en el replay)", "(its chest is not in the replay)");
+            lines.Add($"  ◆ {Pretty.Clock(payout.Time)}{late}  {L.T("cofre de premio destacado", "featured treasure chest")}: {payout.PrizeId} → "
                       + $"{(prize != null ? $"{prize.Name} ({Prizes.TypeName(prize.Type)})" : L.T("no está en el catálogo", "not in the catalogue"))} · {opener} · {payout.Container}");
         }
 

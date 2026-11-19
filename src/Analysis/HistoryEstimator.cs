@@ -12,8 +12,10 @@ namespace FCT.Analysis;
 /// <item>The total is the current season's (Fortnite stats, season window), so only the replays of that season are
 /// subtracted: the season is the Fortnite major version of the newest replay (each season is a major version). Replays
 /// with no readable version count as this season's. Replays of earlier seasons still go into the average.</item>
-/// <item>The average is rounded down when there was no replay at all, or <see cref="ReplayCap"/> or more (Fortnite
-/// keeps no more: the history is cut); otherwise it is used as is.</item>
+/// <item>The average is rounded down when there was no replay at all, or when the replays folder was full
+/// (<see cref="ReplayCap"/> files, of any mode or account: Fortnite keeps no more, so the history is cut); otherwise it is
+/// used as is. The folder is what counts, not the matches: with a full folder some replays never count (other modes,
+/// the one being recorded), so the matches rarely reach the cap.</item>
 /// <item>Or the player types the average: it is used as is, with no waiting and no rounding.</item>
 /// </list>
 /// </summary>
@@ -22,8 +24,11 @@ public static class HistoryEstimator
     /// <summary>Saved matches from which the average is computed directly without waiting for sample matches.</summary>
     public const int AutoAverageMatches = 15;
 
-    /// <summary>Replays Fortnite keeps at most on PC (not documented by Epic: checked by hand).</summary>
+    /// <summary>Replays Fortnite keeps at most on PC (not documented by Epic: checked by hand, 100 files in the folder).</summary>
     public const int ReplayCap = 100;
+
+    /// <summary>A folder with this many replays is full: older ones were already deleted.</summary>
+    public static bool IsCut(int replayFiles) => replayFiles >= ReplayCap;
 
     /// <summary>New matches the average needs by default, and the recommended number.</summary>
     public const int DefaultSample = 5, RecommendedSample = 10;
@@ -50,7 +55,10 @@ public static class HistoryEstimator
     /// <param name="snapshotUtc">When that total was taken: matches before it are the replays, after it the new ones.</param>
     /// <param name="sample">New matches to play for the average.</param>
     /// <param name="manualAverage">Average typed by the player (chests per match), or null to calculate it.</param>
-    public static Result Compute(IReadOnlyList<MatchRecord> matches, int totalMatches, DateTime snapshotUtc, int sample = DefaultSample, double? manualAverage = null)
+    /// <param name="historyCut">The replays folder was full when the estimate was taken (<see cref="IsCut"/>); null
+    /// (estimates of older versions) judges it by the matches counted.</param>
+    public static Result Compute(IReadOnlyList<MatchRecord> matches, int totalMatches, DateTime snapshotUtc, int sample = DefaultSample, double? manualAverage = null,
+        bool? historyCut = null)
     {
         static DateTime Start(MatchRecord m) => m.MatchStartUtc ?? m.AnalyzedAtUtc;
         sample = Math.Max(0, sample);
@@ -66,13 +74,22 @@ public static class HistoryEstimator
             return new Result(Times(typed), replays.Count, seasonReplays, 0, typed, false, 0, null) { Missing = missing };
         }
 
-        var rounded = replays.Count == 0 || replays.Count >= ReplayCap;
+        var rounded = replays.Count == 0 || (historyCut ?? IsCut(replays.Count));
         double Round(double a) => rounded ? Math.Floor(a) : a;
-        if (sample == 0 || seasonMatches.Count >= AutoAverageMatches)
+        // Enough saved matches of this season (or chosen with none to wait for): the average comes from them, at once.
+        var autoPool = seasonMatches.Count >= AutoAverageMatches ? seasonMatches
+            : sample == 0 ? (seasonMatches.Count > 0 ? seasonMatches : replays)
+            : null;
+        if (autoPool is { Count: > 0 })
         {
-            var autoPool = seasonMatches.Count >= AutoAverageMatches ? seasonMatches : (seasonMatches.Count > 0 ? seasonMatches : replays);
-            var autoAvg = autoPool.Count > 0 ? Round((double)autoPool.Sum(m => m.OwnChests) / autoPool.Count) : 0;
+            var autoAvg = Round((double)autoPool.Sum(m => m.OwnChests) / autoPool.Count);
             return new Result(Times(autoAvg), replays.Count, seasonReplays, 0, autoAvg, rounded, 0, null) { Missing = missing };
+        }
+        if (sample == 0)
+        {
+            // None of the saved matches counts (other modes, other seasons): nothing to average yet, so it waits for the
+            // usual number of new matches instead of calling it 0 chests.
+            sample = DefaultSample;
         }
         var fresh = matches.Where(m => Start(m) > snapshotUtc).OrderBy(Start).Take(sample).ToList();
         if (fresh.Count < sample)

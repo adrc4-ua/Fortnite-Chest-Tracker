@@ -50,6 +50,22 @@ public sealed class Tracker
     /// <summary>Replays the next scan will read.</summary>
     public int BacklogCount() => _folder.NotHandled().Count(ReplayFolder.NotRecording);
 
+    /// <summary>
+    /// Replays of these files from the newest season among them (read from their headers, not yet counted), or 0 when it is
+    /// older than FCT supports. Only an approximation of the matches they will give (other modes do not count).
+    /// </summary>
+    public static int LatestSeasonCount(IEnumerable<FileInfo> files)
+    {
+        var versions = files
+            .Select(f => Profiles.ParseFortniteMajorVersion(ReplayHeaderProbe.ReadGameVersion(f.FullName)))
+            .Where(v => v != null)
+            .Select(v => v!.Value)
+            .ToList();
+        return versions.Count > 0 && versions.Max() is var season && season >= Profiles.MinFortniteMajorVersion
+            ? versions.Count(v => v == season)
+            : 0;
+    }
+
     /// <summary>Records these replays as not to be counted.</summary>
     public void MarkSkipped(IEnumerable<FileInfo> files)
     {
@@ -64,14 +80,17 @@ public sealed class Tracker
     /// Saved replays left out on purpose ("only new ones" at the first start, or a reset), still in the folder. Read from
     /// another thread too: a copy of the verdicts is taken, again if the scan changes them meanwhile.
     /// </summary>
-    public int SkippedOnDisk()
+    public int SkippedOnDisk() => SkippedFilesOnDisk().Count;
+
+    /// <summary>The files of <see cref="SkippedOnDisk"/>.</summary>
+    public List<FileInfo> SkippedFilesOnDisk()
     {
         for (var attempt = 0; ; attempt++)
         {
             try
             {
                 var skipped = Data.ProcessedFiles.Where(e => e.Value == Skipped).Select(e => e.Key).ToHashSet();
-                return skipped.Count == 0 ? 0 : _folder.All().Where(ReplayFolder.NotRecording).Count(f => skipped.Contains(FileKey(f)));
+                return skipped.Count == 0 ? new List<FileInfo>() : _folder.All().Where(ReplayFolder.NotRecording).Where(f => skipped.Contains(FileKey(f))).ToList();
             }
             catch (InvalidOperationException) when (attempt < 3)
             {

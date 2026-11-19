@@ -26,19 +26,7 @@ internal static class FirstRun
         {
             return Outcome.Closed;
         }
-        var savedMatches = 0;
-        if (countSaved == true)
-        {
-            var versions = saved
-                .Select(f => Profiles.ParseFortniteMajorVersion(ReplayHeaderProbe.ReadGameVersion(f.FullName)))
-                .Where(v => v != null)
-                .Select(v => v!.Value)
-                .ToList();
-            var latestSeason = versions.Count > 0 ? versions.Max() : (int?)null;
-            savedMatches = latestSeason is int s && s >= Profiles.MinFortniteMajorVersion
-                ? versions.Count(v => v == s)
-                : 0;
-        }
+        var savedMatches = countSaved == true ? Tracker.LatestSeasonCount(saved) : 0;
         // Without saved matches to count (none, or "only new ones"), the estimate's first choice is "start from zero".
         if (EstimateDialog.Ask(null, null, null, null, null, fromScratch: countSaved != true || saved.Count == 0, savedMatches: savedMatches) is not { } earlier)
         {
@@ -60,6 +48,8 @@ internal static class FirstRun
                 SampleSize = earlier.Sample,
                 ManualAverage = earlier.ManualAverage,
                 PlayerName = earlier.PlayerName,
+                // every .replay in the folder (other modes, other accounts too): full means older ones are gone
+                HistoryCut = HistoryEstimator.IsCut(tracker.ReplayFiles().Count()),
             };
             if (!string.IsNullOrWhiteSpace(earlier.PlayerName) && string.IsNullOrEmpty(config.Profile))
             {
@@ -67,19 +57,19 @@ internal static class FirstRun
             }
             if (earlier.ManualAverage != null && (countSaved != true || saved.Count == 0))
             {
-                var computed = HistoryEstimator.Compute(Array.Empty<MatchRecord>(), earlier.TotalMatches, estimate.SnapshotUtc, earlier.Sample, earlier.ManualAverage);
+                var computed = HistoryEstimator.Compute(Array.Empty<MatchRecord>(), earlier.TotalMatches, estimate.SnapshotUtc, earlier.Sample, earlier.ManualAverage, estimate.HistoryCut);
                 if (computed.Chests is { } chests)
                 {
                     estimate.Done = true;
                     if (chests > 0)
                     {
                         config.InitialChests[key] = chests;
-                        config.InitialChests[""] = chests;
                     }
                 }
             }
+            // Under the Epic name typed (the profile shown until the first match; the replays then move it to the real
+            // account and its real name), or under "" without one (the first match's profile takes it).
             config.Estimates[key] = estimate;
-            config.Estimates[""] = estimate;
         }
         else
         {

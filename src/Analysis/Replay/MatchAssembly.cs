@@ -154,7 +154,8 @@ internal sealed class MatchAssembly
 
     /// <summary>
     /// Golden chests opened by opponents near the recording player: the prize, when, and who (from the opener's pawn
-    /// to its player). A chest whose opener is unknown could be the squad's out of sight, so it is left out.
+    /// to its player). A chest whose opener is unknown could be the squad's out of sight, so it is left out; so is one
+    /// opened by someone of the player's own team who is not in the squad (a bot teammate).
     /// </summary>
     public List<RivalTreasure> RivalTreasures()
     {
@@ -169,6 +170,10 @@ internal sealed class MatchAssembly
             var player = Signals.PawnState.TryGetValue(opener, out var state) && Signals.StatePlayer.TryGetValue(state, out var id)
                 ? players.FirstOrDefault(p => p.Id == id)
                 : null;
+            if (player?.TeamIndex is { } team && Target?.TeamIndex == team)
+            {
+                continue; // same team: not an opponent
+            }
             var label = SignalReader.ShortName(payout.Container);
             list.Add(new RivalTreasure
             {
@@ -177,6 +182,7 @@ internal sealed class MatchAssembly
                 AtSeconds = MathF.Round(payout.Time, 1),
                 Player = string.IsNullOrWhiteSpace(player?.PlayerName) ? null : player.PlayerName.Trim(),
                 Bot = player?.IsBot == true,
+                SeenLate = Signals.SeenLate(payout),
             });
         }
         return list;
@@ -203,7 +209,7 @@ internal sealed class MatchAssembly
                 RawItem = payout.PrizeId,
                 PrizeId = payout.PrizeId,
                 FromPrizeChest = true,
-                TimeExact = true,
+                TimeExact = !Signals.SeenLate(payout), // opened before it came into range: only when it was seen
                 ObtainedAtSeconds = MathF.Round(payout.Time, 1),
                 SourceKind = kind,
                 SourceBlueprint = label,

@@ -142,22 +142,17 @@ public static class Profiles
     // ---- Chests before FCT -------------------------------------------------------------------------------------------------------
 
     /// <summary>Estimated chests before FCT of an account ("" or null: before the first match). Never negative.</summary>
-    public static int InitialChests(Config config, string? key)
-    {
-        if (config.InitialChests == null)
-        {
-            return 0;
-        }
-        if (config.InitialChests.TryGetValue(key ?? "", out var chests) && chests > 0)
-        {
-            return chests;
-        }
-        if (config.InitialChests.TryGetValue("", out chests) && chests > 0)
-        {
-            return chests;
-        }
-        return 0;
-    }
+    /// <remarks>Only the account's own number: "" (before the first match) moves to the first profile when it arrives,
+    /// so another profile never shows it.</remarks>
+    public static int InitialChests(Config config, string? key) =>
+        config.InitialChests != null && config.InitialChests.TryGetValue(key ?? "", out var chests) && chests > 0 ? chests : 0;
+
+    /// <summary>
+    /// The estimate of an account's earlier chests: its own, or the one asked before the first match (still under "")
+    /// that will become its own. Never another account's.
+    /// </summary>
+    public static HistoryEstimate? EstimateOf(Config config, string? key) =>
+        config.Estimates.GetValueOrDefault(key ?? "") ?? config.Estimates.GetValueOrDefault("");
 
     public static int InitialChests(TrackerData data, Config config) => InitialChests(config, Current(data, config)?.Key);
 
@@ -168,10 +163,30 @@ public static class Profiles
     public static int EarlierMatches(Config config, string? key, IReadOnlyList<MatchRecord> matches)
     {
         // asked before the first match: still filed under "" until its average can be worked out
-        var estimate = config.Estimates.GetValueOrDefault(key ?? "") ?? config.Estimates.GetValueOrDefault("");
+        var estimate = EstimateOf(config, key);
         return estimate is { Done: true, TotalMatches: > 0 }
             ? HistoryEstimator.Compute(matches, estimate.TotalMatches, estimate.SnapshotUtc, estimate.SampleSize, estimate.ManualAverage).Missing
             : 0;
+    }
+
+    /// <summary>
+    /// Chests per match shown everywhere (window, stats page, overlay). With an average typed by the player ("I know it,
+    /// I'll type it", at the first start or on Recalculate) that average is the base: it stands for every season match up
+    /// to the estimate (its total), so right after it is exactly the typed figure, and each match played since moves it as
+    /// usual: (typed × total + chests since) / (total + matches since). Otherwise <paramref name="totalChests"/> /
+    /// <paramref name="totalMatches"/>; null with no match at all.
+    /// </summary>
+    /// <param name="matches">The account's counted matches.</param>
+    public static double? ShownAverage(IReadOnlyList<MatchRecord> matches, HistoryEstimate? estimate, int totalChests, int totalMatches)
+    {
+        if (estimate is { ManualAverage: > 0 } typed)
+        {
+            var since = matches.Where(m => (m.MatchStartUtc ?? m.AnalyzedAtUtc) > typed.SnapshotUtc).ToList();
+            var baseMatches = Math.Max(0, typed.TotalMatches);
+            var all = baseMatches + since.Count;
+            return all == 0 ? typed.ManualAverage!.Value : (typed.ManualAverage!.Value * baseMatches + since.Sum(m => m.ChestsOpened)) / all;
+        }
+        return totalMatches > 0 ? (double)totalChests / totalMatches : null;
     }
 
     /// <summary>Every match of the account on screen: those before FCT, the counted ones and those left in the bus.</summary>

@@ -31,12 +31,22 @@ public static class StatsClient
         : typeof(StatsClient).Assembly.GetCustomAttributes<AssemblyMetadataAttribute>()
             .FirstOrDefault(a => a.Key == "FortniteApiKey")?.Value is { Length: > 0 } key ? key : null;
 
+    /// <summary>
+    /// Tests only (FCT.Tests): answers in place of fortnite-api.com, so no test ever reaches the real service whatever
+    /// key the build carries. Never set by the app.
+    /// </summary>
+    internal static Func<string?, string?, Answer>? TestAnswer { get; set; }
+
     /// <summary>True when this build can look the matches up by itself.</summary>
-    public static bool Available => Key != null;
+    public static bool Available => TestAnswer != null || Key != null;
 
     /// <summary>Matches of the player in the current season (timeWindow=season): by account id when known, else by Epic name.</summary>
     public static async Task<Answer> TotalMatchesAsync(string? accountId, string? name)
     {
+        if (TestAnswer is { } fake)
+        {
+            return fake(accountId, name);
+        }
         if (Key is not { } key)
         {
             return new Answer(Outcome.NoKey);
@@ -55,7 +65,7 @@ public static class StatsClient
 
             if (byId)
             {
-                var idAnswer = await FetchAsync(http, $"https://fortnite-api.com/v2/stats/br/v2/{accountId!.ToLowerInvariant()}?timeWindow=season");
+                var idAnswer = await FetchAsync(http, $"https://fortnite-api.com/v2/stats/br/v2/{accountId!.ToLowerInvariant()}?timeWindow=season").ConfigureAwait(false);
                 if (idAnswer.Outcome is not Outcome.NotFound || cleanName == null)
                 {
                     return idAnswer;
@@ -63,7 +73,7 @@ public static class StatsClient
             }
 
             return cleanName != null
-                ? await FetchAsync(http, $"https://fortnite-api.com/v2/stats/br/v2?name={Uri.EscapeDataString(cleanName)}&accountType=epic&timeWindow=season")
+                ? await FetchAsync(http, $"https://fortnite-api.com/v2/stats/br/v2?name={Uri.EscapeDataString(cleanName)}&accountType=epic&timeWindow=season").ConfigureAwait(false)
                 : new Answer(Outcome.NotFound);
         }
         catch
@@ -74,10 +84,10 @@ public static class StatsClient
 
     private static async Task<Answer> FetchAsync(HttpClient http, string url)
     {
-        using var response = await http.GetAsync(url);
+        using var response = await http.GetAsync(url).ConfigureAwait(false);
         if (!response.IsSuccessStatusCode)
         {
-            var error = await ErrorText(response);
+            var error = await ErrorText(response).ConfigureAwait(false);
             return (int)response.StatusCode switch
             {
                 403 => new Answer(Outcome.Private),
@@ -90,7 +100,7 @@ public static class StatsClient
                 _ => new Answer(Outcome.Failed),
             };
         }
-        using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
         var data = doc.RootElement.GetProperty("data");
         // Sin partidas esta temporada, "overall" llega vacío (null): son 0.
         var matches = data.TryGetProperty("stats", out var stats) && stats.TryGetProperty("all", out var all)
@@ -105,7 +115,7 @@ public static class StatsClient
     {
         try
         {
-            using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+            using var doc = JsonDocument.Parse(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
             return doc.RootElement.TryGetProperty("error", out var e) ? e.GetString() ?? "" : "";
         }
         catch

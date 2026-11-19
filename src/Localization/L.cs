@@ -38,14 +38,20 @@ public static class L
     public static CultureInfo Culture => Now.Culture;
 
     /// <summary>Windows' language (or FCT_LANG), whatever was chosen in Settings.</summary>
-    public static string SystemCode
+    public static string SystemCode =>
+        Supported(Environment.GetEnvironmentVariable("FCT_LANG") is { Length: > 0 } forced ? forced : CultureInfo.CurrentUICulture.TwoLetterISOLanguageName);
+
+    /// <summary>
+    /// The language a first run keeps in config.json: Windows' (English when FCT has no texts for it). Null when FCT_LANG
+    /// forces one, so a test language is never saved.
+    /// </summary>
+    public static string? FirstRunCode =>
+        Environment.GetEnvironmentVariable("FCT_LANG") is { Length: > 0 } ? null : Supported(CultureInfo.CurrentUICulture.TwoLetterISOLanguageName);
+
+    private static string Supported(string wanted)
     {
-        get
-        {
-            var wanted = Environment.GetEnvironmentVariable("FCT_LANG") is { Length: > 0 } forced ? forced : CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
-            var code = wanted.Length < 2 ? "" : wanted[..2].ToLowerInvariant();
-            return IsAvailable(code) ? code : "en";
-        }
+        var code = wanted.Length < 2 ? "" : wanted[..2].ToLowerInvariant();
+        return IsAvailable(code) ? code : "en";
     }
 
     /// <summary>Applies the Settings choice (null or unknown: Windows' language). FCT_LANG always wins.</summary>

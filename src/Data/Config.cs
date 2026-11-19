@@ -11,8 +11,9 @@ public sealed class Config
     // ---- General ---------------------------------------------------------------------------------------------------------
 
     /// <summary>
-    /// App language ("es", "en"…), null for the Windows one. Stored as "UiLanguage": an older key held "es" for
-    /// every installation and would otherwise force Spanish on everyone.
+    /// App language ("es", "en"…), null for the Windows one. A first run stores Windows' language here, so it stays
+    /// until changed in Settings. Stored as "UiLanguage": an older key held "es" for every installation and would
+    /// otherwise force Spanish on everyone.
     /// </summary>
     [JsonPropertyName("UiLanguage")]
     public string? Language { get; set; }
@@ -174,6 +175,19 @@ public sealed class HistoryEstimate
 
     /// <summary>Epic username entered when setting up the estimate (used before replays exist or to detect renames).</summary>
     public string? PlayerName { get; set; }
+
+    /// <summary>
+    /// Chosen in Settings → Recalculate with another player's name on purpose: kept as it is, never checked against the
+    /// name in the replays.
+    /// </summary>
+    public bool OtherProfile { get; set; }
+
+    /// <summary>
+    /// The replays folder was full (<see cref="HistoryEstimator.ReplayCap"/> files) when the estimate was taken: Fortnite
+    /// had already deleted older replays, so the average is rounded down. Null in estimates of older versions (then
+    /// judged by the matches counted, as they did).
+    /// </summary>
+    public bool? HistoryCut { get; set; }
 
     /// <summary>Already turned into <see cref="Config.InitialChests"/>.</summary>
     public bool Done { get; set; }

@@ -69,9 +69,11 @@ internal static class TreasuresTab
                     ? $"<span class=\"player-bot\">{Esc(rival.Player)}<span class=\"chipl\">{L.T("bot", "bot")}</span></span>"
                     : Esc(rival.Player);
             var find = new TreasureFind { PrizeId = rival.PrizeId, FromPrizeChest = true };
+            // already open when it came into range: obtained then or earlier
+            var at = rival.SeenLate ? $"<span class=\"note\">{L.T("antes de", "before")}</span> {Pretty.Clock(rival.AtSeconds)}" : Pretty.Clock(rival.AtSeconds);
             html.Append("<tr>")
                 .Append($"<td class=\"nowrap\">{L.DateTimeShort(LocalStart(match))}<div class=\"note\">{Esc(Pretty.Playlist(match.Playlist))}</div></td>")
-                .Append($"<td>{TreasureCell(find, LocalStart(match))}</td><td class=\"ac nowrap\">{who}</td><td class=\"ac nowrap num\">{Pretty.Clock(rival.AtSeconds)}</td>")
+                .Append($"<td>{TreasureCell(find, LocalStart(match))}</td><td class=\"ac nowrap\">{who}</td><td class=\"ac nowrap num\">{at}</td>")
                 .Append($"<td class=\"ac\">{(rival.SourceKind.Length == 0 ? Dash : Esc(rival.SourceLabel))}</td></tr>");
         }
         return Section(title, meta, html.Append("</tbody></table></div>").ToString(), "tre-list rivals-sec");

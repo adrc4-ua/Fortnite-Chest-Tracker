@@ -43,17 +43,4 @@ internal sealed class PlayerFollower
         // An account without counted matches yet is followed once its first match is counted.
         return Profiles.List(_data, config).FirstOrDefault(p => p.Key == account);
     }
-
-    /// <summary>The match in progress only if it belongs to the profile on screen (another player's never adds here).</summary>
-    public MatchRecord? LiveOfShown()
-    {
-        var config = _config();
-        var live = _tracker.LiveMatch;
-        if (live == null || !Profiles.Counted(live, config))
-        {
-            return null;
-        }
-        var shown = Profiles.Current(_data, config)?.Key;
-        return shown == null || Profiles.Key(live) == shown ? Profiles.Adjust(live, config) : null;
-    }
 }

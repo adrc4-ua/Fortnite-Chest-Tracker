@@ -48,6 +48,8 @@
       <_Parameter1>FortniteApiKey</_Parameter1>
       <_Parameter2>$(FORTNITE_API_KEY)</_Parameter2>
     </AssemblyAttribute>
+    <!-- The tests (tests/FCT.Tests) reach the internal classes. -->
+    <InternalsVisibleTo Include="FCT.Tests" />
   </ItemGroup>
   <ItemGroup>
     <!-- FCT's replay models are their own assembly (see ReplayModels/): not compiled into FCT.exe's. -->

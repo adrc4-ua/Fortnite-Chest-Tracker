@@ -28,7 +28,8 @@ public sealed class AppMonitor
     private GameLogWatcher? _gameLog;
     private volatile bool _stop, _publishRequested, _statsRequested, _scanned;
     private volatile string? _shownKey, _shownName, _notice, _resetBackup, _restoreBackup;
-    private volatile bool _countSkipped;
+    private volatile bool _countSkipped, _makeBackup;
+    private volatile bool _readingSkipped; // skipped replays asked to be counted: not read yet, so no estimate is applied
     private volatile ScanProgress? _progress;
     private DateTime _noticeUntil, _nextScan = DateTime.UtcNow, _nextGameCheck, _nextDisplayCheck;
     private DateTime? _fortniteClosedSince;
@@ -43,7 +44,7 @@ public sealed class AppMonitor
         _tracker = tracker;
         DataFolder = dataDir;
         _settings = new SettingsGate(store, config);
-        _earlier = new EarlierChests(_settings, data);
+        _earlier = new EarlierChests(_settings, data, () => tracker.ReplayFiles().Count());
         _follower = new PlayerFollower(data, tracker, () => config);
         _screens = new TreasureScreenCapture(() => _wake.Set());
         _updates = new UpdateFlow(() => config, RequestPublish);
@@ -367,10 +368,11 @@ public sealed class AppMonitor
         _wake.Set();
     }
 
-    public void SetEstimate(int? totalMatches, string source, int sample, double? manualAverage, string? playerName = null)
+    public void SetEstimate(int? totalMatches, string source, int sample, double? manualAverage, string? playerName = null, bool otherProfile = false)
     {
-        _earlier.SetEstimate(totalMatches, source, sample, manualAverage, playerName);
-        ApplyEstimates();
+        // what is left pending is applied by the monitor thread, woken right away (never here: it may wait on the stats);
+        // with saved replays still to read, it always waits for them
+        _earlier.SetEstimate(totalMatches, source, sample, manualAverage, playerName, otherProfile, replaysComing: _readingSkipped);
         RequestPublish();
         _statsRequested = true;
         _wake.Set();
@@ -425,15 +427,17 @@ public sealed class AppMonitor
         var lastObsActive = false;
         while (!_stop)
         {
+            // While OBS shows the overlay, the one over the game hides; checked every round so an overlay started
+            // later (or a message it missed) also follows.
             var obsActive = ObsServer.IsObsActive;
             if (obsActive != lastObsActive)
             {
                 lastObsActive = obsActive;
-                if (OperatingSystem.IsWindows() && NativeOverlay.IsRunning)
-                {
-                    NativeOverlay.SetSuppressedByObs(obsActive);
-                }
-                changed = true;
+                changed = true; // the window's overlay button says "OBS"
+            }
+            if (OperatingSystem.IsWindows() && NativeOverlay.IsRunning && NativeOverlay.IsSuppressedByObs != obsActive)
+            {
+                NativeOverlay.SetSuppressedByObs(obsActive);
             }
             changed |= _publishRequested;
             _publishRequested = false;
@@ -448,6 +452,7 @@ public sealed class AppMonitor
             }
             changed |= FileTreasureScreens();
             changed |= FilePrizeLists();
+            changed |= BackupIfAsked();
             changed |= ResetIfAsked();
             changed |= RestoreIfAsked();
             changed |= CountSkippedIfAsked();
@@ -500,8 +505,13 @@ public sealed class AppMonitor
         {
             return false;
         }
+        var countAsked = _countSkipped; // asked but not yet handed to the tracker: this scan does not read them
         var added = _tracker.Scan();
         _scanned = true;
+        if (!countAsked)
+        {
+            _readingSkipped = false; // the skipped replays were read by this scan (those still settling: HasPending)
+        }
         var liveChanged = _tracker.UpdateLive();
         var fallback = _watcher != null && !AutoMode ? 60 : 10;
         _nextScan = DateTime.UtcNow.AddSeconds(_tracker.IsFinishing ? 2 : _tracker.HasPending ? 15 : fallback);
@@ -516,10 +526,12 @@ public sealed class AppMonitor
     {
         try
         {
-            if (!PrizeListLog.Update(_data) || !PrizeListMerge.Apply(_data))
+            if (!PrizeListLog.Update(_data))
             {
                 return false;
             }
+            // a new list is saved even when it names nothing yet: the game's logs do not keep it for long
+            PrizeListMerge.Apply(_data);
             _store.SaveData(_data);
             _statsRequested = true;
             return true;
@@ -581,12 +593,55 @@ public sealed class AppMonitor
         }
     }
 
+    /// <summary>Copies the history (and the chests before FCT) to a new backup, as a reset does but keeping everything.</summary>
+    public void CreateBackup()
+    {
+        _makeBackup = true;
+        _wake.Set();
+    }
+
+    private bool BackupIfAsked()
+    {
+        if (!_makeBackup)
+        {
+            return false;
+        }
+        _makeBackup = false;
+        var earlier = _settings.Read(c => new Dictionary<string, int>(c.InitialChests));
+        if (_data.Matches.Count == 0 && earlier.Count == 0)
+        {
+            SetNotice(L.T("Aún no hay nada que copiar.", "Nothing to back up yet."));
+            return true;
+        }
+        var copy = _store.NewBackupPath();
+        try
+        {
+            JsonFile.Write(copy, _data);
+            // the chests from before FCT go with it, as in a reset, so restoring it brings them back too
+            if (earlier.Count > 0)
+            {
+                JsonFile.Write(Store.EarlierChestsOf(copy), earlier);
+            }
+            SetNotice(L.F("Copia creada: {0}.", "Backup made: {0}.", L.Count(_data.Matches.Count, "partida", "partidas", "match", "matches")));
+        }
+        catch (Exception ex)
+        {
+            ErrorLog.Write("Crear copia", ex);
+            SetNotice(L.F("No se pudo crear la copia: {0}", "Could not make the backup: {0}", ex.Message));
+        }
+        return true;
+    }
+
     /// <summary>Saved replays FCT is not counting (left out at the first start, or by a reset).</summary>
     public int SkippedReplays => _tracker.SkippedOnDisk();
+
+    /// <summary>Of <see cref="SkippedReplays"/>, those of the newest season (from their headers): before counting them.</summary>
+    public int SkippedSeasonReplays() => Tracker.LatestSeasonCount(_tracker.SkippedFilesOnDisk());
 
     /// <summary>Counts them after all: they are read at the next scan, right away (done by the monitor thread).</summary>
     public void CountSkippedReplays()
     {
+        _readingSkipped = true;
         _countSkipped = true;
         _wake.Set();
     }
@@ -660,11 +715,20 @@ public sealed class AppMonitor
     /// <summary>Pending estimates are computed once the replays are read and no match is being played or read.</summary>
     private bool ApplyEstimates()
     {
-        if (!_scanned || _tracker.HasPending || _tracker.IsLive || _tracker.IsFinishing)
+        if (!_scanned || _readingSkipped || _tracker.HasPending || _tracker.IsLive || _tracker.IsFinishing)
         {
             return false;
         }
-        var notices = _earlier.ApplyPending();
+        List<string> notices;
+        try
+        {
+            notices = _earlier.ApplyPending();
+        }
+        catch (Exception ex)
+        {
+            ErrorLog.Write("Estimación", ex); // the monitor thread must not die over it: tried again next round
+            return false;
+        }
         foreach (var notice in notices)
         {
             SetNotice(notice);
@@ -763,13 +827,10 @@ public sealed class AppMonitor
 
             var initialChests = Profiles.InitialChests(_data, config);
             var earlierMatches = _earlier.Matches(view.Matches);
-            var estimate = (!string.IsNullOrEmpty(_shownKey) ? config.Estimates.GetValueOrDefault(_shownKey) : null)
-                           ?? config.Estimates.GetValueOrDefault("")
-                           ?? config.Estimates.Values.FirstOrDefault(e => e.ManualAverage != null);
+            var estimate = Profiles.EstimateOf(config, _shownKey);
 
-            var live = _follower.LiveOfShown();
             var estimation = OverlayModel.EstimationProgress(view, config, _shownKey);
-            var overlay = OverlayModel.Build(view, initialChests, estimation, estimate?.ManualAverage);
+            var overlay = OverlayModel.Build(view, initialChests, estimation, OverlayModel.BaseAverage(view.Matches, estimate));
             StatsPage.WriteOverlay(_store, overlay);
             ObsServer.Update(overlay);
             if (OperatingSystem.IsWindows() && NativeOverlay.IsRunning)
@@ -777,15 +838,16 @@ public sealed class AppMonitor
                 NativeOverlay.Update(overlay);
             }
 
-            var shownLive = _tracker.IsLive ? live : null;
+            // A match counts once it ends (Fortnite writes the replay's key only then: it can rarely be read before), in
+            // the window as in the overlay: no figure moves during a match.
             var notice = _updates.Installing ? L.T("Descargando la actualización…", "Downloading the update…")
                 : _progress is { } progress ? L.F("Leyendo tus replays… {0} / {1}. Las cifras suben a medida que se leen.", "Reading your replays… {0} / {1}. The numbers grow as they are read.", progress.Done, progress.Total)
                 : _notice ?? _displayWarning;
-            var stats = ScreenFigures.Stats(view.Matches, shownLive, initialChests, earlierMatches, estimate?.ManualAverage);
+            var stats = ScreenFigures.Stats(view.Matches, null, initialChests, earlierMatches, estimate);
             var state = new MonitorState(overlay, Profiles.List(_data, config), shown?.Key, _updates.Available, notice, false,
                 SinceSeasonWithEarlier(PlayedToo(stats, view)))
             {
-                Team = config.ShowTeammates ? ScreenFigures.Team(view.Matches, shownLive, config.ExtraKinds()) : null,
+                Team = config.ShowTeammates ? ScreenFigures.Team(view.Matches, null, config.ExtraKinds()) : null,
             };
             CurrentState = state;
             Changed?.Invoke(state);

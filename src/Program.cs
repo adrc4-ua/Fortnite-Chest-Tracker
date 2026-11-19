@@ -160,7 +160,8 @@ internal static class Program
     {
         var config = options.ResetConfig ? null : store.LoadConfig();
         firstRun = config == null;
-        config ??= new Config { DefaultsVersion = Config.CurrentDefaults };
+        // A first run keeps Windows' language: later changes to Windows' language do not change FCT's, only Settings does.
+        config ??= new Config { DefaultsVersion = Config.CurrentDefaults, Language = L.FirstRunCode };
         config.ApplyNewDefaults();
         config.MoveLegacyEstimate();
         L.Use(config.Language);

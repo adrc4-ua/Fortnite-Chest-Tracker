@@ -139,6 +139,7 @@ public sealed partial class SettingsForm
     private void Recalculate()
     {
         var counting = false;
+        var coming = 0; // of the replays about to be counted, those of this season
         if (_monitor.SkippedReplays is var skipped and > 0)
         {
             var answer = InfoDialog.Ask(this, L.F("Tienes {0} sin contar", "You have {0} not counted", L.Count(skipped, "partida guardada", "partidas guardadas", "saved match", "saved matches")),
@@ -150,19 +151,23 @@ public sealed partial class SettingsForm
             }
             if (answer == true)
             {
+                coming = _monitor.SkippedSeasonReplays(); // from their headers, before they stop being "skipped"
                 _monitor.CountSkippedReplays(); // read right away; the estimate uses them once they are counted
                 counting = true;
             }
         }
         var preview = _monitor.PreviewEstimate(1, 0, null);
-        var seasonReplays = preview.SeasonReplays;
+        var seasonReplays = preview.SeasonReplays + coming;
         var noneSaved = !counting && preview.Replays == 0;
-        if (EstimateDialog.Ask(this, _monitor.ShownProfileName, _monitor.ShownAccountId, _monitor.Estimate, _monitor.PreviewEstimate, noneSaved, recalculating: true, savedMatches: seasonReplays) is not { } choice)
+        // While they are being read the matches on screen lack them: no preview (it would be wrong), as at the first
+        // start ("we'll work it out as soon as we read your saved matches"), and the estimate waits for them.
+        Func<int, int, double?, HistoryEstimator.Result>? previewOf = counting ? null : _monitor.PreviewEstimate;
+        if (EstimateDialog.Ask(this, _monitor.ShownProfileName, _monitor.ShownAccountId, _monitor.Estimate, previewOf, noneSaved, recalculating: true, savedMatches: seasonReplays) is not { } choice)
         {
             return;
         }
-        _monitor.SetEstimate(choice.Estimate ? choice.TotalMatches : null, choice.Source, choice.Sample, choice.ManualAverage, choice.PlayerName);
-        int? shown = !choice.Estimate ? 0 : _monitor.PreviewEstimate(choice.TotalMatches, choice.Sample, choice.ManualAverage).Chests;
+        _monitor.SetEstimate(choice.Estimate ? choice.TotalMatches : null, choice.Source, choice.Sample, choice.ManualAverage, choice.PlayerName, choice.OtherProfile);
+        int? shown = !choice.Estimate ? 0 : counting ? null : _monitor.PreviewEstimate(choice.TotalMatches, choice.Sample, choice.ManualAverage).Chests;
         if (shown is { } chests)
         {
             ShowEarlier(chests);
@@ -199,7 +204,7 @@ public sealed partial class SettingsForm
         _backupShown = latest.Path;
         _restore.Enabled = latest.Path != null;
         _backupLine.Text = latest.Path == null
-            ? L.T("Aún no hay: se hace al restablecer", "None yet: made when you reset")
+            ? L.T("Aún no hay ninguna: crea una cuando quieras", "None yet: make one whenever you want")
             : $"{L.T("Última", "Latest")}: {latest.Made.ToString("dd/MM/yy HH:mm", L.Culture)} · {MatchesIn(latest.Path)}";
     }
 

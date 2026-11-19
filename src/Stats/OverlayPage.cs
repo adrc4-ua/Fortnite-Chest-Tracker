@@ -43,16 +43,21 @@ public static class OverlayPage
         $"<!doctype html><html lang=\"{L.Code}\"><head><meta charset=\"utf-8\">{extraHead}\n"
         + $"<title>{L.T("Overlay de cofres", "Chest overlay")}</title><style>{OverlayCss}</style></head>\n<body>{body}</body></html>";
 
+    // Inside OBS (a browser source has window.obsstudio) it asks for /view/obs: while that keeps coming, FCT hides its
+    // overlay over the game, until the source is removed from OBS (or OBS closes). A normal browser asks for /view.
     private const string LiveScript = """
         const host = document.getElementById('o');
+        const view = window.obsstudio ? '/view/obs' : '/view';
         let shown = host.innerHTML;
-        setInterval(async () => {
+        const refresh = async () => {
           try {
-            const answer = await fetch('/view', { cache: 'no-store' });
+            const answer = await fetch(view, { cache: 'no-store' });
             if (!answer.ok) return;
             const card = await answer.text();
             if (card !== shown) { host.innerHTML = card; shown = card; }
           } catch { /* FCT closed: keep the last figures */ }
-        }, 2000);
+        };
+        refresh();
+        setInterval(refresh, 2000);
         """;
 }

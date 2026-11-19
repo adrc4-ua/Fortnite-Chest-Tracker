@@ -93,6 +93,7 @@ public static class NativeOverlay
         _offscreen = x <= -10000;
         _game = new GameWindows(isGame);
         _gameOpen = !_game.Watching;
+        _suppressedByObs = ObsServer.IsObsActive; // OBS already showing it: this one starts hidden
         (_moved, _lockChanged, _visibleChanged, _close) = (onMoved, onLockChanged, onVisibleChanged, onClose);
 
         var ready = new ManualResetEventSlim();

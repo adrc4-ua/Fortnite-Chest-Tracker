@@ -27,7 +27,7 @@ public sealed class Store
     public string CsvPath => InFolder("matches.csv");
     public string ErrorLogPath => InFolder("errors.log");
 
-    // ---- Backups (made when the stats are reset) ----------------------------------------------------------------------
+    // ---- Backups (made by hand or when the stats are reset) -----------------------------------------------------------
 
     private const string BackupPrefix = "data-backup-", BackupStamp = "yyyyMMdd-HHmmss";
 

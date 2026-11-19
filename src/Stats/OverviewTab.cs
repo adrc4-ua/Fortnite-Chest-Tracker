@@ -70,26 +70,8 @@ internal static class OverviewTab
         var earlierMatches = Math.Max(0, page.AllMatches - matches.Count - page.Unjumped);
         var totalMatches = matches.Count + earlierMatches;
         var totalChests = counted + Math.Max(0, page.InitialChests);
-        var estimate = (!string.IsNullOrEmpty(page.Config.Profile) ? page.Config.Estimates.GetValueOrDefault(page.Config.Profile) : null)
-                       ?? page.Config.Estimates.GetValueOrDefault("")
-                       ?? page.Config.Estimates.Values.FirstOrDefault(e => e.ManualAverage != null);
-        double avg;
-        if (matches.Count == 0 && estimate?.ManualAverage is { } manual && manual > 0)
-        {
-            avg = manual;
-        }
-        else if (totalMatches > 0)
-        {
-            avg = (double)totalChests / totalMatches;
-        }
-        else if (estimate?.ManualAverage is { } m && m > 0)
-        {
-            avg = m;
-        }
-        else
-        {
-            avg = 0.0;
-        }
+        // the same figure as the window's (a typed average is its base)
+        var avg = Profiles.ShownAverage(matches, page.Estimate, totalChests, totalMatches) ?? 0.0;
         return "<div class=\"figures\">" + hero
                + Figure("wins", L.T("Victorias", "Wins"), Num(wins), wins > 0 ? L.F("{0} % de tus partidas", "{0} % of your matches", winShare.ToString("0", L.Culture)) : "—")
                + Figure("matches", L.T("Partidas al día", "Matches a day"), page.PerDay.ToString("0.0", L.Culture), L.T("de media por día jugado", "on average per day played"))

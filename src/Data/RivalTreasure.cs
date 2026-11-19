@@ -9,8 +9,12 @@ public sealed class RivalTreasure
     /// <summary>Server prize id, as for the squad's featured treasures ("DelilahPrize:dpid_item15", or a GUID).</summary>
     public string PrizeId { get; set; } = "";
 
-    /// <summary>Seconds into the match.</summary>
+    /// <summary>Seconds into the match (when it was seen, if <see cref="SeenLate"/>).</summary>
     public float AtSeconds { get; set; }
+
+    /// <summary>The chest was already open when it came into range: <see cref="AtSeconds"/> is when it was seen, so the
+    /// treasure was obtained at that moment or earlier.</summary>
+    public bool SeenLate { get; set; }
 
     /// <summary>Name of the opponent who opened the chest (null when the replay does not tell).</summary>
     public string? Player { get; set; }

@@ -10,4 +10,7 @@
     <Project Path="src/FCT.csproj" />
     <Project Path="src/ReplayModels/FCT.ReplayReader.Models.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/FCT.Tests/FCT.Tests.csproj" />
+  </Folder>
 </Solution>

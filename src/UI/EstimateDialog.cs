@@ -21,7 +21,9 @@ namespace FCT.UI;
 public sealed class EstimateDialog : ThemedForm
 {
     /// <summary>Lo elegido: <see cref="Estimate"/> false = solo las partidas guardadas.</summary>
-    public sealed record Choice(bool Estimate, int TotalMatches, string Source, int Sample, double? ManualAverage, string? PlayerName = null);
+    /// <param name="OtherProfile">Settings → Recalculate with another player's name, on purpose: kept as it is (never
+    /// checked against the replays' name).</param>
+    public sealed record Choice(bool Estimate, int TotalMatches, string Source, int Sample, double? ManualAverage, string? PlayerName = null, bool OtherProfile = false);
 
     private const int W = 480, Pad = 20, Inner = W - 2 * Pad - 28;
 
@@ -54,6 +56,8 @@ public sealed class EstimateDialog : ThemedForm
     private readonly Func<int, int, double?, HistoryEstimator.Result>? _previewOf;
     private readonly string? _accountId;
     private readonly string? _originalName;
+    private readonly bool _recalculating;
+    private string? _otherConfirmed; // another profile's name the player already said yes to
     private readonly int _savedMatches;
     private readonly bool _autoAverage;
     private bool _estimate;
@@ -75,6 +79,7 @@ public sealed class EstimateDialog : ThemedForm
         _previewOf = previewOf;
         _accountId = accountId;
         _originalName = playerName;
+        _recalculating = recalculating;
         _savedMatches = savedMatches > 0 ? savedMatches : (previewOf != null ? previewOf(1, 0, null).SeasonReplays : 0);
         _autoAverage = _savedMatches >= HistoryEstimator.AutoAverageMatches;
         Text = recalculating ? L.T("Estimación", "Estimate") : L.F("Cofres antes de {0}", "Chests before {0}", AppInfo.ShortName);
@@ -458,6 +463,11 @@ public sealed class EstimateDialog : ThemedForm
             _name.Focus();
             return;
         }
+        if (!ConfirmOtherProfile())
+        {
+            _name.Focus();
+            return;
+        }
         _search.Enabled = false;
         _search.Text = L.T("Buscando…", "Looking up…");
         // Con el nombre sin tocar se busca por la cuenta (no depende de cómo se escriba el nombre).
@@ -492,6 +502,34 @@ public sealed class EstimateDialog : ThemedForm
         Arrange();
     }
 
+    /// <summary>Settings → Recalculate with a name that is not the profile's: another player's matches.</summary>
+    private bool IsOtherProfile =>
+        _recalculating && !string.IsNullOrWhiteSpace(_originalName) && !string.IsNullOrWhiteSpace(_name.Text)
+        && !string.Equals(_name.Text.Trim(), _originalName.Trim(), StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Another profile's name: asks once whether that is what the player wants (their matches are used as they are, never
+    /// checked against the replays). True to go on.
+    /// </summary>
+    private bool ConfirmOtherProfile()
+    {
+        var name = _name.Text.Trim();
+        if (!IsOtherProfile || string.Equals(name, _otherConfirmed, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+        var answer = InfoDialog.Ask(this, L.T("Estás buscando otro perfil", "You're looking up another profile"),
+            L.F("Este perfil es {0}. Si sigues con {1}, la estimación usará sus partidas tal cual.",
+                "This profile is {0}. If you go on with {1}, the estimate will use their matches as they are.", _originalName!.Trim(), name),
+            Array.Empty<InfoPoint>(), L.T("Seguir", "Go on"), L.T("Cancelar", "Cancel"), Icons.Person);
+        if (answer != true)
+        {
+            return false;
+        }
+        _otherConfirmed = name;
+        return true;
+    }
+
     private void ShowStatus(bool ok, string text)
     {
         _statusIcon.IconSvg = ok ? Icons.Check : Icons.Warning;
@@ -522,9 +560,13 @@ public sealed class EstimateDialog : ThemedForm
         {
             return;
         }
+        if (_estimate && !ConfirmOtherProfile())
+        {
+            return;
+        }
         var sample = _autoAverage ? 0 : _sample;
         var playerName = string.IsNullOrWhiteSpace(_name.Text) ? null : _name.Text.Trim();
-        Result = new Choice(_estimate, _estimate ? Total : 0, _found ? "api" : "manual", sample, typed, playerName);
+        Result = new Choice(_estimate, _estimate ? Total : 0, _found ? "api" : "manual", sample, typed, playerName, _estimate && IsOtherProfile);
         DialogResult = DialogResult.OK;
     }
 

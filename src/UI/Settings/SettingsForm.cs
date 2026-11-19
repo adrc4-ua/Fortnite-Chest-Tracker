@@ -23,6 +23,19 @@ public sealed partial class SettingsForm : ThemedForm
 
     // Two columns like the main window, under a 32 px header.
     private const int LeftX = 15, LeftWidth = 267, RightX = 297, RightWidth = 280, Header = 32;
+
+    // One grid for every card: the first card's top, the gap between cards (also above the bottom buttons), where the
+    // content starts under a card's title, the side padding, the height of buttons and fields, and the gap above a grey
+    // line under them.
+    private const int CardsTop = Header + 40, CardGap = 12, ContentY = 34, Pad = 13, ControlHeight = 32, HintGap = 6;
+    private const int HintY = ContentY + ControlHeight + HintGap; // a grey line under a row of buttons or a field
+
+    // Card heights. Left: options, also count, backup; right: chests before FCT, updates, OBS, replays folder. Both
+    // columns are 472 tall, so they end together.
+    private const int OptionsHeight = 185, ExtrasHeight = 165, BackupHeight = 98;
+    private const int EarlierHeight = 129, UpdatesHeight = 98, ObsHeight = 98, FolderHeight = 111;
+    private const int ColumnsBottom = CardsTop + OptionsHeight + ExtrasHeight + BackupHeight + 2 * CardGap;
+    private const int ButtonsY = ColumnsBottom + CardGap, ButtonsHeight = 40;
     private const int MaxEarlierChests = 1_000_000;
 
     private readonly AppMonitor _monitor;
@@ -50,60 +63,61 @@ public sealed partial class SettingsForm : ThemedForm
         MinimizeBox = false;
         ShowInTaskbar = false;
         StartPosition = FormStartPosition.CenterParent;
-        ClientSize = new Size(592, 531 + Header);
+        ClientSize = new Size(592, ButtonsY + ButtonsHeight + 15);
         Icon = AppIcon.Load();
 
-        // ---- left column: options, what else counts, the replays folder
-        var options = Card(this, LeftX, Header + 40, LeftWidth, 170, 16);
+        // ---- left column: options, what else counts, the backups. Switch rows 10 px apart (a row is 22 tall, 32 with
+        // its grey line)
+        var options = Card(this, LeftX, CardsTop, LeftWidth, OptionsHeight, 14);
         Title(options, L.T("Opciones", "Options"));
-        _withFortnite = SwitchRow(options, L.T("Abrir con Fortnite", "Open with Fortnite"), L.T("Se abre solo cuando juegas", "Opens by itself when you play"), 30, config.StartWithFortnite);
+        _withFortnite = SwitchRow(options, L.T("Abrir con Fortnite", "Open with Fortnite"), L.T("Se abre solo cuando juegas", "Opens by itself when you play"), 34, config.StartWithFortnite);
         _withFortnite.CheckedChanged += (_, _) => WithFortniteChanged();
-        _openStats = SwitchRow(options, L.T("Abrir estadísticas al iniciar", "Open stats at startup"), null, 70, config.OpenStatsOnStart);
+        _openStats = SwitchRow(options, L.T("Abrir estadísticas al iniciar", "Open stats at startup"), null, 78, config.OpenStatsOnStart);
         _openStats.CheckedChanged += (_, _) => Saved(() => _monitor.Change(c => c.OpenStatsOnStart = _openStats.Checked));
-        _mates = SwitchRow(options, L.T("Compañeros en la ventana", "Teammates in the window"), L.T("Sus cofres, si andan cerca de ti", "Their chests, if they're near you"), 98, config.ShowTeammates);
+        _mates = SwitchRow(options, L.T("Compañeros en la ventana", "Teammates in the window"), L.T("Sus cofres, si andan cerca de ti", "Their chests, if they're near you"), 108, config.ShowTeammates);
         _mates.CheckedChanged += (_, _) => TeammatesChanged(_mates);
-        _addMates = SwitchRow(options, L.T("Sumar sus cofres a tu total", "Add their chests to your total"), null, 138, config.CountTeammateChests);
+        _addMates = SwitchRow(options, L.T("Sumar sus cofres a tu total", "Add their chests to your total"), null, 152, config.CountTeammateChests);
         _addMates.CheckedChanged += (_, _) => AddTeammatesChanged(_addMates);
 
         // Ranked matches, and what else counts as a chest (broken chests always count); only when switched on
-        var extras = Card(this, LeftX, Header + 219, LeftWidth, 145, 16);
+        var extras = Card(this, LeftX, CardsTop + OptionsHeight + CardGap, LeftWidth, ExtrasHeight, 14);
         Title(extras, L.T("Contar también", "Also count"));
-        _ranked = SwitchRow(extras, L.T("Partidas clasificatorias", "Ranked matches"), null, 31, config.CountRanked);
+        _ranked = SwitchRow(extras, L.T("Partidas clasificatorias", "Ranked matches"), null, 36, config.CountRanked);
         _ranked.CheckedChanged += (_, _) => Saved(() => _monitor.SetCountRanked(_ranked.Checked));
-        _ammo = SwitchRow(extras, L.T("Cajas de munición", "Ammo boxes"), null, 60, config.CountAmmoBoxes);
+        _ammo = SwitchRow(extras, L.T("Cajas de munición", "Ammo boxes"), null, 68, config.CountAmmoBoxes);
         _ammo.CheckedChanged += (_, _) => Saved(() => _monitor.SetCountExtra(c => c.CountAmmoBoxes = _ammo.Checked));
-        _food = SwitchRow(extras, L.T("Cajas de comida", "Food boxes"), null, 89, config.CountFoodBoxes);
+        _food = SwitchRow(extras, L.T("Cajas de comida", "Food boxes"), null, 100, config.CountFoodBoxes);
         _food.CheckedChanged += (_, _) => Saved(() => _monitor.SetCountExtra(c => c.CountFoodBoxes = _food.Checked));
-        _cannons = SwitchRow(extras, L.T("Cañones de botín", "Loot cannons"), null, 118, config.CountLootCannons);
+        _cannons = SwitchRow(extras, L.T("Cañones de botín", "Loot cannons"), null, 132, config.CountLootCannons);
         _cannons.CheckedChanged += (_, _) => Saved(() => _monitor.SetCountExtra(c => c.CountLootCannons = _cannons.Checked));
 
-        // ---- right column: updates (three pills)
-        var updates = Card(this, RightX, Header + 185, RightWidth, 116, 14);
+        // ---- right column: chests before FCT, updates (three pills), OBS, the replays folder
+        _earlier = EarlierChests(monitor);
+        var updates = Card(this, RightX, CardsTop + EarlierHeight + CardGap, RightWidth, UpdatesHeight, 14);
         Title(updates, L.T("Actualizaciones", "Updates"));
-        var pillWidth = (RightWidth - 26 - 2 * 6) / 3;
+        var pillWidth = (RightWidth - 2 * Pad - 2 * 6) / 3;
         for (var i = 0; i < UpdateChoices.Length; i++)
         {
             var index = i;
-            _updateButtons[i] = Button(UpdateChoices[i].Label, new Point(13 + i * (pillWidth + 6), 36), new Size(pillWidth, 34), 10);
+            _updateButtons[i] = Button(UpdateChoices[i].Label, new Point(Pad + i * (pillWidth + 6), ContentY), new Size(pillWidth, ControlHeight), 10);
             _updateButtons[i].Click += (_, _) => ShowUpdateMode(index, save: true);
             updates.Controls.Add(_updateButtons[i]);
         }
-        _updateHint = SettingsParts.Text(updates, "", 7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 80), new Size(RightWidth - 26, 18), ContentAlignment.MiddleCenter);
+        _updateHint = SettingsParts.Text(updates, "", 7.5f, FontStyle.Regular, Theme.Muted, new Point(Pad, HintY), new Size(RightWidth - 2 * Pad, 16), ContentAlignment.MiddleCenter);
         ShowUpdateMode(Math.Max(0, Array.FindIndex(UpdateChoices, c => c.Mode == config.UpdateMode)), save: false);
 
-        var folder = Card(this, LeftX, Header + 373, LeftWidth, 94, 14);
+        ObsCard();
+        var folder = Card(this, RightX, ColumnsBottom - FolderHeight, RightWidth, FolderHeight, 14);
         Title(folder, L.T("Carpeta de replays", "Replays folder"));
-        _folder = Field(folder, new Point(13, 30), LeftWidth - 26 - 72, config.DemosFolder);
-        var browse = Button(L.T("Cambiar", "Change"), new Point(LeftWidth - 13 - 66, 30), new Size(66, 30), 10);
+        _folder = Field(folder, new Point(Pad, ContentY), RightWidth - 2 * Pad - 72, config.DemosFolder);
+        var browse = Button(L.T("Cambiar", "Change"), new Point(RightWidth - Pad - 66, ContentY), new Size(66, ControlHeight), 10);
         browse.Click += (_, _) => ChooseFolder();
         folder.Controls.Add(browse);
         var displayFolder = store.Folder.Contains("brain") || store.Folder.Contains("mock")
             ? @"C:\Users\Jugador\AppData\Roaming\" + AppInfo.ShortName
             : store.Folder;
-        SettingsParts.Text(folder, L.T("Tus datos se guardan en ", "Your data is saved in ") + displayFolder, 7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 64), new Size(LeftWidth - 26, 28));
+        SettingsParts.Text(folder, L.T("Tus datos se guardan en ", "Your data is saved in ") + displayFolder, 7.5f, FontStyle.Regular, Theme.Muted, new Point(Pad, HintY), new Size(RightWidth - 2 * Pad, 28));
 
-        _earlier = EarlierChests(monitor);
-        ObsCard();
         BackupCard();
         BottomButtons(out var close);
         HeaderRow(config.Language);
@@ -121,13 +135,13 @@ public sealed partial class SettingsForm : ThemedForm
     /// </summary>
     private ThemedTextBox EarlierChests(AppMonitor monitor)
     {
-        var card = Card(this, RightX, Header + 40, RightWidth, 136, 16);
+        var card = Card(this, RightX, CardsTop, RightWidth, EarlierHeight, 14);
         Title(card, L.F("Cofres antes de {0}", "Chests before {0}", AppInfo.ShortName), 120);
         SettingsParts.Text(card, L.T("se suman a tu total", "added to your total"), 7.5f, FontStyle.Regular, Theme.Muted, new Point(RightWidth - 13 - 120, 9), new Size(120, 16), ContentAlignment.MiddleRight);
-        const int StepWidth = 42, RowY = 36, RowHeight = 42;
-        var minus = Button("−", new Point(13, RowY), new Size(StepWidth, RowHeight), 11, 12f);
-        var plus = Button("+", new Point(RightWidth - 13 - StepWidth, RowY), new Size(StepWidth, RowHeight), 11, 12f);
-        var back = new Card { Location = new Point(13 + StepWidth + 6, RowY), Size = new Size(RightWidth - 26 - 2 * (StepWidth + 6), RowHeight), Radius = 11, BackColor = Theme.Bg2, Edge = Theme.Line, Flat = true };
+        const int StepWidth = 42, RowY = ContentY, RowHeight = 42; // the figure, taller than a button
+        var minus = Button("−", new Point(Pad, RowY), new Size(StepWidth, RowHeight), 11, 12f);
+        var plus = Button("+", new Point(RightWidth - Pad - StepWidth, RowY), new Size(StepWidth, RowHeight), 11, 12f);
+        var back = new Card { Location = new Point(Pad + StepWidth + 6, RowY), Size = new Size(RightWidth - 2 * Pad - 2 * (StepWidth + 6), RowHeight), Radius = 11, BackColor = Theme.Bg2, Edge = Theme.Line, Flat = true };
         var figure = new ThemedTextBox
         {
             BorderStyle = BorderStyle.None, BackColor = Theme.Bg2, ForeColor = Theme.GoldBase, Font = Theme.Display(16f, FontStyle.Bold),
@@ -144,7 +158,7 @@ public sealed partial class SettingsForm : ThemedForm
         card.Controls.Add(plus);
         card.Controls.Add(minus);
         // "Recalcular": the calculation is done (or can be redone) here; its dialog is the first start's
-        var recalculate = Button(L.T("Recalcular", "Recalculate"), new Point(13, RowY + RowHeight + 10), new Size(RightWidth - 26, 34), 11, 8.75f);
+        var recalculate = Button(L.T("Recalcular", "Recalculate"), new Point(Pad, RowY + RowHeight + 8), new Size(RightWidth - 2 * Pad, ControlHeight), 10, 8.75f);
         recalculate.IconSvg = Icons.Calc;
         recalculate.Click += (_, _) => Recalculate();
         card.Controls.Add(recalculate);
@@ -155,15 +169,15 @@ public sealed partial class SettingsForm : ThemedForm
     /// <summary>The OBS page: its address with a copy button, and whether it is on.</summary>
     private void ObsCard()
     {
-        var card = Card(this, RightX, Header + 310, RightWidth, 96, 14);
+        var card = Card(this, RightX, CardsTop + EarlierHeight + UpdatesHeight + 2 * CardGap, RightWidth, ObsHeight, 14);
         Title(card, L.T("Overlay para OBS", "Overlay for OBS"), 92);
         var url = ObsServer.Url ?? (_store.Folder.Contains("mock") || _store.Folder.Contains("brain") ? "http://localhost:7374/" : null);
         var on = url != null;
         var state = new Card { Location = new Point(RightWidth - 13 - 78, 8), Size = new Size(78, 20), Radius = 10, BackColor = on ? Theme.GoldSoft : Theme.Bg2, Edge = on ? Theme.GoldLine : Theme.Line };
         SettingsParts.Text(state, on ? L.T("● ACTIVO", "● ON") : L.T("● INACTIVO", "● OFF"), 7.0f, FontStyle.Bold, on ? Theme.GoldHi : Theme.Danger, new Point(0, 0), new Size(78, 20), ContentAlignment.MiddleCenter);
         card.Controls.Add(state);
-        var address = Field(card, new Point(13, 34), RightWidth - 26 - 72, url ?? L.T("Puerto ocupado", "Port in use"));
-        var copy = Button(L.T("Copiar", "Copy"), new Point(RightWidth - 13 - 66, 34), new Size(66, 30), 10);
+        var address = Field(card, new Point(Pad, ContentY), RightWidth - 2 * Pad - 72, url ?? L.T("Puerto ocupado", "Port in use"));
+        var copy = Button(L.T("Copiar", "Copy"), new Point(RightWidth - Pad - 66, ContentY), new Size(66, ControlHeight), 10);
         copy.Enabled = on;
         copy.Click += (_, _) =>
         {
@@ -183,22 +197,25 @@ public sealed partial class SettingsForm : ThemedForm
         SettingsParts.Text(card, on
                 ? L.T("En OBS: fuente «Navegador», fondo transparente.", "In OBS: a \"Browser\" source, transparent background.")
                 : L.F("Puerto ocupado por otro programa: reinicia {0}.", "Port taken by another program: restart {0}.", AppInfo.ShortName),
-            7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 72), new Size(RightWidth - 26, 16));
+            7.5f, FontStyle.Regular, Theme.Muted, new Point(Pad, HintY), new Size(RightWidth - 2 * Pad, 16));
     }
 
     /// <summary>
-    /// The backups made when the stats are reset: the latest one, and a button to bring one back into the history
-    /// (several: a list to pick from).
+    /// The backups of the history: a button to make one now and one to bring one back into the history (several: a list
+    /// to pick from), and the latest one under them.
     /// </summary>
     private void BackupCard()
     {
-        const int ButtonWidth = 92;
-        var card = Card(this, RightX, Header + 415, RightWidth, 52, 14);
-        Title(card, L.T("Copia de seguridad", "Backup"), ButtonWidth + 8);
-        _backupLine = SettingsParts.Text(card, "", 7.5f, FontStyle.Regular, Theme.Muted, new Point(13, 29), new Size(RightWidth - 26 - ButtonWidth - 8, 16));
-        _restore = Button(L.T("Restaurar…", "Restore…"), new Point(RightWidth - 13 - ButtonWidth, 10), new Size(ButtonWidth, 32), 10);
+        var buttonWidth = (LeftWidth - 2 * Pad - 6) / 2;
+        var card = Card(this, LeftX, ColumnsBottom - BackupHeight, LeftWidth, BackupHeight, 14);
+        Title(card, L.T("Copia de seguridad", "Backup"));
+        var create = Button(L.T("Crear copia", "Back up now"), new Point(Pad, ContentY), new Size(buttonWidth, ControlHeight), 10);
+        create.Click += (_, _) => _monitor.CreateBackup(); // the line follows once it is written; the window's strip says so
+        card.Controls.Add(create);
+        _restore = Button(L.T("Restaurar…", "Restore…"), new Point(LeftWidth - Pad - buttonWidth, ContentY), new Size(buttonWidth, ControlHeight), 10);
         _restore.Click += (_, _) => ChooseBackup();
         card.Controls.Add(_restore);
+        _backupLine = SettingsParts.Text(card, "", 7.5f, FontStyle.Regular, Theme.Muted, new Point(Pad, HintY), new Size(LeftWidth - 2 * Pad, 16));
         ShowBackups();
     }
 
@@ -208,18 +225,18 @@ public sealed partial class SettingsForm : ThemedForm
     /// </summary>
     private void BottomButtons(out PillButton close)
     {
-        const int UninstallWidth = 104, Y = Header + 476; // under both columns, which end together at 467
-        var reset = Button(L.T("Restablecer estadísticas…", "Reset statistics…"), new Point(LeftX, Y), new Size(LeftWidth - UninstallWidth - 6, 40), 12);
+        const int UninstallWidth = 104, Y = ButtonsY; // under both columns, which end together
+        var reset = Button(L.T("Restablecer estadísticas…", "Reset statistics…"), new Point(LeftX, Y), new Size(LeftWidth - UninstallWidth - 6, ButtonsHeight), 12);
         reset.ForeColor = Theme.Danger;
         reset.Click += (_, _) => ResetStats();
         Controls.Add(reset);
-        var uninstall = Button(L.T("Desinstalar…", "Uninstall…"), new Point(LeftX + LeftWidth - UninstallWidth, Y), new Size(UninstallWidth, 40), 12);
+        var uninstall = Button(L.T("Desinstalar…", "Uninstall…"), new Point(LeftX + LeftWidth - UninstallWidth, Y), new Size(UninstallWidth, ButtonsHeight), 12);
         uninstall.ForeColor = Theme.Danger;
         uninstall.Click += (_, _) => Uninstall();
         Controls.Add(uninstall);
         close = new PillButton
         {
-            Text = L.T("Cerrar", "Close"), Location = new Point(RightX, Y), Size = new Size(RightWidth, 40), Radius = 12,
+            Text = L.T("Cerrar", "Close"), Location = new Point(RightX, Y), Size = new Size(RightWidth, ButtonsHeight), Radius = 12,
             BackColor = Theme.Accent, HoverColor = Theme.AccentHover, ForeColor = Theme.AccentInk, DialogResult = DialogResult.OK,
         };
         Controls.Add(close);

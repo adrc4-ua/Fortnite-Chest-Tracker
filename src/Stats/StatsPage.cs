@@ -191,11 +191,16 @@ internal sealed class PageData
         ExtraKinds = config.ExtraKinds();
         Player = Matches.Select(m => m.PlayerName).FirstOrDefault(n => !string.IsNullOrEmpty(n)) ?? "";
         Teammates = config.ShowTeammates ? TeammatesTab.Build(Matches, ExtraKinds) : null;
-        Estimation = Overlay.OverlayModel.EstimationProgress(data, config);
+        var key = Profiles.Current(data, config)?.Key; // data is the view: only the profile shown
+        Estimation = Overlay.OverlayModel.EstimationProgress(data, config, key);
+        Estimate = Profiles.EstimateOf(config, key);
     }
 
     /// <summary>Progress of an active estimation waiting for played matches ("2/5", or null).</summary>
     public string? Estimation { get; }
+
+    /// <summary>The estimate of the earlier chests of the profile shown (its typed average, if any), or null.</summary>
+    public HistoryEstimate? Estimate { get; }
 
     /// <summary>Matches left without jumping from the bus: only in the matches played.</summary>
     public int Unjumped { get; }

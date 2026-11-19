@@ -18,6 +18,20 @@ internal sealed class ReplaySignals
     /// <summary>A featured treasure: the golden chest of the treasure hunt, with its prize id and source container.</summary>
     public sealed record Payout(float Time, string PrizeId, uint? Pawn, string Container);
 
+    /// <summary>
+    /// The golden chest's source container came into range already searched (and was not searched in range around then):
+    /// it was opened before, so the payout's time is when it was seen, not when it was opened.
+    /// </summary>
+    public bool SeenLate(Payout payout)
+    {
+        if (payout.Container.Length == 0)
+        {
+            return false;
+        }
+        var around = Searches.Where(s => s.Key == payout.Container && Math.Abs(s.Time - payout.Time) <= 3).ToList();
+        return around.Count > 0 && around.TrueForAll(s => s.Stale);
+    }
+
     /// <summary>A treasure handler ability given to a player state (one per treasure the squad receives).</summary>
     public sealed record Grant(float Time, uint PlayerState, int Element, string Handler);
 

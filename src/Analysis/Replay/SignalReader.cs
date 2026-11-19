@@ -330,7 +330,14 @@ internal sealed class SignalReader : FortniteReplayReader.ReplayReader
             case TreasurePayout payout:
                 if (ReadPrizeId(payout.PrizeTemplateId) is { } prize && payout.bSuccess != false && _containers.FirstPayout(channelIndex))
                 {
-                    _signals.Payouts.Add(new ReplaySignals.Payout(Now, prize, payout.OpeningPawn ?? payout.Instigator, PathOf(payout.SourceContainer)));
+                    var source = PathOf(payout.SourceContainer);
+                    // A golden chest that leaves the recording player's range and comes back opens a new channel and is
+                    // sent again: the same container (its level path is unique) with the same prize is that one again.
+                    if (source.Length > 0 && _signals.Payouts.Exists(p => p.Container == source && p.PrizeId == prize))
+                    {
+                        break;
+                    }
+                    _signals.Payouts.Add(new ReplaySignals.Payout(Now, prize, payout.OpeningPawn ?? payout.Instigator, source));
                 }
                 break;
             case AnyGizmo gizmo:

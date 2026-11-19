@@ -68,7 +68,6 @@ public sealed partial class MainForm : ThemedForm
         FormBorderStyle = FormBorderStyle.Sizable;
         MinimumSize = new Size(440, 300);
         StartPosition = FormStartPosition.Manual;
-        Opacity = 0;
         ClientSize = new Size(DesignWidth, PlainHeight);
         Icon = AppIcon.Load();
 
@@ -197,7 +196,6 @@ public sealed partial class MainForm : ThemedForm
     internal void ShowFromTray()
     {
         _startHandled = true;
-        Opacity = 1;
         if (!Visible)
         {
             Show();
@@ -208,13 +206,6 @@ public sealed partial class MainForm : ThemedForm
         }
         Activate();
         BringToFront();
-    }
-
-    protected override void OnShown(EventArgs e)
-    {
-        base.OnShown(e);
-        Refresh();
-        BeginInvoke(() => Opacity = 1);
     }
 
     protected override void SetVisibleCore(bool value)

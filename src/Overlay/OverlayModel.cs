@@ -14,7 +14,8 @@ public static class OverlayModel
     /// <param name="data">The profile's counted matches (see <see cref="Profiles.View"/>).</param>
     /// <param name="initialChests">Chests before FCT: they only add to the total.</param>
     /// <param name="estimation">Progress of an active estimation waiting for played matches ("2/5", or null).</param>
-    /// <param name="baseAverage">Base manual average, displayed when today has no matches yet.</param>
+    /// <param name="baseAverage">With a typed average, the average shown when today has no matches yet (see
+    /// <see cref="BaseAverage"/>).</param>
     public static OverlayView Build(TrackerData data, int initialChests = 0, string? estimation = null, double? baseAverage = null)
     {
         var total = data.Matches.Sum(m => m.ChestsOpened) + Math.Max(0, initialChests);
@@ -34,12 +35,16 @@ public static class OverlayModel
     {
         var key = profileKey ?? Profiles.Current(data, config)?.Key;
         var initial = Profiles.InitialChests(config, key);
-        var estimation = EstimationProgress(data, config, profileKey);
-        var estimate = (!string.IsNullOrEmpty(key) ? config.Estimates.GetValueOrDefault(key) : null)
-                       ?? config.Estimates.GetValueOrDefault("")
-                       ?? config.Estimates.Values.FirstOrDefault(e => e.ManualAverage != null);
-        return Build(data, initial, estimation, estimate?.ManualAverage);
+        var estimation = EstimationProgress(data, config, key);
+        return Build(data, initial, estimation, BaseAverage(data.Matches, Profiles.EstimateOf(config, key)));
     }
+
+    /// <summary>
+    /// With an average typed by the player, the one shown everywhere (<see cref="Profiles.ShownAverage"/>): the typed
+    /// figure at first, then moved by the matches played since. Null without a typed average.
+    /// </summary>
+    public static double? BaseAverage(IReadOnlyList<MatchRecord> matches, HistoryEstimate? estimate) =>
+        estimate is { ManualAverage: > 0 } ? Profiles.ShownAverage(matches, estimate, 0, 0) : null;
 
     /// <summary>
     /// Progress of an active estimation waiting for played matches ("2/5", or null if none is pending).
@@ -47,7 +52,7 @@ public static class OverlayModel
     public static string? EstimationProgress(TrackerData view, Config config, string? profileKey = null)
     {
         var key = profileKey ?? Profiles.Current(view, config)?.Key;
-        var estimate = config.Estimates.GetValueOrDefault(key ?? "") ?? config.Estimates.GetValueOrDefault("");
+        var estimate = Profiles.EstimateOf(config, key);
         if (estimate is { Done: false, ManualAverage: null })
         {
             var result = HistoryEstimator.Compute(view.Matches, estimate.TotalMatches, estimate.SnapshotUtc, estimate.SampleSize, estimate.ManualAverage);
