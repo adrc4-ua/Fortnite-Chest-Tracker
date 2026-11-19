@@ -68,8 +68,6 @@ El botón **Estadísticas** las abre en tu navegador, y se actualizan solas mien
 
 ## Configuración
 
-<img src="docs/images/settings-es.png" alt="Configuración" width="460" align="right">
-
 Los cambios se guardan al momento.
 
 - **Abrir con Fortnite:** FCT se abre y se cierra con el juego.
@@ -81,7 +79,9 @@ Los cambios se guardan al momento.
 - **Copia de seguridad:** FCT guarda una copia al restablecer las estadísticas y puedes restaurarla desde aquí.
 - **Idioma**, **overlay para OBS** y **desinstalar**.
 
-<br clear="right">
+<p align="center">
+<img src="docs/images/settings-es.png" alt="Configuración" width="640">
+</p>
 
 ## ¿Es exacto?
 
