@@ -31,7 +31,7 @@ public sealed class AppMonitor
     private volatile bool _countSkipped, _makeBackup;
     private volatile bool _readingSkipped; // skipped replays asked to be counted: not read yet, so no estimate is applied
     private volatile ScanProgress? _progress;
-    private DateTime _noticeUntil, _nextScan = DateTime.UtcNow, _nextGameCheck, _nextDisplayCheck;
+    private DateTime _noticeUntil, _nextScan = DateTime.UtcNow, _nextGameCheck, _nextDisplayCheck, _nextExeCheck;
     private DateTime? _fortniteClosedSince;
     private bool _closeRequested, _displayTipShown;
     private volatile string? _displayWarning;
@@ -144,10 +144,7 @@ public sealed class AppMonitor
                     fixedAny = true;
                 }
             }
-            foreach (var match in _data.Matches)
-            {
-                fixedAny |= TreasureScreenMerge.Apply(match, _data.TreasureScreens);
-            }
+            fixedAny |= TreasureScreenMerge.ApplyAll(_data);
             fixedAny |= PrizeListMerge.Apply(_data); // the lists already filed (new ones are read by the monitor)
             if (fixedAny)
             {
@@ -342,8 +339,9 @@ public sealed class AppMonitor
     }
 
     /// <summary>
-    /// Empties the history (and the chests before FCT); replays already in the folder are not counted again. data.json is
-    /// copied first; the path of that copy is returned. Done by the monitor thread, which owns the history.
+    /// Empties the history (and the chests before FCT); replays already in the folder are not counted again. Everything
+    /// is backed up first (see <see cref="Backup"/>); the path of that backup is returned. Done by the monitor thread,
+    /// which owns the history.
     /// </summary>
     public string ResetStats()
     {
@@ -445,6 +443,7 @@ public sealed class AppMonitor
             {
                 changed |= ScanIfDue();
                 changed |= CloseIfFortniteGone();
+                UninstallIfThrownAway();
             }
             catch (Exception ex)
             {
@@ -570,14 +569,10 @@ public sealed class AppMonitor
         _resetBackup = null;
         try
         {
-            _tracker.Reset(copy);
+            WriteBackup(copy); // everything as it is now, so restoring it brings all of it back
+            _tracker.Reset();
             _settings.Edit(c =>
             {
-                // the chests from before FCT go with the backup, so restoring it brings them back too
-                if (c.InitialChests.Count > 0)
-                {
-                    JsonFile.Write(Store.EarlierChestsOf(copy), new Dictionary<string, int>(c.InitialChests));
-                }
                 c.InitialChests.Clear();
                 c.Estimates.Clear();
                 c.Profile = null;
@@ -593,7 +588,10 @@ public sealed class AppMonitor
         }
     }
 
-    /// <summary>Copies the history (and the chests before FCT) to a new backup, as a reset does but keeping everything.</summary>
+    /// <summary>
+    /// Copies the player's whole state to a new backup (see <see cref="Backup"/>): matches, chests, treasures, chests
+    /// from before FCT, estimates and typed averages, struck-off prizes and prize names.
+    /// </summary>
     public void CreateBackup()
     {
         _makeBackup = true;
@@ -607,21 +605,14 @@ public sealed class AppMonitor
             return false;
         }
         _makeBackup = false;
-        var earlier = _settings.Read(c => new Dictionary<string, int>(c.InitialChests));
-        if (_data.Matches.Count == 0 && earlier.Count == 0)
+        if (!HasDataToKeep())
         {
             SetNotice(L.T("Aún no hay nada que copiar.", "Nothing to back up yet."));
             return true;
         }
-        var copy = _store.NewBackupPath();
         try
         {
-            JsonFile.Write(copy, _data);
-            // the chests from before FCT go with it, as in a reset, so restoring it brings them back too
-            if (earlier.Count > 0)
-            {
-                JsonFile.Write(Store.EarlierChestsOf(copy), earlier);
-            }
+            WriteBackup(_store.NewBackupPath());
             SetNotice(L.F("Copia creada: {0}.", "Backup made: {0}.", L.Count(_data.Matches.Count, "partida", "partidas", "match", "matches")));
         }
         catch (Exception ex)
@@ -658,7 +649,16 @@ public sealed class AppMonitor
         return true;
     }
 
-    /// <summary>Brings a backup back into the history (done by the monitor thread, which owns it).</summary>
+    /// <summary>A backup of everything as it is now, at <paramref name="path"/> (on the monitor thread, which owns the history).</summary>
+    private void WriteBackup(string path) => Backup.Write(path, _data, _settings.Read(c => BackupState.Of(c, _store)));
+
+    /// <summary>There is something of the player's to keep: matches, or data typed in (chests from before FCT, estimates…).</summary>
+    private bool HasDataToKeep() => _data.Matches.Count > 0 || _settings.Read(c => BackupState.Of(c, _store)).HasAny;
+
+    /// <summary>
+    /// Brings a backup back exactly as it was (done by the monitor thread, which owns the history). What there is now is
+    /// backed up first, so a restore can always be undone by restoring that one.
+    /// </summary>
     public void RestoreBackup(string path)
     {
         _restoreBackup = path;
@@ -674,22 +674,22 @@ public sealed class AppMonitor
         _restoreBackup = null;
         try
         {
-            var backup = JsonFile.Read<TrackerData>(path) ?? throw new InvalidDataException(L.T("la copia no se puede leer", "the backup cannot be read"));
-            var added = _tracker.Restore(backup);
-            if (JsonFile.Read<Dictionary<string, int>>(Store.EarlierChestsOf(path)) is { Count: > 0 } earlier)
+            var (backup, state) = Backup.Read(path) ?? throw new InvalidDataException(L.T("la copia no se puede leer", "the backup cannot be read"));
+            if (HasDataToKeep())
             {
-                _settings.Edit(c =>
-                {
-                    foreach (var (key, chests) in earlier)
-                    {
-                        c.InitialChests.TryAdd(key, chests); // a number typed since wins
-                    }
-                });
+                WriteBackup(_store.NewBackupPath());
+            }
+            _tracker.Restore(backup);
+            _settings.Edit(state.ApplyTo);
+            if (state.Complete)
+            {
+                JsonFile.Write(_store.PrizeNamesPath, state.PrizeNames);
+                _store.LoadPrizeNames();
             }
             _statsRequested = true;
-            SetNotice(added > 0
-                ? L.F("Copia restaurada: {0} recuperadas.", "Backup restored: {0} back.", L.Count(added, "partida", "partidas", "match", "matches"))
-                : L.T("Copia restaurada: ya tenías todas sus partidas.", "Backup restored: you already had all its matches."));
+            // the matches played since are not counted again by themselves; they stay in the backup made just before
+            SetNotice(L.T("Copia restaurada: todo está como cuando la hiciste. Lo que tenías antes quedó en otra copia.",
+                "Backup restored: everything is as it was when you made it. What you had before is in another backup."));
             return true;
         }
         catch (Exception ex)
@@ -771,6 +771,24 @@ public sealed class AppMonitor
         return true;
     }
 
+    /// <summary>
+    /// The exe was sent to the Recycle Bin while FCT is open (a running exe cannot be deleted, only moved): FCT closes and
+    /// uninstalls itself as Settings → Uninstall does, the exe leaving the bin too. The data stays.
+    /// </summary>
+    private void UninstallIfThrownAway()
+    {
+        var now = DateTime.UtcNow;
+        if (!OperatingSystem.IsWindows() || UninstallRequested || now < _nextExeCheck)
+        {
+            return;
+        }
+        _nextExeCheck = now.AddSeconds(5);
+        if (ExeLocation.InRecycleBin)
+        {
+            Uninstall();
+        }
+    }
+
     private bool ExpireNotice()
     {
         if (_notice == null || DateTime.UtcNow < _noticeUntil)
@@ -830,7 +848,7 @@ public sealed class AppMonitor
             var estimate = Profiles.EstimateOf(config, _shownKey);
 
             var estimation = OverlayModel.EstimationProgress(view, config, _shownKey);
-            var overlay = OverlayModel.Build(view, initialChests, estimation, OverlayModel.BaseAverage(view.Matches, estimate));
+            var overlay = OverlayModel.Build(view, initialChests, estimation);
             StatsPage.WriteOverlay(_store, overlay);
             ObsServer.Update(overlay);
             if (OperatingSystem.IsWindows() && NativeOverlay.IsRunning)

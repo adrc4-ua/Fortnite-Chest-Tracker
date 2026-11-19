@@ -11,6 +11,11 @@ internal static class Program
     [STAThread]
     private static int Main(string[] args)
     {
+        if (OperatingSystem.IsWindows())
+        {
+            ExeLocation.Track(); // first thing: follows the exe if it is sent to the Recycle Bin while running
+        }
+
         // "Open with Fortnite" helpers: no console, no window, nothing else.
         if (args.Contains("--on-game") || args.Contains("--standby"))
         {
@@ -122,20 +127,28 @@ internal static class Program
     }
 
     /// <summary>
-    /// Command line options print into the terminal that started the exe; otherwise FCT is a window and its console (where
-    /// the analysis logs) stays hidden.
+    /// Command line options print into the terminal that started the exe. Otherwise FCT is only a window and gets no
+    /// console at all: creating one to hide it right after showed a console window for an instant on every start (with
+    /// Windows Terminal, a white one). What the analysis writes to the console is then simply dropped.
     /// </summary>
     private static void PrepareConsole(bool terminal)
     {
+        if (!terminal)
+        {
+            return;
+        }
         if (OperatingSystem.IsWindows())
         {
-            NativeConsole.Ensure(attachToParent: terminal);
-            if (!terminal)
-            {
-                NativeConsole.Hide();
-            }
+            NativeConsole.Ensure(attachToParent: true);
         }
-        Console.OutputEncoding = Encoding.UTF8;
+        try
+        {
+            Console.OutputEncoding = Encoding.UTF8;
+        }
+        catch (Exception ex) when (ex is IOException or System.ComponentModel.Win32Exception)
+        {
+            // no console to set it on
+        }
     }
 
     /// <summary>A crash leaves a trace (errors.log) and a message, never a silent disappearance.</summary>

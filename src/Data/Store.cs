@@ -43,7 +43,7 @@ public sealed class Store
         try
         {
             return Directory.EnumerateFiles(Folder, BackupPrefix + "*.json")
-                .Where(path => !path.EndsWith(".earlier.json", StringComparison.OrdinalIgnoreCase))
+                .Where(path => !path.EndsWith(".earlier.json", StringComparison.OrdinalIgnoreCase) && !path.EndsWith(".state.json", StringComparison.OrdinalIgnoreCase))
                 .Select(path => (path, Made: DateTime.TryParseExact(Path.GetFileNameWithoutExtension(path)[BackupPrefix.Length..], BackupStamp,
                     System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.None, out var made) ? made : File.GetLastWriteTime(path)))
                 .OrderByDescending(backup => backup.Made)

@@ -231,20 +231,22 @@ public sealed partial class SettingsForm
         menu.Show(_restore, new Point(0, _restore.Height));
     }
 
-    /// <summary>After confirming, brings the backup's matches (and its chests from before FCT) back into the history.</summary>
+    /// <summary>After confirming, brings everything back exactly as it was when the backup was made (what there is now is backed up first).</summary>
     private void RestoreBackup(string path, DateTime made)
     {
+        var complete = File.Exists(Backup.StateOf(path));
         var points = new List<InfoPoint>
         {
-            new(Icons.Matches, Theme.GoldHi, L.T("Se suman a tu historial", "They're added to your history"),
-                L.T("Vuelven sus partidas, cofres y tesoros. Las que ya tienes, también las que jugaste después, se quedan.",
-                    "Its matches, chests and treasures come back. The ones you already have, also those played since, stay.")),
+            new(Icons.Matches, Theme.GoldHi, L.T("Todo vuelve a como estaba", "Everything goes back to how it was"),
+                complete
+                    ? L.F("Partidas, cofres, tesoros, medias, cofres de antes de {0} y premios, tal cual estaban. Tus ajustes (idioma, overlay…) no cambian.",
+                        "Matches, chests, treasures, averages, chests from before {0} and prizes, just as they were. Your settings (language, overlay…) don't change.", AppInfo.ShortName)
+                    : L.F("Partidas, cofres, tesoros y cofres de antes de {0}, tal cual estaban (es una copia de una versión anterior, sin las medias escritas).",
+                        "Matches, chests, treasures and chests from before {0}, just as they were (a backup of an earlier version, without typed averages).", AppInfo.ShortName)),
+            new(Icons.Folder, Theme.GoldHi, L.T("Lo de ahora no se pierde", "What you have now isn't lost"),
+                L.T("Antes se guarda en otra copia, también las partidas jugadas después: si cambias de idea, restáurala.",
+                    "It's saved to another backup first, matches played since included: if you change your mind, restore that one.")),
         };
-        if (File.Exists(Store.EarlierChestsOf(path)))
-        {
-            points.Add(new InfoPoint(Icons.Calc, Theme.GoldHi, L.F("Y los cofres de antes de {0}", "And the chests from before {0}", AppInfo.ShortName),
-                L.T("Los que tenías al restablecer, si ahora no tienes otros.", "The ones you had when you reset, unless you have others now.")));
-        }
         if (!InfoDialog.Confirm(this, L.T("¿Restaurar la copia?", "Restore the backup?"),
                 L.F("Copia del {0}: {1}.", "Backup of {0}: {1}.", made.ToString("dd/MM/yy HH:mm", L.Culture), MatchesIn(path)),
                 points.ToArray(), L.T("Restaurar", "Restore"), L.T("Cancelar", "Cancel"), Icons.Folder))

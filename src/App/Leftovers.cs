@@ -5,7 +5,8 @@ namespace FCT.App;
 
 /// <summary>
 /// The first time each version opens, it clears what earlier versions may have left, from 1.0.0 on: older copies still
-/// running (an FCT, a standby at logon, a launcher), their exes and update leftovers wherever the startup entries, the
+/// running (an FCT, a standby at logon, a launcher), any copy still running from the Recycle Bin, their exes and update
+/// leftovers wherever the startup entries, the
 /// last start or this exe's folder point, startup entries of other names, and temporary files in the data folder and
 /// in Windows' temporary folder. The player's data (history, settings, prize names, backups) is never touched; nor is
 /// the folder of the 1.0.0 version (%APPDATA%\ChestCounter), which holds that version's history.
@@ -45,6 +46,7 @@ internal static class Leftovers
             exes.Add(task);
         }
         exes.AddRange(StartupEntries.RunEntryExes());
+        OlderCopies.EndThrownAway();
         OlderCopies.EndRunning();
         exes.AddRange(OlderCopies.Ended); // also those ended at start, to take their place
         if (config.LastExe is { Length: > 0 } last)

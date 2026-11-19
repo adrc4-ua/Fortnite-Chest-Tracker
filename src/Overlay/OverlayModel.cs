@@ -14,15 +14,13 @@ public static class OverlayModel
     /// <param name="data">The profile's counted matches (see <see cref="Profiles.View"/>).</param>
     /// <param name="initialChests">Chests before FCT: they only add to the total.</param>
     /// <param name="estimation">Progress of an active estimation waiting for played matches ("2/5", or null).</param>
-    /// <param name="baseAverage">With a typed average, the average shown when today has no matches yet (see
-    /// <see cref="BaseAverage"/>).</param>
-    public static OverlayView Build(TrackerData data, int initialChests = 0, string? estimation = null, double? baseAverage = null)
+    public static OverlayView Build(TrackerData data, int initialChests = 0, string? estimation = null)
     {
         var total = data.Matches.Sum(m => m.ChestsOpened) + Math.Max(0, initialChests);
         var latest = data.Matches.OrderByDescending(m => m.MatchStartUtc ?? m.AnalyzedAtUtc).FirstOrDefault();
 
         var rows = new List<OverlayRow>();
-        rows.AddRange(TodayRows(data, baseAverage));
+        rows.AddRange(TodayRows(data));
         var treasures = data.Matches.Sum(m => m.TreasureFinds.Count);
         rows.Add(new OverlayRow(L.T("Tesoros", "Treasures"), $"{TreasureIcon} {L.N(treasures)}", Treasure: true));
 
@@ -36,15 +34,8 @@ public static class OverlayModel
         var key = profileKey ?? Profiles.Current(data, config)?.Key;
         var initial = Profiles.InitialChests(config, key);
         var estimation = EstimationProgress(data, config, key);
-        return Build(data, initial, estimation, BaseAverage(data.Matches, Profiles.EstimateOf(config, key)));
+        return Build(data, initial, estimation);
     }
-
-    /// <summary>
-    /// With an average typed by the player, the one shown everywhere (<see cref="Profiles.ShownAverage"/>): the typed
-    /// figure at first, then moved by the matches played since. Null without a typed average.
-    /// </summary>
-    public static double? BaseAverage(IReadOnlyList<MatchRecord> matches, HistoryEstimate? estimate) =>
-        estimate is { ManualAverage: > 0 } ? Profiles.ShownAverage(matches, estimate, 0, 0) : null;
 
     /// <summary>
     /// Progress of an active estimation waiting for played matches ("2/5", or null if none is pending).
@@ -66,10 +57,11 @@ public static class OverlayModel
     }
 
     /// <summary>
-    /// "Hoy" (today's chests) and "Media" (per finished match today, or base manual average when today has none). Values are bare
-    /// numbers so columns never collide; the window also shows "n partidas · media x" under today's figure.
+    /// "Hoy" (today's chests) and "Media" (per finished match of today only, never the overall or typed average: "—"
+    /// until today's first match counts). Values are bare numbers so columns never collide; the window also shows
+    /// "n partidas · media x" under today's figure.
     /// </summary>
-    private static IEnumerable<OverlayRow> TodayRows(TrackerData data, double? baseAverage = null)
+    private static IEnumerable<OverlayRow> TodayRows(TrackerData data)
     {
         var today = DateTime.Now.Date;
         var finished = data.Matches.Where(m => (m.MatchStartUtc ?? m.AnalyzedAtUtc).ToLocalTime().Date == today).ToList();
@@ -81,10 +73,6 @@ public static class OverlayModel
         {
             average = Math.Round((double)chests / finished.Count, MidpointRounding.AwayFromZero).ToString("0", L.Culture);
             detail = $"{L.Count(finished.Count, "partida", "partidas", "match", "matches")} · {L.T("media", "avg.")} {average}";
-        }
-        else if (baseAverage is { } baseAvg && baseAvg > 0)
-        {
-            average = Math.Round(baseAvg, MidpointRounding.AwayFromZero).ToString("0", L.Culture);
         }
         yield return new OverlayRow(L.T("Hoy", "Today"), L.N(chests), Detail: detail);
         yield return new OverlayRow(L.T("Media", "Avg."), average);

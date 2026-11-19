@@ -57,6 +57,13 @@ public static class StatsClient
         {
             return new Answer(Outcome.NotFound);
         }
+        // Everything off the caller's thread: creating the client and the first request (loading the network stack,
+        // reading the system proxy) run synchronously up to the first real wait, and froze the window for a second.
+        return await Task.Run(() => LookUpAsync(key, accountId, cleanName, byId)).ConfigureAwait(false);
+    }
+
+    private static async Task<Answer> LookUpAsync(string key, string? accountId, string? cleanName, bool byId)
+    {
         try
         {
             using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(12) };

@@ -52,9 +52,9 @@ public class FiguresTests
     }
 
     [Fact]
-    public void Overlay_WithoutMatchesToday_ShowsTheTypedBaseMovedByTheMatchesSince()
+    public void Overlay_WithoutMatchesToday_ShowsNoAverage_NotTheTypedOrOverallOne()
     {
-        // typed 10 over 10 matches, then 2 matches of 22: (100 + 44) / 12 = 12
+        // typed 10 over 10 matches, then 2 matches of 22 (overall 12): none of them today, so the column stays empty
         var config = new Config();
         config.Estimates[A] = Typed(10, 10);
         var data = new TrackerData();
@@ -65,7 +65,22 @@ public class FiguresTests
         {
             return; // played "today" when run just after midnight: the column shows today's average then
         }
-        Assert.Equal("12", view.Rows.Single(r => r.Label == L.T("Media", "Avg.")).Value);
+        Assert.Equal("—", view.Rows.Single(r => r.Label == L.T("Media", "Avg.")).Value);
+    }
+
+    [Fact]
+    public void Overlay_AverageIsTodaysOnly()
+    {
+        // an old match of 30 and two of today (4 and 6): the column shows 5, today's, not the overall 13
+        var data = new TrackerData();
+        data.Matches.Add(Fakes.Match(A, "A", DateTime.UtcNow.AddDays(-3), 30));
+        var now = DateTime.Now;
+        var todayStart = now.Date.ToUniversalTime();
+        var earlier = todayStart.AddSeconds((DateTime.UtcNow - todayStart).TotalSeconds / 3);
+        data.Matches.Add(Fakes.Match(A, "A", earlier, 4));
+        data.Matches.Add(Fakes.Match(A, "A", earlier.AddSeconds(1), 6));
+        var view = OverlayModel.Build(data, 100);
+        Assert.Equal("5", view.Rows.Single(r => r.Label == L.T("Media", "Avg.")).Value);
     }
 
     [Fact]
@@ -76,13 +91,13 @@ public class FiguresTests
     }
 
     [Fact]
-    public void Overlay_TotalAddsEarlierChests_AndAverageColumnUsesTypedOneOnlyWithoutMatchesToday()
+    public void Overlay_TotalAddsEarlierChests_ButNotTheAverageColumn()
     {
         var data = new TrackerData();
         data.Matches.Add(Fakes.Match(A, "A", DateTime.UtcNow.AddDays(-2), 7));
-        var view = OverlayModel.Build(data, 100, null, 9.4);
+        var view = OverlayModel.Build(data, 100);
         Assert.Equal(L.N(107), view.Total);
-        Assert.Equal("9", view.Rows.Single(r => r.Label == L.T("Media", "Avg.")).Value);
+        Assert.Equal("—", view.Rows.Single(r => r.Label == L.T("Media", "Avg.")).Value);
     }
 
     [Fact]

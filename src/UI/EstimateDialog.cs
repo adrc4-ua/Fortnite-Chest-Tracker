@@ -46,7 +46,9 @@ public sealed class EstimateDialog : ThemedForm
     private readonly PillButton _typed;
     private readonly Panel _calcArea;
     private readonly Panel _typedArea;
-    private readonly List<PillButton> _samples = new();
+    private readonly List<SampleTile> _samples = new();
+    private readonly Label _sampleHint;
+    private readonly bool _fromScratch;
     private readonly ThemedTextBox _average;
     private readonly Card _result;
     private readonly Label _resultValue;
@@ -80,6 +82,7 @@ public sealed class EstimateDialog : ThemedForm
         _accountId = accountId;
         _originalName = playerName;
         _recalculating = recalculating;
+        _fromScratch = fromScratch;
         _savedMatches = savedMatches > 0 ? savedMatches : (previewOf != null ? previewOf(1, 0, null).SeasonReplays : 0);
         _autoAverage = _savedMatches >= HistoryEstimator.AutoAverageMatches;
         Text = recalculating ? L.T("Estimación", "Estimate") : L.F("Cofres antes de {0}", "Chests before {0}", AppInfo.ShortName);
@@ -175,31 +178,46 @@ public sealed class EstimateDialog : ThemedForm
         _site.Click += (_, _) => OpenSite();
 
         // ---- 2 · Cofres por partida -------------------------------------------------------------------------------
-        _step2 = Title(_panel, L.T("2 · ¿Cuántos cofres abres por partida?", "2 · How many chests do you open per match?"));
+        _step2 = Title(_panel, L.T("2 · ¿Cómo calculamos tus cofres?", "2 · How do we work out your chests?"));
         var halfInner = (Inner - 8) / 2;
-        _calc = Pill(_panel, L.T("Que lo calcule FCT", "Let FCT work it out"), Point.Empty, new Size(halfInner, 32), 8.75f);
-        _typed = Pill(_panel, L.T("Lo sé, lo escribo", "I know it, I'll type it"), Point.Empty, new Size(halfInner, 32), 8.75f);
+        _calc = Pill(_panel, L.T("Jugando unas partidas", "By playing a few matches"), Point.Empty, new Size(halfInner, 32), 8.75f, Icons.Sparkle);
+        _typed = Pill(_panel, L.T("Sé cuántos abro", "I know how many I open"), Point.Empty, new Size(halfInner, 32), 8.75f, Icons.Calc);
         _calc.Click += (_, _) => SelectAverage(false);
         _typed.Click += (_, _) => SelectAverage(true);
 
-        _calcArea = new Panel { Size = new Size(Inner, 64), BackColor = Color.Transparent };
-        AddText(_calcArea, L.T("Con tus próximas", "With your next"), Theme.Text(8.75f), Theme.Muted, 0, 8, 110);
-        var sx = 112;
-        var sw = (Inner - sx - 3 * 6) / HistoryEstimator.SampleChoices.Length;
-        foreach (var n in HistoryEstimator.SampleChoices)
+        // Cuántas partidas medir: tarjetas con el número, una palabra y una barra de precisión; debajo, qué pasará.
+        _calcArea = new Panel { Size = new Size(Inner, 120), BackColor = Color.Transparent };
+        var ty = AddText(_calcArea, L.T("¿Cuántas partidas quieres jugar para saberlo?", "How many matches do you want to play to find out?"),
+            Theme.Text(8.5f), Theme.Muted, 0, 0, Inner) + 6;
+        const int tileGap = 6;
+        var count = HistoryEstimator.SampleChoices.Length;
+        var tw = (Inner - (count - 1) * tileGap) / count;
+        var tx = 0;
+        for (var i = 0; i < count; i++)
         {
-            var label = n == HistoryEstimator.RecommendedSample ? L.F("{0} ★", "{0} ★", n) : n.ToString(CultureInfo.InvariantCulture);
-            var pill = Pill(_calcArea, label, new Point(sx, 0), new Size(sw, 32), 9f);
-            pill.Tag = n;
-            pill.Click += (_, _) => SelectSample((int)pill.Tag!);
-            _samples.Add(pill);
-            sx += sw + 6;
+            var n = HistoryEstimator.SampleChoices[i];
+            var tile = new SampleTile
+            {
+                Text = n.ToString(CultureInfo.InvariantCulture),
+                Caption = SampleCaption(n),
+                Level = i + 1,
+                Levels = count,
+                Starred = n == HistoryEstimator.RecommendedSample,
+                Location = new Point(tx, ty),
+                Size = new Size(tw, 66),
+                Tag = n,
+            };
+            tile.Click += (_, _) => SelectSample((int)tile.Tag!);
+            _calcArea.Controls.Add(tile);
+            _samples.Add(tile);
+            tx += tw + tileGap;
         }
-        AddText(_calcArea, fromScratch
-                ? L.F("partidas. Cuantas más, más exacto (te recomendamos {0} ★).", "matches. The more, the more accurate (we recommend {0} ★).", HistoryEstimator.RecommendedSample)
-                : L.F("partidas. Cuantas más, más exacto (te recomendamos {0} ★). También usamos las que ya tienes guardadas.",
-                    "matches. The more, the more accurate (we recommend {0} ★). The ones you already have saved count too.", HistoryEstimator.RecommendedSample),
-            Theme.Text(8.25f), Theme.Muted, 0, 40, Inner);
+        _sampleHint = new Label
+        {
+            AutoSize = true, MaximumSize = new Size(Inner, 0), Font = Theme.Text(8.25f), ForeColor = Theme.Champ, BackColor = Color.Transparent,
+            UseMnemonic = false, Location = new Point(0, ty + 66 + 8),
+        };
+        _calcArea.Controls.Add(_sampleHint);
         _panel.Controls.Add(_calcArea);
 
         _typedArea = new Panel { Size = new Size(Inner, 64), BackColor = Color.Transparent, Visible = false };
@@ -209,7 +227,7 @@ public sealed class EstimateDialog : ThemedForm
         _average.CueBanner = "18,5";
         _average.MaxLength = 6;
         _average.TextChanged += (_, _) => UpdatePreview();
-        AddText(_typedArea, L.T("cofres por partida, de media.", "chests per match, on average."), Theme.Text(8.75f), Theme.Muted, 152, 11, Inner - 152);
+        AddText(_typedArea, L.T("cofres en una partida normal.", "chests in a usual match."), Theme.Text(8.75f), Theme.Muted, 152, 11, Inner - 152);
         _panel.Controls.Add(_typedArea);
 
         // ---- Resultado ------------------------------------------------------------------------------------------
@@ -386,12 +404,35 @@ public sealed class EstimateDialog : ThemedForm
     private void SelectSample(int n)
     {
         _sample = n;
-        foreach (var p in _samples)
+        foreach (var tile in _samples)
         {
-            Mark(p, (int)p.Tag! == n);
+            tile.Selected = (int)tile.Tag! == n;
         }
+        string Matches(int m) => L.Count(m, "partida", "partidas", "match", "matches");
+        var when = L.F("Juega {0} con FCT abierto y sabrás cuántos cofres llevas en total.",
+            "Play {0} with FCT open and you'll know how many chests you've opened in total.", Matches(n));
+        var why = n switch
+        {
+            <= HistoryEstimator.DefaultSample => L.T(" Lo más rápido, aunque menos exacto.", " Quickest, though less exact."),
+            HistoryEstimator.RecommendedSample => L.T(" Rápido y bastante exacto.", " Quick and fairly exact."),
+            _ => L.T(" Tarda más, pero acierta más.", " Takes longer, but it's more exact."),
+        };
+        _sampleHint.Text = when + why;
         UpdatePreview();
+        if (IsHandleCreated)
+        {
+            Arrange();
+        }
     }
+
+    /// <summary>La palabra bajo el número de cada tarjeta.</summary>
+    private static string SampleCaption(int n) => n switch
+    {
+        <= HistoryEstimator.DefaultSample => L.T("Rápida", "Quick"),
+        HistoryEstimator.RecommendedSample => L.T("Recomendada", "Recommended"),
+        < 20 => L.T("Precisa", "Precise"),
+        _ => L.T("Muy precisa", "Most precise"),
+    };
 
     /// <summary>El resultado: la cifra en grande y, debajo, de dónde sale (o qué falta).</summary>
     private void UpdatePreview()
@@ -430,9 +471,15 @@ public sealed class EstimateDialog : ThemedForm
         if (_previewOf == null)
         {
             // Primer uso: aún no se han leído las partidas guardadas.
-            Show(L.T("Pendiente", "Pending"), typed != null || _autoAverage
-                ? L.T("Lo calculamos en cuanto leamos tus partidas guardadas.", "We'll work it out as soon as we read your saved matches.")
-                : L.F("Lo calculamos tras tus próximas {0}.", "We'll work it out after your next {0}.", Matches(_sample)));
+            if (typed != null || _autoAverage)
+            {
+                Show(L.T("Casi listo", "Almost ready"), L.T("Lo calculamos en cuanto leamos tus partidas guardadas.", "We'll work it out as soon as we read your saved matches."));
+            }
+            else
+            {
+                Show(L.F("Listo en {0}", "Ready in {0}", Matches(_sample)),
+                    L.F("Entonces sabrás cuántos cofres abriste antes de {0}.", "Then you'll know how many chests you opened before {0}.", AppInfo.ShortName));
+            }
             return;
         }
         var sample = _autoAverage ? 0 : _sample;
@@ -441,18 +488,20 @@ public sealed class EstimateDialog : ThemedForm
         var chestsWord = L.T("cofres de antes", "earlier chests");
         if (r.Chests is int chests)
         {
-            Show($"≈ {chests.ToString("#,0", L.Culture)} {chestsWord}", typed != null
-                ? L.F("Con tu media de {0} por partida.", "With your average of {0} per match.", Avg(typed.Value))
-                : L.F("Con una media de {0} por partida.", "With an average of {0} per match.", Avg(r.Average ?? 0)));
+            Show($"≈ {chests.ToString("#,0", L.Culture)} {chestsWord}",
+                r.Missing > 0
+                    ? L.F("Unos {0} cofres por partida, en {1} de antes.", "About {0} chests a match, over {1} before.", Avg(typed ?? r.Average ?? 0), Matches(r.Missing))
+                    : L.F("Unos {0} cofres por partida.", "About {0} chests a match.", Avg(typed ?? r.Average ?? 0)));
             return;
         }
         if (r.Provisional is int provisional)
         {
             Show($"≈ {provisional.ToString("#,0", L.Culture)} {chestsWord}",
-                L.F("De momento. Se ajusta tras tus próximas {0}.", "For now. It's fine-tuned after your next {0}.", Matches(r.Waiting)));
+                L.F("Cifra provisional: la exacta, tras tus próximas {0}.", "A first guess: the exact one after your next {0}.", Matches(r.Waiting)));
             return;
         }
-        Show(L.T("Pendiente", "Pending"), L.F("Lo calculamos tras tus próximas {0}.", "We'll work it out after your next {0}.", Matches(r.Waiting)));
+        Show(L.F("Listo en {0}", "Ready in {0}", Matches(r.Waiting)),
+            L.F("Entonces sabrás cuántos cofres abriste antes de {0}.", "Then you'll know how many chests you opened before {0}.", AppInfo.ShortName));
     }
 
     /// <summary>Busca las partidas de esta temporada por el nombre de Epic. Si no se puede, explica por qué y pide escribirlas.</summary>

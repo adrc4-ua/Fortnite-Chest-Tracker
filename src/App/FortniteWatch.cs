@@ -53,7 +53,7 @@ public static class FortniteWatch
     /// <summary>The fallback: a standby started at logon (its entry is rewritten at each start, so it follows the exe).</summary>
     private static bool ApplyStandby(string exe, string data)
     {
-        if (!StartupEntries.SetStandbyEntry($"\"{exe}\" --standby {data}"))
+        if (!StartupEntries.SetStandbyEntry(exe, data))
         {
             return false;
         }

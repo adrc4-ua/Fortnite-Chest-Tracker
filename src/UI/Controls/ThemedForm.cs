@@ -17,7 +17,7 @@ namespace FCT.UI;
 [SupportedOSPlatform("windows")]
 public class ThemedForm : Form, IBackdrop
 {
-    private const int WmEraseBkgnd = 0x0014, DwmCloak = 13;
+    private const int WmCreate = 0x0001, WmEraseBkgnd = 0x0014, DwmCloak = 13;
     private bool _cloaked;
 
     public ThemedForm()
@@ -29,6 +29,12 @@ public class ThemedForm : Form, IBackdrop
 
     protected override void WndProc(ref Message m)
     {
+        if (m.Msg == WmCreate)
+        {
+            // WinForms creates a window that is to be shown already visible: hidden here, before its first frame, or
+            // Windows would show that frame (white) before OnHandleCreated runs
+            Cloak(m.HWnd, true);
+        }
         if (m.Msg == WmEraseBkgnd)
         {
             // the paint that follows draws the glow; until then, the app's background rather than nothing (white)
@@ -47,14 +53,14 @@ public class ThemedForm : Form, IBackdrop
     {
         base.OnHandleCreated(e);
         WindowChrome.Apply(Handle);
-        Cloak(true); // hidden from view until its first paint is done
+        Cloak(Handle, true); // already hidden on WM_CREATE; again in case composition only answered now
     }
 
     protected override void SetVisibleCore(bool value)
     {
         if (value && IsHandleCreated && !Visible)
         {
-            Cloak(true); // shown again (from the tray): its old image is gone, so it paints hidden as well
+            Cloak(Handle, true); // shown again (from the tray): its old image is gone, so it paints hidden as well
         }
         base.SetVisibleCore(value);
         if (value && _cloaked && IsHandleCreated)
@@ -73,15 +79,15 @@ public class ThemedForm : Form, IBackdrop
         }
         const uint Invalidate = 0x0001, Erase = 0x0004, AllChildren = 0x0080, UpdateNow = 0x0100, Frame = 0x0400;
         RedrawWindow(Handle, IntPtr.Zero, IntPtr.Zero, Invalidate | Erase | AllChildren | UpdateNow | Frame);
-        Cloak(false);
+        Cloak(Handle, false);
     }
 
-    private void Cloak(bool on)
+    private void Cloak(IntPtr window, bool on)
     {
         try
         {
             var value = on ? 1 : 0;
-            _cloaked = DwmSetWindowAttribute(Handle, DwmCloak, ref value, sizeof(int)) == 0 && on;
+            _cloaked = DwmSetWindowAttribute(window, DwmCloak, ref value, sizeof(int)) == 0 && on;
         }
         catch (Exception ex) when (ex is DllNotFoundException or EntryPointNotFoundException)
         {

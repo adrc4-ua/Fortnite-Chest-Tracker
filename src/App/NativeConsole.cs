@@ -24,16 +24,6 @@ public static class NativeConsole
         }
     }
 
-    /// <summary>Hides the console: the window is the interface, the console only keeps what code writes to it.</summary>
-    public static void Hide()
-    {
-        var console = GetConsoleWindow();
-        if (console != IntPtr.Zero)
-        {
-            ShowWindow(console, 0 /* SW_HIDE */);
-        }
-    }
-
     private static bool OutputIsRedirected()
     {
         var output = GetStdHandle(-11 /* STD_OUTPUT_HANDLE */);
@@ -52,5 +42,4 @@ public static class NativeConsole
     [DllImport("kernel32.dll")] private static extern bool AttachConsole(int processId);
     [DllImport("kernel32.dll")] private static extern IntPtr GetStdHandle(int which);
     [DllImport("kernel32.dll")] private static extern uint GetFileType(IntPtr handle);
-    [DllImport("user32.dll")] private static extern bool ShowWindow(IntPtr window, int command);
 }

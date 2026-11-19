@@ -110,44 +110,28 @@ public sealed class Tracker
     }
 
     /// <summary>
-    /// Empties the history (data.json is copied to <paramref name="backupPath"/> first). Replays already in the folder
-    /// are marked as skipped, so counting starts with the next match; one being played still counts.
+    /// Empties the history (make a backup first, see <see cref="Backup"/>). Replays already in the folder are marked as
+    /// skipped, so counting starts with the next match; one being played still counts.
     /// </summary>
-    public void Reset(string backupPath)
+    public void Reset()
     {
-        if (File.Exists(_store.DataPath))
-        {
-            File.Copy(_store.DataPath, backupPath, true);
-        }
         Data.Matches.Clear();
         Data.ProcessedFiles.Clear();
         MarkSkipped(_folder.All().Where(ReplayFolder.NotRecording).ToList());
     }
 
     /// <summary>
-    /// Brings a backup back: its matches (with their chests and treasures) that the history does not have are added,
-    /// and what it knew of each replay too; nothing already here is replaced, so matches played since are kept.
-    /// Returns how many matches came back.
+    /// Brings a backup back exactly as it was: the history becomes the backup's (matches, chests, treasures, which
+    /// replays were read). Replays in the folder that the backup had not read (matches played since) are marked as
+    /// skipped, so nothing changes the restored figures by itself; they can still be counted on purpose ("Count them").
+    /// Returns how many such replays were left out.
     /// </summary>
     public int Restore(TrackerData backup)
     {
-        var known = Data.Matches.Select(m => m.SessionId).ToHashSet();
-        var added = 0;
-        foreach (var match in backup.Matches.Where(m => known.Add(m.SessionId)))
-        {
-            Data.Matches.Add(match);
-            added++;
-        }
-        foreach (var (file, verdict) in backup.ProcessedFiles)
-        {
-            // replays marked "skipped" by the reset get back what they were
-            if (!Data.ProcessedFiles.TryGetValue(file, out var now) || now == Skipped)
-            {
-                Data.ProcessedFiles[file] = verdict;
-            }
-        }
-        _store.SaveData(Data);
-        return added;
+        Backup.Replace(Data, backup);
+        var unread = _folder.NotHandled().Where(ReplayFolder.NotRecording).ToList();
+        MarkSkipped(unread); // saves
+        return unread.Count;
     }
 
     /// <summary>
@@ -296,7 +280,7 @@ public sealed class Tracker
             Data.Matches.Remove(earlier);
         }
 
-        TreasureScreenMerge.Apply(match, Data.TreasureScreens); // names the gizmos, adds those the replay missed
+        TreasureScreenMerge.Apply(match, Data.TreasureScreens, Data); // names the gizmos, adds those the replay missed
         Data.Matches.Add(match);
         Mark(key, match.SessionId);
         if (_live.File == file.FullName)
