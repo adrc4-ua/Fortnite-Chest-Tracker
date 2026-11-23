@@ -2,6 +2,10 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
+## [Sin publicar]
+
+- **Premios de las semanas 4 y 5 sin la etiqueta «sin confirmar»**: los cinco premios de cada semana ya figuran sin marca. Sus identificadores se han comprobado contra la tabla de premios del propio juego (31 filas, todas coinciden); la semana 4 lleva ya sus nombres oficiales (mochila «Solid Gold High Tide and Wavecutter», pista «Wellerman»); los de la semana 5 siguen siendo los publicados por la comunidad.
+
 ## [5.14.0] - 2026-11-19
 
 - **Pantalla de tesoros sin cartas fantasma**: al salir de la pantalla final, la colección de Sprites, las pantallas de carga y el vestíbulo tienen dibujos amarillos que se leían como cartas durante muchas capturas seguidas, y dos huellas de fuegos artificiales sacadas por error de la colección hacían que esos Sprites se leyeran como fuegos: un acelerador podía acabar nombrado como fuegos artificiales. Ahora solo cuentan las cartas del panel de tesoros (su tamaño y su sitio, empezando en el margen del panel), en cualquier resolución y proporción.

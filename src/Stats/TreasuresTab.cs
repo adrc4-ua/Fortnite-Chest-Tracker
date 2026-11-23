@@ -157,8 +157,7 @@ internal static class TreasuresTab
         string Tile(Prizes.Prize prize)
         {
             var got = Obtained(prize);
-            var under = got || prize.Announced ? "" : $"<span class=\"chipl\">{L.T("sin confirmar", "unconfirmed")}</span>";
-            return $"<div class=\"prize{(got ? " prize-got" : "")}\" data-prize=\"{Esc(prize.Name)}\"><span class=\"prize-kind\"><i>{PageIcons.Of(prize)}</i><span>{Esc(Prizes.TypeName(prize.Type))}</span></span><b>{Esc(Prizes.Shown(prize))}</b>{under}</div>";
+            return $"<div class=\"prize{(got ? " prize-got" : "")}\" data-prize=\"{Esc(prize.Name)}\"><span class=\"prize-kind\"><i>{PageIcons.Of(prize)}</i><span>{Esc(Prizes.TypeName(prize.Type))}</span></span><b>{Esc(Prizes.Shown(prize))}</b></div>";
         }
 
         var meta = current > 0

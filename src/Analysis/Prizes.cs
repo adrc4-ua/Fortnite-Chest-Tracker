@@ -12,7 +12,7 @@ namespace FCT.Analysis;
 /// <item>Treasure gizmos: the five gizmos, in every week. The replay does not say which one was received.</item>
 /// </list>
 /// Names are the official English ones (also used by the Spanish game for these items). Weeks 4 and 5 come from the
-/// files of the game as leaked (ShiinaBR, Fortnite.gg), marked unconfirmed until they are in the game.
+/// files of the game as leaked (ShiinaBR, Fortnite.gg).
 /// </summary>
 public static class Prizes
 {
@@ -20,8 +20,7 @@ public static class Prizes
 
     /// <param name="Week">1–5, or 0 for every week.</param>
     /// <param name="Id">Prize id seen in replays (only for the ones already received).</param>
-    /// <param name="Announced">False when only reported by the community, not yet in the game.</param>
-    public sealed record Prize(string Name, Kind Type, int Week, string? Id = null, bool Announced = true);
+    public sealed record Prize(string Name, Kind Type, int Week, string? Id = null);
 
     /// <summary>
     /// Start of each week of the event (UTC). The prizes change on Sundays at 9 AM Eastern Time (14:00 UTC, 15:00 in
@@ -53,7 +52,7 @@ public static class Prizes
     /// Every prize of the hunt with its id, as in the game's prize table (DT_DelilahTreasureHunt_Prizes, build 43.10):
     /// each row has its own id, never reused from week to week. Week 1 is items 1 to 5, the gizmos 9 to 13 and weeks 2
     /// to 5 five items each from 14 (outfit, back bling, jam track, loading screen, gold car). Names are the official
-    /// ones; weeks 4 and 5 come from the community until they are in the game.
+    /// ones; weeks 4 and 5 come from the community.
     /// </summary>
     public static readonly Prize[] All =
     {
@@ -84,16 +83,16 @@ public static class Prizes
         new("May Fortune Find You", Kind.LoadingScreen, 3, "DelilahPrize:dpid_item22"),
         new("Chevrolet Corvette ZR1", Kind.Vehicle, 3, "DelilahPrize:dpid_item23"),
         // Weeks 4 and 5: the slots are in the table, the names as leaked from the game's files
-        new("Solid Gold Kasane Teto", Kind.Outfit, 4, "DelilahPrize:dpid_item24", Announced: false),
-        new("Rogue Wave and Tidewalker", Kind.BackBling, 4, "DelilahPrize:dpid_item25", Announced: false),
-        new("Sea Shanty", Kind.JamTrack, 4, "DelilahPrize:dpid_item26", Announced: false),
-        new("Oscar's Wraps", Kind.LoadingScreen, 4, "DelilahPrize:dpid_item27", Announced: false),
-        new("Lamborghini Urus SE", Kind.Vehicle, 4, "DelilahPrize:dpid_item28", Announced: false),
-        new("Solid Gold Captain X", Kind.Outfit, 5, "DelilahPrize:dpid_item29", Announced: false),
-        new("Roasted Meat", Kind.BackBling, 5, "DelilahPrize:dpid_item30", Announced: false),
-        new("I Follow Rivers", Kind.JamTrack, 5, "DelilahPrize:dpid_item31", Announced: false),
-        new("Jones and the Straw Hats", Kind.LoadingScreen, 5, "DelilahPrize:dpid_item32", Announced: false),
-        new("G-Wagon", Kind.Vehicle, 5, "DelilahPrize:dpid_item33", Announced: false),
+        new("Solid Gold Kasane Teto", Kind.Outfit, 4, "DelilahPrize:dpid_item24"),
+        new("Solid Gold High Tide and Wavecutter", Kind.BackBling, 4, "DelilahPrize:dpid_item25"),
+        new("Wellerman", Kind.JamTrack, 4, "DelilahPrize:dpid_item26"),
+        new("Oscar's Wraps", Kind.LoadingScreen, 4, "DelilahPrize:dpid_item27"),
+        new("Lamborghini Urus SE", Kind.Vehicle, 4, "DelilahPrize:dpid_item28"),
+        new("Solid Gold Captain X", Kind.Outfit, 5, "DelilahPrize:dpid_item29"),
+        new("Roasted Meat", Kind.BackBling, 5, "DelilahPrize:dpid_item30"),
+        new("I Follow Rivers", Kind.JamTrack, 5, "DelilahPrize:dpid_item31"),
+        new("Jones and the Straw Hats", Kind.LoadingScreen, 5, "DelilahPrize:dpid_item32"),
+        new("G-Wagon", Kind.Vehicle, 5, "DelilahPrize:dpid_item33"),
     };
 
     /// <summary>Week of the event (1–5) at a moment (local or UTC time), or 0 outside the event.</summary>
