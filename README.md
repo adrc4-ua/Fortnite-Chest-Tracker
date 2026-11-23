@@ -4,7 +4,7 @@
 
 [![English](https://img.shields.io/badge/English-e8b04b?style=for-the-badge)](README.md) [![Español](https://img.shields.io/badge/Espa%C3%B1ol-121215?style=for-the-badge)](README.es.md)
 
-![version](https://img.shields.io/github/v/release/adrc4-ua/Fortnite-Chest-Tracker?style=for-the-badge&label=version&color=e8b04b&labelColor=121215) ![Windows 10 and 11](https://img.shields.io/badge/Windows-10%20%7C%2011-e8b04b?style=for-the-badge&labelColor=121215)
+[![version](https://img.shields.io/github/v/release/adrc4-ua/Fortnite-Chest-Tracker?style=for-the-badge&label=version&color=e8b04b&labelColor=121215)](https://github.com/adrc4-ua/Fortnite-Chest-Tracker/releases/latest) [![downloads](https://img.shields.io/github/downloads/adrc4-ua/Fortnite-Chest-Tracker/total?style=for-the-badge&label=downloads&color=e8b04b&labelColor=121215)](https://github.com/adrc4-ua/Fortnite-Chest-Tracker/releases/latest) [![Windows 10 and 11](https://img.shields.io/badge/Windows-10%20%7C%2011-e8b04b?style=for-the-badge&labelColor=121215)](https://github.com/adrc4-ua/Fortnite-Chest-Tracker/releases/latest)
 
 <a href="https://github.com/adrc4-ua/Fortnite-Chest-Tracker/releases/latest/download/FCT.exe"><img src="docs/images/download-en.png" alt="Download FCT" width="260"></a>
 
