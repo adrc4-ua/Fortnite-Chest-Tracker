@@ -2,7 +2,7 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
-## [Sin publicar]
+## [5.14.1] - 2026-11-23
 
 - **Premios de las semanas 4 y 5 sin la etiqueta «sin confirmar»**: los cinco premios de cada semana ya figuran sin marca. Sus identificadores se han comprobado contra la tabla de premios del propio juego (31 filas, todas coinciden); la semana 4 lleva ya sus nombres oficiales (mochila «Solid Gold High Tide and Wavecutter», pista «Wellerman»); los de la semana 5 siguen siendo los publicados por la comunidad.
 
@@ -408,6 +408,7 @@ Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede a
 
 - Primera versión publicada.
 
+[5.14.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.14.0...v5.14.1
 [5.14.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.13.0...v5.14.0
 [5.13.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.12.2...v5.13.0
 [5.12.2]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.12.1...v5.12.2
