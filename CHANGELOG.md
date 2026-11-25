@@ -2,7 +2,7 @@
 
 Todas las versiones de Fortnite Chest Tracker (FCT). Sigue el [versionado semántico](https://semver.org/lang/es/): **MAJOR** cuando algo deja de ser compatible, **MINOR** para funciones nuevas, **PATCH** para arreglos.
 
-## [Sin publicar]
+## [5.15.0] - 2026-11-25
 
 - **Tesoros destacados de un compañero lejano otra vez detectados (Fortnite 43.11)**: desde la actualización 43.11 el juego ya no escribe en su registro la lista de premios que tienes, que era lo que permitía saber que un tesoro sin cofre dorado en la repetición (abierto por un compañero lejos de ti) era un destacado; se quedaba como «Artilugio de tesoro». Ahora FCT usa otra señal que el juego sí deja: en el mismo segundo en que la repetición registra el tesoro, el registro del juego anota que el servidor ha añadido algo a tu cuenta, cosa que nunca pasa con un artilugio (comprobado con unas 30 concesiones de artilugios y con los dos destacados de la semana 4: la mochila y la pista «Wellerman»). Esos tesoros cuentan como destacados para cualquier jugador, sin depender de huellas, y se nombran solos cuando solo queda un destacado de la semana por conseguir; si no, se muestran como «Tesoro destacado». Con una lista de premios que lo confirme, la partida pasa de «probable» a segura. Las partidas guardadas se corrigen solas al abrir FCT, mientras el registro de esa partida siga en el PC.
 - **Nombre exacto del destacado desde la pantalla «¡Tesoro encontrado!»**: al volver al vestíbulo, el juego enseña cada objeto nuevo con su tipo y su nombre («PISTA DE IMPROVISACIÓN – 2021 | 2:29 · WELLERMAN»). FCT la detecta por el registro del juego, lee su texto con el reconocimiento de texto que trae Windows (en el idioma del juego si Windows lo tiene; no guarda imágenes ni envía nada) y le pone ese nombre al destacado de la partida que acaba de terminar, aunque lo abriera un compañero lejos. Sirve en cualquier idioma: los nombres que no se traducen (canciones, coches) se reconocen tal cual, una pista de improvisación se reconoce por su línea «año | duración» y el tipo de objeto se entiende en español, inglés, francés, alemán, italiano y portugués; con el tipo y la semana basta, porque cada semana solo hay un premio de cada tipo. Si no se puede leer, se queda como «Tesoro destacado».
@@ -414,6 +414,7 @@ Cambio incompatible: los datos pasan a `%APPDATA%\FCT` y la v1.0.0 ya no puede a
 
 - Primera versión publicada.
 
+[5.15.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.14.1...v5.15.0
 [5.14.1]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.14.0...v5.14.1
 [5.14.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.13.0...v5.14.0
 [5.13.0]: https://github.com/adrc4-ua/Fortnite-Chest-Tracker/compare/v5.12.2...v5.13.0
