@@ -18,6 +18,23 @@ internal static class PostMatchTools
     }
 
     /// <summary>
+    /// --read-gift-screen &lt;image&gt; [UTC time]: the text read on a "Treasure found!" screen of the lobby and the prize
+    /// it gives (the time sets the week; now by default).
+    /// </summary>
+    public static int ReadGiftImage(string path, DateTime whenUtc)
+    {
+        using var bitmap = new Bitmap(path);
+        var lines = GiftScreenReader.ReadTextAsync(FromBitmap(bitmap)).GetAwaiter().GetResult();
+        foreach (var line in lines)
+        {
+            Console.WriteLine($"  {line}");
+        }
+        var id = GiftScreenReader.PrizeOf(lines, whenUtc);
+        Console.WriteLine(id == null ? "  Prize: none" : $"  Prize: {id} ({Analysis.Prizes.ById(id)?.Name})");
+        return 0;
+    }
+
+    /// <summary>
     /// --capture-window &lt;exact window title&gt; [out.png]: captures that window the same way as after a match and
     /// reads it. Only this test writes the frame to a file, and only when a file is given.
     /// </summary>

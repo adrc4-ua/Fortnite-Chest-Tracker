@@ -45,6 +45,8 @@ public sealed class ReplayAnalyzer
             AnalyzedAtUtc = DateTime.UtcNow,
             AnalyzerVersion = CurrentVersion,
             MatchStartUtc = replay.GameData?.UtcTimeStartedMatch ?? info?.Timestamp,
+            // the header keeps the local time the recording began (the one in the file name), to the millisecond
+            RecordingStartUtc = info == null || info.Timestamp == default ? null : DateTime.SpecifyKind(info.Timestamp, DateTimeKind.Local).ToUniversalTime(),
             DurationSeconds = info == null ? null : (int)(info.LengthInMs / 1000),
             Playlist = playlist,
             GameVersion = replay.Header?.Branch,

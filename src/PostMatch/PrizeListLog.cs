@@ -8,14 +8,24 @@ namespace FCT.PostMatch;
 /// <summary>
 /// Reads, from the game's logs (read only), the list of featured prizes the player owns: when a match loads, the game
 /// lists one quest per owned prize ("Quest:quest_dpid_item21"; item 6 is the Pirate Shop Access). Each list goes into
-/// <see cref="TrackerData.PrizeLists"/>; a prize that appears in it was won since the previous list. Only what is new
-/// in each log file is read: the first time every log still on disk, then a few kilobytes at a time.
+/// <see cref="TrackerData.PrizeLists"/>; a prize that appears in it was won since the previous list. Since update 43.11
+/// the game no longer writes that list; what it does write, in the same second the server gives the player a new
+/// cosmetic, is a change of the player's account pushed during the match ("Delta profile update … profileId=athena
+/// from notifications"): those moments go into <see cref="TrackerData.AccountGrants"/> (see <see cref="AccountGrantMerge"/>).
+/// Only what is new in each log file is read: the first time every log still on disk, then a few kilobytes at a time.
 /// </summary>
 public static class PrizeListLog
 {
     // [2026.11.15-18.37.12:345][  7]LogFortQuest: Warning: Failed to find a category to organize the quest {Quest:quest_dpid_item21} under!
     private static readonly Regex QuestLine = new(@"^\[(\d{4}\.\d{2}\.\d{2}-\d{2}\.\d{2}\.\d{2}):\d{3}\].*?quest_dpid_item(\d+)\b",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    // [2026.11.25-00.55.05:721][177]LogProfileSys: MCP-Profile: Delta profile update (revision 9437 [14303]) for Name accountId=MCP:… profileId=athena from notifications
+    private static readonly Regex AccountLine = new(@"^\[(\d{4}\.\d{2}\.\d{2}-\d{2}\.\d{2}\.\d{2}:\d{3})\].*?Delta profile update\b.*?\bprofileId=athena from notifications",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    /// <summary>Account changes older than this are of no use any more (their matches were matched long ago).</summary>
+    private static readonly TimeSpan KeepGrants = TimeSpan.FromDays(60);
 
     /// <summary>Quest lines this close together are one list (the game writes it in a burst).</summary>
     private static readonly TimeSpan Burst = TimeSpan.FromSeconds(30);
@@ -26,7 +36,7 @@ public static class PrizeListLog
     /// <summary>The prize id behind a quest number.</summary>
     public static string PrizeIdOf(int item) => item == 6 ? Prizes.PirateShopId : $"DelilahPrize:dpid_item{item}";
 
-    /// <summary>Reads what is new in the logs and files the lists into the data. True when a list changed.</summary>
+    /// <summary>Reads what is new in the logs and files the lists and account changes into the data. True when anything changed.</summary>
     /// <param name="folder">The logs' folder (the game's by default; FCT_GAME_LOG points it elsewhere in tests).</param>
     public static bool Update(TrackerData data, string? folder = null)
     {
@@ -37,8 +47,11 @@ public static class PrizeListLog
         }
         lock (Gate)
         {
-            var since = data.PrizeLists.Count > 0 ? data.PrizeLists[^1].LastSeenUtc : DateTime.MinValue;
+            var listsSince = data.PrizeLists.Count > 0 ? data.PrizeLists[^1].LastSeenUtc : DateTime.MinValue;
+            var grantsSince = data.AccountGrants.Count > 0 ? data.AccountGrants.Max() : DateTime.MinValue;
+            var since = listsSince < grantsSince ? listsSince : grantsSince;
             var lines = new List<(DateTime Utc, string Id)>();
+            var grants = new List<DateTime>();
             var files = new DirectoryInfo(folder).GetFiles("FortniteGame*.log").OrderBy(f => f.LastWriteTimeUtc).ToList();
             foreach (var file in files)
             {
@@ -52,9 +65,9 @@ public static class PrizeListLog
                     Read[file.FullName] = file.Length; // all older than what is filed
                     continue;
                 }
-                Read[file.FullName] = ReadQuests(file.FullName, from, since, lines);
+                Read[file.FullName] = ReadQuests(file.FullName, from, listsSince, grantsSince, lines, grants);
             }
-            var changed = false;
+            var changed = FileGrants(data, grants);
             foreach (var burst in Bursts(lines))
             {
                 changed |= FileList(data, burst.First, burst.Last, burst.Ids);
@@ -64,10 +77,11 @@ public static class PrizeListLog
     }
 
     /// <summary>
-    /// The quest lines after <paramref name="since"/>, from a byte position, in blocks; only whole lines are taken (one
-    /// still being written is read again next time). Returns the position after the last whole line.
+    /// The quest lines after <paramref name="since"/> and the account changes after <paramref name="grantsSince"/>, from a
+    /// byte position, in blocks; only whole lines are taken (one still being written is read again next time). Returns
+    /// the position after the last whole line.
     /// </summary>
-    private static long ReadQuests(string path, long from, DateTime since, List<(DateTime, string)> found)
+    private static long ReadQuests(string path, long from, DateTime since, DateTime grantsSince, List<(DateTime, string)> found, List<DateTime> grants)
     {
         try
         {
@@ -94,6 +108,10 @@ public static class PrizeListLog
                     {
                         found.Add((utc, PrizeIdOf(int.Parse(m.Groups[2].Value, CultureInfo.InvariantCulture))));
                     }
+                    else if (ParseAccountLine(line) is { } grant && grant > grantsSince)
+                    {
+                        grants.Add(grant);
+                    }
                 }
                 position += end + 1;
                 carry = bytes[(end + 1)..].ToArray();
@@ -104,6 +122,35 @@ public static class PrizeListLog
         {
             return from; // the game is rotating its logs: next time
         }
+    }
+
+    /// <summary>The moment (UTC, to the millisecond) of an account change pushed during play, or null for any other line.</summary>
+    internal static DateTime? ParseAccountLine(string line) =>
+        line.Contains("Delta profile update", StringComparison.Ordinal) && AccountLine.Match(line) is { Success: true } m
+        && DateTime.TryParseExact(m.Groups[1].Value, "yyyy.MM.dd-HH.mm.ss:fff", CultureInfo.InvariantCulture,
+            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var utc)
+            ? utc
+            : null;
+
+    /// <summary>Files new account changes (each moment once) and forgets the old ones. True when one was added.</summary>
+    internal static bool FileGrants(TrackerData data, IEnumerable<DateTime> grants)
+    {
+        var added = false;
+        foreach (var utc in grants)
+        {
+            if (!data.AccountGrants.Contains(utc))
+            {
+                data.AccountGrants.Add(utc);
+                added = true;
+            }
+        }
+        if (added)
+        {
+            data.AccountGrants.Sort();
+            var oldest = data.AccountGrants[^1] - KeepGrants;
+            data.AccountGrants.RemoveAll(g => g < oldest);
+        }
+        return added;
     }
 
     /// <summary>Quest lines grouped into the lists the game wrote (lines less than <see cref="Burst"/> apart).</summary>

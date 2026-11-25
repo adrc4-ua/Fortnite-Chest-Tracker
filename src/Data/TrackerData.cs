@@ -34,6 +34,16 @@ public sealed class TrackerData
     /// exact source of which featured treasure was won, even when the replay did not see its golden chest.
     /// </summary>
     public List<PrizeList> PrizeLists { get; set; } = new();
+
+    /// <summary>
+    /// Moments (UTC) the game's log shows the server changing the player's account during play: a new cosmetic of the
+    /// hunt lands there in the same second its treasure is granted in the replay; a gizmo never does (see
+    /// <see cref="FCT.PostMatch.AccountGrantMerge"/>).
+    /// </summary>
+    public List<DateTime> AccountGrants { get; set; } = new();
+
+    /// <summary>"Treasure found!" screens read back in the lobby: which new item each match gave (see <see cref="FCT.PostMatch.GiftScreen"/>).</summary>
+    public List<FCT.PostMatch.GiftScreen> GiftScreens { get; set; } = new();
 }
 
 /// <summary>The featured prizes the player owned, as the game listed them over a stretch of time.</summary>

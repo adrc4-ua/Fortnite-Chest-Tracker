@@ -6,7 +6,8 @@ namespace FCT.PostMatch;
 
 /// <summary>
 /// Follows the Fortnite client log (read only, like the replays) and tells when the game shows the post-match
-/// "Treasure found" screen. Only new lines are read: nothing that was already in the file when FCT started.
+/// "Treasure found" screen, and the lobby's screen of new items (<see cref="GiftScreen"/>). Only new lines are read:
+/// nothing that was already in the file when FCT started.
 /// </summary>
 public sealed class GameLogWatcher : IDisposable
 {
@@ -18,18 +19,25 @@ public sealed class GameLogWatcher : IDisposable
     private static readonly Regex ScreenLine = new(
         @"^\[(\d{4}\.\d{2}\.\d{2}-\d{2}\.\d{2}\.\d{2}):\d{3}\].*Adding scene: UIScene_\w*TreasuresFound_PostMatch", RegexOptions.Compiled);
 
+    // [2026.11.25-01.03.42:366][877]LogGiftBox: GiftBoxScreen_C_2147482646 shown
+    private static readonly Regex GiftLine = new(
+        @"^\[(\d{4}\.\d{2}\.\d{2}-\d{2}\.\d{2}\.\d{2}):\d{3}\].*LogGiftBox: GiftBoxScreen\w* shown", RegexOptions.Compiled);
+
     private readonly string _path;
     private readonly Action<DateTime> _onTreasureScreen;
+    private readonly Action<DateTime>? _onGiftScreen;
     private readonly System.Threading.Timer _timer;
     private long _position = -1;
     private string _partial = "";
     private int _busy;
 
     /// <param name="onTreasureScreen">Called (on a pool thread) with the UTC time the screen was shown.</param>
-    public GameLogWatcher(Action<DateTime> onTreasureScreen, string? path = null)
+    /// <param name="onGiftScreen">Same for the lobby's screen of new items.</param>
+    public GameLogWatcher(Action<DateTime> onTreasureScreen, string? path = null, Action<DateTime>? onGiftScreen = null)
     {
         _path = path ?? DefaultPath;
         _onTreasureScreen = onTreasureScreen;
+        _onGiftScreen = onGiftScreen;
         _timer = new System.Threading.Timer(_ => Poll(), null, TimeSpan.Zero, TimeSpan.FromMilliseconds(200));
     }
 
@@ -76,6 +84,12 @@ public sealed class GameLogWatcher : IDisposable
                         DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var utc))
                 {
                     _onTreasureScreen(utc);
+                }
+                else if (_onGiftScreen != null && line.Contains("LogGiftBox", StringComparison.Ordinal) && GiftLine.Match(line) is { Success: true } g
+                    && DateTime.TryParseExact(g.Groups[1].Value, "yyyy.MM.dd-HH.mm.ss", CultureInfo.InvariantCulture,
+                        DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var giftUtc))
+                {
+                    _onGiftScreen(giftUtc);
                 }
             }
         }

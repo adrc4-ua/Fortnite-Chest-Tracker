@@ -6,7 +6,7 @@ internal sealed class LaunchOptions
     /// <summary>Options that print to the terminal (and so attach to it) instead of opening the window.</summary>
     private static readonly HashSet<string> TerminalOptions = new()
     {
-        "--once", "--overlay-preview", "--settings-preview", "--diagnose", "--read-treasure-screen", "--capture-window", "--licenses", "--uninstall",
+        "--once", "--overlay-preview", "--settings-preview", "--diagnose", "--read-treasure-screen", "--read-gift-screen", "--capture-window", "--licenses", "--uninstall",
     };
 
     public string? DataFolder { get; private set; }
@@ -61,6 +61,12 @@ internal sealed class LaunchOptions
                 case "--read-treasure-screen":
                     var image = Value();
                     options.RunAndExit = () => PostMatchTools.ReadImage(image);
+                    break;
+                case "--read-gift-screen":
+                    var gift = Value();
+                    var when = i + 1 < args.Length && DateTime.TryParse(args[i + 1], System.Globalization.CultureInfo.InvariantCulture,
+                        System.Globalization.DateTimeStyles.AdjustToUniversal | System.Globalization.DateTimeStyles.AssumeUniversal, out var at) ? at : DateTime.UtcNow;
+                    options.RunAndExit = () => PostMatchTools.ReadGiftImage(gift, when);
                     break;
                 case "--capture-window":
                     var title = Value();

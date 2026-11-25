@@ -14,8 +14,10 @@ namespace FCT.PostMatch;
 /// <item>Otherwise the latest unnamed treasure of the stretch; with none, the prize is added to the latest match.</item>
 /// </list>
 /// The match is certain when only one match of the stretch is left; otherwise it is marked likely. The treasure count
-/// only changes when the replay missed the treasure. Done again from scratch every time (undone first), so a new list,
-/// screen or reading always gives the same result.
+/// only changes when the replay missed the treasure. Before that, the grants that came with an account change are
+/// marked as featured treasures (<see cref="AccountGrantMerge"/>; since update 43.11 the game writes no more lists, so
+/// that is what tells them apart now), and those a list does not name are named by elimination when they can be.
+/// Done again from scratch every time (undone first), so a new list, screen or reading always gives the same result.
 /// </summary>
 public static class PrizeListMerge
 {
@@ -24,10 +26,13 @@ public static class PrizeListMerge
     {
         var before = Signature(data);
         Undo(data);
+        AccountGrantMerge.Mark(data);
+        AccountGrantMerge.NameFromGifts(data);
         foreach (var (id, after, before_) in Wins(data.PrizeLists))
         {
             Name(data, id, after, before_);
         }
+        AccountGrantMerge.Deduce(data);
         return Signature(data) != before;
     }
 
@@ -43,6 +48,7 @@ public static class PrizeListMerge
     /// <summary>Undoes it in one match (before that match's screen is applied again).</summary>
     public static void Undo(MatchRecord match)
     {
+        AccountGrantMerge.Undo(match);
         match.TreasureFinds.RemoveAll(f => f.AddedFromPrizeList);
         foreach (var find in match.TreasureFinds.Where(f => f.FromPrizeList))
         {
@@ -105,21 +111,28 @@ public static class PrizeListMerge
 
         bool Unnamed(MatchRecord m, TreasureFind f)
         {
-            if (f.Featured || f.FromPrizeList || f.ScreenName != null)
+            if ((f.Featured && !AccountGrantMerge.Unnamed(f)) || f.FromPrizeList || f.ScreenName != null)
             {
                 return false;
             }
             // won inside the stretch (a treasure of a match that was going on when the list was written is not)
-            return f.ObtainedAtSeconds is not { } at || Start(m).AddSeconds(at) is var won && won > after && won < before;
+            return f.ObtainedAtSeconds is not { } at || (AccountGrantMerge.WonAt(m, f) ?? Start(m).AddSeconds(at)) is var won && won > after && won < before;
         }
 
         var withCard = matches.Where(m => HasFeaturedCard(data, m)).ToList();
-        var pick = withCard.SelectMany(m => m.TreasureFinds.Where(f => Unnamed(m, f)).Select(f => (m, f))).LastOrDefault();
+        // a grant that came with an account change is a featured treasure for sure: the one, before any other (and the
+        // match is certain when it is the only such grant of the stretch)
+        var withChange = matches.SelectMany(m => m.TreasureFinds.Where(f => AccountGrantMerge.Unnamed(f) && Unnamed(m, f)).Select(f => (m, f))).ToList();
+        var pick = withChange.LastOrDefault();
+        if (pick.f == null)
+        {
+            pick = withCard.SelectMany(m => m.TreasureFinds.Where(f => Unnamed(m, f)).Select(f => (m, f))).LastOrDefault();
+        }
         if (pick.f == null)
         {
             pick = matches.SelectMany(m => m.TreasureFinds.Where(f => Unnamed(m, f)).Select(f => (m, f))).LastOrDefault();
         }
-        var likely = matches.Count > 1;
+        var likely = matches.Count > 1 && withChange.Count != 1;
         if (pick.f is { } find)
         {
             find.GenericPrizeId = find.PrizeId;
@@ -166,5 +179,6 @@ public static class PrizeListMerge
         && screen.Cards.Count(c => c == TreasureScreenReader.Unknown) > OwnedPrizes.WithCard(data, m).Count(f => f.FromPrizeChest);
 
     private static string Signature(TrackerData data) =>
-        string.Join("|", data.Matches.SelectMany(m => m.TreasureFinds.Where(f => f.FromPrizeList).Select(f => $"{m.SessionId}:{f.PrizeId}:{f.PrizeMatchLikely}")));
+        string.Join("|", data.Matches.SelectMany(m => m.TreasureFinds.Where(f => f.FromPrizeList || f.NewAccountItem || f.PrizeDeduced || f.FromGiftScreen)
+            .Select(f => $"{m.SessionId}:{f.PrizeId}:{f.PrizeMatchLikely}:{f.NewAccountItem}:{f.PrizeDeduced}:{f.FromGiftScreen}")));
 }

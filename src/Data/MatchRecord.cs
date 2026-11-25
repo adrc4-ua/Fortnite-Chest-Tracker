@@ -18,6 +18,27 @@ public sealed class MatchRecord
     // ---- The match --------------------------------------------------------------------------------------------------
 
     public DateTime? MatchStartUtc { get; set; }
+
+    /// <summary>
+    /// When the replay began recording (UTC): its times count from here. Matches read before it was kept take it from
+    /// the replay's file name ("UnsavedReplay-2026.11.25-01.47.13", local time), see <see cref="RecordingStart"/>.
+    /// </summary>
+    public DateTime? RecordingStartUtc { get; set; }
+
+    /// <summary>When the replay began recording (UTC), or null when neither the replay nor its name say.</summary>
+    public DateTime? RecordingStart()
+    {
+        if (RecordingStartUtc is DateTime utc)
+        {
+            return DateTime.SpecifyKind(utc, DateTimeKind.Utc);
+        }
+        var name = Path.GetFileNameWithoutExtension(ReplayFile);
+        var stamp = name.Length >= 19 ? name[^19..] : "";
+        return DateTime.TryParseExact(stamp, "yyyy.MM.dd-HH.mm.ss", System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.AssumeLocal | System.Globalization.DateTimeStyles.AdjustToUniversal, out var local)
+            ? DateTime.SpecifyKind(local, DateTimeKind.Utc)
+            : null;
+    }
     public int? DurationSeconds { get; set; }
     public string? Playlist { get; set; }
     public string? GameVersion { get; set; }

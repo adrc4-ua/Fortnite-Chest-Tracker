@@ -152,11 +152,11 @@ public static class Prizes
     public static (string Name, string? Type, bool Featured) Describe(TreasureFind f, DateTime? matchLocal = null)
     {
         var week = matchLocal is DateTime d ? WeekOf(d) : 0;
-        var featured = f.PrizeId != null && !TreasureNames.IsGizmoKey(f.PrizeId);
+        var featured = f.NewAccountItem || (f.PrizeId != null && !TreasureNames.IsGizmoKey(f.PrizeId));
         if (featured)
         {
             // The player's own name in treasures.json wins; then the catalogue; else a generic name.
-            if (TreasureNames.PrizeNames.TryGetValue(f.PrizeId!, out var custom) && !string.IsNullOrWhiteSpace(custom))
+            if (f.PrizeId != null && TreasureNames.PrizeNames.TryGetValue(f.PrizeId, out var custom) && !string.IsNullOrWhiteSpace(custom))
             {
                 var m = NameAndType.Match(custom);
                 var name = m.Groups["name"].Value;

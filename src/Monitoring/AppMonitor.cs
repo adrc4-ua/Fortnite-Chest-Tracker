@@ -163,7 +163,7 @@ public sealed class AppMonitor
         ObsServer.Settings = ApplyFromStatsPage;
         // a test copy keeps away from the normal one's port, so OBS never ends up on the wrong one
         ObsServer.Start((Config.ObsPort > 0 ? Config.ObsPort : ObsServer.DefaultPort) + (AppInfo.Isolated ? IsolatedPortOffset : 0));
-        _gameLog = new GameLogWatcher(_screens.Shown);
+        _gameLog = new GameLogWatcher(_screens.Shown, onGiftScreen: _screens.GiftShown);
         if (_tracker.UnprocessedFiles().Where(ReplayFolder.NotRecording).Count() is var pending and > 1)
         {
             _progress = new ScanProgress(0, pending);

@@ -61,6 +61,10 @@ public static class TreasureScreenMerge
         var before = Signature(m);
         PrizeListMerge.Undo(m); // the prize list names treasures after the screen: undone, done again by the caller
         Reset(m);
+        if (data != null)
+        {
+            AccountGrantMerge.Mark(data, m); // a grant that came with an account change is a featured card, not a gizmo
+        }
         if (ScreenOf(m, screens) is { } screen)
         {
             ApplyScreen(m, screen, OwnedPrizes.WithCard(data, m));
@@ -189,5 +193,5 @@ public static class TreasureScreenMerge
     }
 
     private static string Signature(MatchRecord m) =>
-        string.Join("|", m.TreasureFinds.Select(f => $"{f.FromScreen}:{f.ScreenName}")) + m.TreasureScreenRead;
+        string.Join("|", m.TreasureFinds.Select(f => $"{f.FromScreen}:{f.ScreenName}:{f.NewAccountItem}")) + m.TreasureScreenRead;
 }

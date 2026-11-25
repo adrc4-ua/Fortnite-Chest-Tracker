@@ -20,6 +20,13 @@ internal sealed class TreasureScreenCapture
     private static readonly int[] CaptureDelaysMs = { 500, 350, 350, 350, 350, 350, 350, 350, 350, 350, 350, 350, 1500, 1500, 1500, 1500 };
 
     private readonly ConcurrentQueue<TreasureScreen> _read = new();
+    private readonly ConcurrentQueue<GiftScreen> _gifts = new();
+
+    /// <summary>
+    /// The lobby's screen of new items waits for the player to collect each one: its text is read every 0.75 s for
+    /// half a minute (the next item, if any, comes after a click), stopping early once the game window is gone.
+    /// </summary>
+    private const int GiftCaptures = 40, GiftDelayMs = 750;
     private readonly Action _wake;
 
     public TreasureScreenCapture(Action wake) => _wake = wake;
@@ -47,6 +54,41 @@ internal sealed class TreasureScreenCapture
         catch (Exception ex)
         {
             ErrorLog.Write("Pantalla de tesoros", ex);
+        }
+    });
+
+    /// <summary>The game showed its screen of new items: the prizes on it are read in the background.</summary>
+    public void GiftShown(DateTime shownUtc) => _ = Task.Run(async () =>
+    {
+        try
+        {
+            var gift = new GiftScreen { ShownUtc = shownUtc };
+            var missed = 0;
+            for (var i = 0; i < GiftCaptures && missed < 4; i++)
+            {
+                await Task.Delay(GiftDelayMs);
+                var frame = await WindowCapture.CaptureAsync(GameWindow(), TimeSpan.FromSeconds(2));
+                if (frame == null)
+                {
+                    missed++;
+                    continue;
+                }
+                var lines = await GiftScreenReader.ReadTextAsync(frame);
+                if (GiftScreenReader.PrizeOf(lines, shownUtc) is { } id && !gift.PrizeIds.Contains(id))
+                {
+                    gift.PrizeIds.Add(id);
+                    gift.Text.Add(string.Join(" / ", lines));
+                }
+            }
+            if (gift.PrizeIds.Count > 0)
+            {
+                _gifts.Enqueue(gift);
+                _wake();
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorLog.Write("Pantalla de objetos nuevos", ex);
         }
     });
 
@@ -118,6 +160,11 @@ internal sealed class TreasureScreenCapture
     public bool FileInto(TrackerData data)
     {
         var added = false;
+        while (_gifts.TryDequeue(out var gift))
+        {
+            data.GiftScreens.Add(gift);
+            added = true;
+        }
         while (_read.TryDequeue(out var screen))
         {
             if (data.TreasureScreens.TrueForAll(s => Math.Abs((s.ShownUtc - screen.ShownUtc).TotalSeconds) > 30))

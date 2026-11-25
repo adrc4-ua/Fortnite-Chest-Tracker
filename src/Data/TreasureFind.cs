@@ -23,7 +23,7 @@ public sealed class TreasureFind
     public string DisplayName => Prizes.Describe(this).Name;
 
     /// <summary>A named reward from the server (cosmetic, vehicle, shop access…) rather than one of the gizmos.</summary>
-    public bool Featured => FromPrizeChest || (PrizeId is { } id && !TreasureNames.IsGizmoKey(id));
+    public bool Featured => FromPrizeChest || NewAccountItem || (PrizeId is { } id && !TreasureNames.IsGizmoKey(id));
 
     // ---- When and how it was detected ---------------------------------------------------------------------------------
 
@@ -53,7 +53,29 @@ public sealed class TreasureFind
     /// <summary>The prize list only narrows the win down to a few matches: this is the most likely one.</summary>
     public bool PrizeMatchLikely { get; set; }
 
-    /// <summary>The prize id and item the treasure had before the prize list named it.</summary>
+    /// <summary>
+    /// The game's log shows the server adding something to the player's account in the same second as this treasure's
+    /// grant (<see cref="TrackerData.AccountGrants"/>): a new featured treasure, even when its golden chest was opened
+    /// out of the replay's range. Set again from the log every time (<see cref="FCT.PostMatch.AccountGrantMerge"/>).
+    /// </summary>
+    public bool NewAccountItem { get; set; }
+
+    /// <summary>
+    /// Named by elimination: of this week's featured prizes, only this one was not owned yet when it was won
+    /// (<see cref="GenericPrizeId"/> keeps what it was before, so it can be undone).
+    /// </summary>
+    public bool PrizeDeduced { get; set; }
+
+    /// <summary>
+    /// Named by the "Treasure found!" screen the game showed back in the lobby after this match
+    /// (<see cref="TrackerData.GiftScreens"/>); <see cref="GenericPrizeId"/> keeps what it was before.
+    /// </summary>
+    public bool FromGiftScreen { get; set; }
+
+    /// <summary>Added by that screen: the replay did not see this treasure at all.</summary>
+    public bool AddedFromGiftScreen { get; set; }
+
+    /// <summary>The prize id and item the treasure had before the prize list (or the elimination) named it.</summary>
     public string? GenericPrizeId { get; set; }
     public string? GenericItem { get; set; }
 
