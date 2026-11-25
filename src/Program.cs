@@ -23,9 +23,9 @@ internal static class Program
         }
 
         Application.SetHighDpiMode(HighDpiMode.PerMonitorV2); // before the first window (message boxes included)
-        Application.SetColorMode(SystemColorMode.Dark);
         Application.EnableVisualStyles();
-        Application.SetCompatibleTextRenderingDefault(false);
+        Application.SetCompatibleTextRenderingDefault(false); // before SetColorMode: newer runtimes create a window there
+        Application.SetColorMode(SystemColorMode.Dark);
 
         var options = LaunchOptions.Parse(args);
         AppInfo.Isolated = options.DataFolder != null; // a test copy: before anything, the command line tools included
